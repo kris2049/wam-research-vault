@@ -1,0 +1,15 @@
+# Obsidian Docker internal files (not research content)
+.cache/
+.config/
+.local/
+.pki/
+.XDG/
+.bashrc
+ssl/
+
+# Obsidian workspace
+.obsidian/workspace*.json
+
+# OS
+.DS_Store
+Thumbs.db
