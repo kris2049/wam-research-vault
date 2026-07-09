@@ -1,6 +1,5 @@
 # WAM Research Log
-> **Auto-updated daily at 08:00 UTC** — Monitors arXiv (cs.LG, cs.AI), Semantic Scholar, and top AI research blogs for papers relevant to World Action Models (WAM), JEPA, and Predictive Architectures.
-> **GitHub**: [kris2049/wam-research-vault](https://github.com/kris2049/wam-research-vault)
+> **Auto-updated daily at 08:00 UTC** — Monitors arXiv (cs.LG, cs.AI), Semantic Scholar for WAM, JEPA, and Predictive Architectures.
 
 ---
 
