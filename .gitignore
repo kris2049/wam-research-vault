@@ -15,3 +15,8 @@ ssl/
 Thumbs.db
 .obsidian/
 .obsidian-config/
+
+# Curriculum experiment artifacts
+curriculum/*/data/
+curriculum/*/experiments/*.png
+curriculum/*/__pycache__/
