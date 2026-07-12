@@ -51,13 +51,16 @@ class ReplayBuffer:
         frames, actions, rewards, next_frames, dones, progresses = zip(
             *[self.buffer[i] for i in idxs]
         )
+        # Convert HWC→CHW: stored as [96,96,3], model expects [3,96,96]
+        frames_np = np.stack(frames)           # [B, H, W, C]
+        next_np = np.stack(next_frames)        # [B, H, W, C]
         return (
-            torch.FloatTensor(np.stack(frames)).div_(255.0),      # [B,3,96,96]
-            torch.FloatTensor(np.stack(actions)),                  # [B,3]
-            torch.FloatTensor(np.stack(rewards)).unsqueeze(1),     # [B,1]
-            torch.FloatTensor(np.stack(next_frames)).div_(255.0),  # [B,3,96,96]
-            torch.FloatTensor(np.stack(dones)).unsqueeze(1),       # [B,1]
-            torch.FloatTensor(np.stack(progresses)).unsqueeze(1),  # [B,1]
+            torch.FloatTensor(frames_np).permute(0, 3, 1, 2).div_(255.0),  # [B,C,H,W]
+            torch.FloatTensor(np.stack(actions)),                            # [B,3]
+            torch.FloatTensor(np.stack(rewards)).unsqueeze(1),               # [B,1]
+            torch.FloatTensor(next_np).permute(0, 3, 1, 2).div_(255.0),     # [B,C,H,W]
+            torch.FloatTensor(np.stack(dones)).unsqueeze(1),                 # [B,1]
+            torch.FloatTensor(np.stack(progresses)).unsqueeze(1),            # [B,1]
         )
 
     def __len__(self):
