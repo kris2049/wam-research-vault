@@ -66,6 +66,36 @@ class ReplayBuffer:
     def __len__(self):
         return len(self.buffer)
 
+    def save(self, path="buffer_phase1.npz"):
+        """Persist buffer to disk as compressed numpy archive."""
+        frames, actions, rewards, next_frames, dones, progresses = zip(*self.buffer)
+        np.savez_compressed(path,
+            frames=np.stack(frames),
+            actions=np.stack(actions),
+            rewards=np.stack(rewards),
+            next_frames=np.stack(next_frames),
+            dones=np.stack(dones),
+            progresses=np.stack(progresses),
+        )
+        size_mb = os.path.getsize(path) / 1024 / 1024
+        print(f"  💾 Buffer saved: {path} ({size_mb:.1f} MB, {len(self.buffer)} transitions)")
+
+    @classmethod
+    def load(cls, path="buffer_phase1.npz"):
+        """Restore buffer from disk."""
+        data = np.load(path)
+        buf = cls(capacity=len(data['frames']))
+        frames = data['frames']
+        actions = data['actions']
+        rewards = data['rewards']
+        next_frames = data['next_frames']
+        dones = data['dones']
+        progresses = data['progresses']
+        for i in range(len(frames)):
+            buf.push(frames[i], actions[i], rewards[i], next_frames[i], dones[i], progresses[i])
+        print(f"  📂 Buffer loaded: {path} ({len(buf)} transitions)")
+        return buf
+
 
 # ═══════════════════════════════════════════════════════════════
 #  CEM Planner
@@ -454,14 +484,22 @@ def main():
     opt_conf = torch.optim.AdamW(configurator.parameters(), lr=C.lr)
 
     # ── Replay Buffer ──
-    buffer = ReplayBuffer()
+    buffer_path = "buffer_phase1.npz"
 
-    # ── Phase 1: Collect random data ──
-    print(f"\n{'='*60}")
-    print("Phase 1: Collecting random exploration data")
-    print(f"{'='*60}")
-    collect_data(env, perception, buffer, num_episodes=200, eps=1.0, device=device)
-    print(f"Buffer size: {len(buffer)}")
+    # ── Phase 1: Collect random data (or load from disk) ──
+    if os.path.exists(buffer_path):
+        print(f"\n{'='*60}")
+        print("Phase 1: Loading saved buffer from disk")
+        print(f"{'='*60}")
+        buffer = ReplayBuffer.load(buffer_path)
+    else:
+        buffer = ReplayBuffer()
+        print(f"\n{'='*60}")
+        print("Phase 1: Collecting random exploration data")
+        print(f"{'='*60}")
+        collect_data(env, perception, buffer, num_episodes=200, eps=1.0, device=device)
+        buffer.save(buffer_path)
+        print(f"Buffer size: {len(buffer)}")
 
     # ── Phase 2: Train World Model ──
     train_world_model(perception, target_perception, world_model, buffer, opt_wm, device)
