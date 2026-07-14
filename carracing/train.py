@@ -175,6 +175,93 @@ class CEMPlanner:
 
 
 # ═══════════════════════════════════════════════════════════════
+#  Environment Wrapper: crop + frame skip + out-of-track detection
+# ═══════════════════════════════════════════════════════════════
+
+class EnvWrapper:
+    """
+    Wraps CarRacing-v2 with three optimizations:
+    1. Image crop: remove bottom dashboard + side noise → 84×84
+    2. Frame skip: repeat action for N steps, accumulate reward
+    3. Out-of-track detection: penalty when car leaves road
+    """
+    def __init__(self, env, crop_top=0, crop_bottom=84, crop_left=6, crop_right=90,
+                 frame_skip=5, out_penalty=-10.0):
+        self.env = env
+        self.action_space = env.action_space  # Expose for random action sampling
+        self.crop_top = crop_top
+        self.crop_bottom = crop_bottom
+        self.crop_left = crop_left
+        self.crop_right = crop_right
+        self.frame_skip = frame_skip
+        self.out_penalty = out_penalty
+
+    def reset(self):
+        frame, info = self.env.reset()
+        # Skip initial meaningless frames (~45 frames)
+        for _ in range(45):
+            frame, _, _, _, _ = self.env.step(np.array([0.0, 0.0, 0.0]))
+        frame = self._crop(frame)
+        return frame, info
+
+    def step(self, action):
+        """Execute action for frame_skip steps, accumulate reward."""
+        total_reward = 0.0
+        final_frame = None
+        out_of_track = False
+        terminated = False
+        truncated = False
+        info = {}
+
+        for _ in range(self.frame_skip):
+            frame, reward, term, trunc, inf = self.env.step(action)
+            total_reward += reward
+            terminated = terminated or term
+            truncated = truncated or trunc
+            info.update(inf)
+
+            # Check out-of-track
+            if self._is_out_of_track(frame):
+                out_of_track = True
+
+            final_frame = frame
+            if terminated or truncated:
+                break
+
+        # Apply out-of-track penalty
+        if out_of_track:
+            total_reward += self.out_penalty
+
+        final_frame = self._crop(final_frame)
+        return final_frame, total_reward, terminated, truncated, info
+
+    def _crop(self, frame):
+        """Crop frame: remove bottom dashboard and side margins."""
+        return frame[self.crop_top:self.crop_bottom,
+                     self.crop_left:self.crop_right, :]
+
+    def _is_out_of_track(self, frame):
+        """
+        Detect if car has left the road.
+        Checks green channel at row 75, columns 35-48 (adjusted for uncropped 96×96).
+        After crop (top=0, left=6): row 75, cols 35-48 → row 75, cols 29-42 in cropped.
+        We check on the ORIGINAL uncropped frame before cropping.
+        """
+        # Check green channel (index 1) at specific edge pixels
+        # Row 75, columns 35:48 in original frame
+        row = 75
+        cols = slice(35, 48)
+        green_vals = frame[row, cols, 1]  # Green channel values
+        # Out of track if first 2 AND last 2 pixels are bright green (>200)
+        front_two = (green_vals[:2] > 200).sum()
+        back_two = (green_vals[-2:] > 200).sum()
+        return (front_two + back_two) == 4
+
+    def close(self):
+        self.env.close()
+
+
+# ═══════════════════════════════════════════════════════════════
 #  Data Collection
 # ═══════════════════════════════════════════════════════════════
 
@@ -186,6 +273,7 @@ def collect_data(env, perception, buffer, num_episodes, eps=1.0,
     """
     perception.eval()
     total_steps = 0
+    total_env_steps = 0  # Actual physical steps
 
     for ep in range(num_episodes):
         frame, _ = env.reset()
@@ -196,7 +284,7 @@ def collect_data(env, perception, buffer, num_episodes, eps=1.0,
         steer_history = deque(maxlen=C.scene_history)
 
         while not done:
-            # Preprocess frame
+            # Frame is already cropped by EnvWrapper (84×84×3)
             frame_tensor = torch.FloatTensor(frame).permute(2,0,1).unsqueeze(0).to(device)
             frame_tensor = frame_tensor / 255.0
 
@@ -216,13 +304,13 @@ def collect_data(env, perception, buffer, num_episodes, eps=1.0,
             else:
                 action = env.action_space.sample()
 
-            # Step environment
+            # Step environment (frame skip + out-of-track handled by EnvWrapper)
             next_frame, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
 
-            # Compute progress (from environment info)
-            # CarRacing-v2 reward structure: -0.1 per frame, +1000/N per tile
-            progress = 1.0 if reward > 0 else 0.0  # Binary: made progress this step?
+            # Progress: with frame_skip=5, reward accumulates -0.5 base + tile bonus
+            # If reward > 0, a tile was crossed (tile bonus dominates the -0.5 penalty)
+            progress = 1.0 if reward > 0 else 0.0
 
             # Store
             buffer.push(frame, action, reward, next_frame, float(done), progress)
@@ -455,8 +543,16 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name(0)} | VRAM: {torch.cuda.get_device_properties(0).total_mem/1e9:.1f}G")
 
     # ── Create environment ──
-    env = gym.make(C.env_name, render_mode="rgb_array")
-    eval_env = gym.make(C.env_name, render_mode="rgb_array")
+    raw_env = gym.make(C.env_name, render_mode="rgb_array")
+    env = EnvWrapper(raw_env,
+                     crop_top=C.crop_top, crop_bottom=C.crop_bottom,
+                     crop_left=C.crop_left, crop_right=C.crop_right,
+                     frame_skip=C.frame_skip, out_penalty=C.out_of_track_penalty)
+    raw_eval_env = gym.make(C.env_name, render_mode="rgb_array")
+    eval_env = EnvWrapper(raw_eval_env,
+                          crop_top=C.crop_top, crop_bottom=C.crop_bottom,
+                          crop_left=C.crop_left, crop_right=C.crop_right,
+                          frame_skip=C.frame_skip, out_penalty=C.out_of_track_penalty)
 
     # ── Create models ──
     perception = Perception().to(device)
