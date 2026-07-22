@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **43 papers** (2022—2026) | Daily monitoring at 08:00 UTC
+> **49 papers** (2022—2026) | Daily monitoring at 08:00 UTC
 
 ---
 
@@ -53,10 +53,166 @@
 | 41 | 2023-01-19 | [Self-Supervised Learning from Images with a Joint-Embedding Predi](https://arxiv.org/abs/2301.08243) | HIGH — Direct implementation of LeCun's core vision. | Large (40G+): ViT-H/14 on ImageNet-1K. |
 | 42 | 2022-06-28 | [DayDreamer: World Models for Physical Robot Learning](https://arxiv.org/abs/2206.14176) | HIGH — Landmark empirical validation of learned world models on real robots. | Mid (24G): Training from real robot data on single GPU. |
 | 43 | 2022-02-19 | [TransDreamer: Reinforcement Learning with Transformer World Model](https://arxiv.org/abs/2202.09481) | MEDIUM — Advances the transformer-based approach that JEPA later adopts. | Mid (24G) |
+| 44 | 2026-07-20 | [SAGE: Subgoal-Conditioned Action Generation for Latent World Model Planning](https://arxiv.org/abs/2607.17973) | HIGH — Prior-conditioned planner for latent world models; 5x long-horizon improvement. | Mid (24G): PushT and OGBench Cube benchmarks. |
+| 45 | 2026-07-20 | [Thinking in Video: Can Video Generators Really Reason About the Real World?](https://arxiv.org/abs/2607.17523) | MEDIUM-HIGH — Empirically validates LeCun's claim that generative video ≠ world understanding. | N/A (evaluation/benchmark framework) |
+| 46 | 2026-07-20 | [Patch Policy: Efficient Embodied Control via Dense Visual Representations](https://arxiv.org/abs/2607.18236) | MEDIUM — LeCun co-author; dense ViT features for robot control, 0.7% of VLA parameters. | Small-Mid (8-24G): Efficient block-causal attention. |
+| 47 | 2026-07-18 | [Learning from World Feedback: Why Model Uncertainty Fails as a Risk Signal in Model-Based RL](https://arxiv.org/abs/2607.16591) | HIGH — RLxF: model uncertainty anti-correlated with safety; world-feedback signals essential. | Small-Mid (8-24G): Standard MBRL benchmarks. |
+| 48 | 2026-07-04 | [Separating Representation from Reconstruction Enables Scalable Text Encoders](https://arxiv.org/abs/2607.04011) | MEDIUM — LeCun co-author; CrossBERT separates representation from reconstruction (JEPA-aligned philosophy). | Mid (24G): MTEB/GLUE benchmarks. |
+| 49 | 2026-06-07 | [Unifying Object-Centric World Models and Diffusion Policy: A Hierarchical Framework for Multi-Stage Robotic Tasks](https://arxiv.org/abs/2606.08775) | MEDIUM-HIGH — LeCun co-author; WorldDP: hierarchical world model + diffusion policy for multi-stage manipulation. | Mid (24G): Standard robotic manipulation benchmarks. |
 
 ---
 
-## 1. [2026-07-20] AV-JEPA: Extending LeJEPA to Audio-Visual Self-Supervised Learning
+## 1. [2026-07-20] SAGE: Subgoal-Conditioned Action Generation for Latent World Model Planning
+
+- **arXiv**: [2607.17973](https://arxiv.org/abs/2607.17973)
+- **Authors**: Letian Cheng, Qi Zhang, Yisen Wang
+- **Abstract**: Latent world models have emerged as a powerful planning paradigm by learning action-conditioned predictive dynamics and using them as internal simulators to imagine and evaluate candidate action sequences. However, as the planning horizon grows, performance becomes increasingly constrained by proposal quality: a fixed candidate budget must search an exponentially larger action space, making it difficult to expose the world model to high-quality candidate futures for evaluation. In this paper, we introduce a prior-conditioned planner that replaces random proposal initialization with structured guidance. At each planning stage, a goal-conditioned generator predicts the next reachable latent subgoal for a specified duration, which is then used to condition the generation of candidate action sequences. To capture semantic information across temporal scales, we use subgoals of varying durations as priors, balancing fine-grained local control with higher-level long-horizon progress. Then the frozen world model evaluates and refines these subgoal-conditioned proposals before execution. Experiments on PushT and OGBench Cube show that coupling latent subgoal decomposition with prior-conditioned action generation substantially improves long-horizon planning while preserving strong short-horizon performance. To be specific, when the target offset is 150, it raises PushT success from 12.7% to 64.7% and OGBench Cube success from 26.7% to 67.3%.
+- **Compute Scale**: Mid (24G): PushT and OGBench Cube benchmarks with frozen world model.
+- **LeCun Alignment**: HIGH — Directly addresses the planning bottleneck in latent world models. Uses frozen world model as simulator (not generative). Subgoal decomposition aligns with LeCun's hierarchical planning vision.
+
+### What / Why / Solve
+
+- **Proposal**: SAGE — Prior-conditioned planner that replaces random action proposals with goal-conditioned subgoal generation. A subgoal generator predicts reachable latent subgoals at multiple temporal scales, then the frozen world model evaluates and refines them.
+- **Motivation**: Random action proposals can't efficiently explore the exponentially growing action space at long horizons. The world model never sees good candidate futures, so planning fails even if the model is accurate.
+- **Problem Solved**: 5x improvement on long-horizon PushT (12.7% → 64.7%). Shows that planning quality, not model accuracy, is the bottleneck for long-horizon world model control.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on latent world model planners (TD-MPC, Dreamer). Addresses the proposal bottleneck that limits all sampling-based planning approaches.
+- **Implicit Connection**: Validates LeCun's hierarchical planning vision: subgoal decomposition at multiple temporal scales is essential for long-horizon reasoning. The frozen world model + separate planner mirrors LeCun's modular architecture.
+- **Research Line**: Latent World Model Planning — improving proposal quality for model-based control.
+
+- **Future Directions**: Learned subgoal durations; integration with action-chunked JEPA; multi-task generalization.
+- **GitHub**: To be checked (possible: github.com/BerkinChen/AlphaSAGE)
+
+---
+
+## 2. [2026-07-20] Thinking in Video: Can Video Generators Really Reason About the Real World?
+
+- **arXiv**: [2607.17523](https://arxiv.org/abs/2607.17523)
+- **Authors**: Yongheng Zhang, Guang Yang, Ruihan Hou, Qiguang Chen, Ziang Liu, Xiaolong Liu, Manman Zhang, Yanchao Hao, Zheng Wei, Hao Wu, Libo Qin, Peishan Dai, Yinghui Li, Di Yin, Xing Sun
+- **Abstract**: Recent advances in world models and video generation have given rise to an emerging reasoning paradigm that leverages video generative models to simulate, predict, and reason about real-world dynamics. We redefine this paradigm as Thinking in Video, where video is not merely an output artifact but a medium for constructing, extending, and verifying causal thought. However, this promise remains unverified: convincing rollouts may reflect memorized appearances rather than causal understanding, while existing metrics separate perceptual fidelity from semantic logic. To evaluate whether video generators support such reasoning, we introduce the Causal-Generative Dual-Judge (CGDJ), auditing World Model Consistency from two perspectives. Explicit Causal Perception tests whether a generator reads a video scenario as a reasoning problem through spatio-temporal flattened visual question answering, while Implicit Generative Perception-Prediction Gap evaluates whether it renders the causal consequence as a consistent future video. Applying CGDJ to representative open- and closed-source generators reveals a clear Perception-Prediction Gap: open-source models produce plausible dynamics despite near-zero explicit causal perception, whereas advanced closed-source systems show stronger but still limited alignment between reasoning and generation. Further analysis exposes audio-visual misalignment, where models verbalize correct causal logic more reliably than they render it, challenging the "world simulator" narrative.
+- **Compute Scale**: N/A (evaluation/benchmark framework).
+- **LeCun Alignment**: MEDIUM-HIGH — Provides empirical evidence that generative video models ≠ world understanding. The "Perception-Prediction Gap" finding directly supports LeCun's argument that pixel-space generation is insufficient for causal reasoning.
+
+### What / Why / Solve
+
+- **Proposal**: CGDJ (Causal-Generative Dual-Judge) — A dual-perspective evaluation framework that tests both explicit causal perception (can the model answer causal questions?) and implicit generative prediction (can it render consistent futures?).
+- **Motivation**: Current video world model evaluations only measure perceptual quality, not whether the model actually understands causality. "Thinking in Video" requires causal understanding, not just plausible pixels.
+- **Problem Solved**: Demonstrates a clear Perception-Prediction Gap: open-source models produce plausible dynamics with near-zero explicit causal perception. Audio-visual misalignment: models verbalize correct logic but can't render it. This directly challenges the "world simulator" narrative for generative video models.
+
+### Academic Context
+
+- **Inheritance / Response**: Responds to the "Sora/V-JEPA as world simulators" debate (2407.10311, 2405.03520). Provides the evaluation methodology that debate was missing.
+- **Implicit Connection**: This is the EMPIRICAL counterpart to LeCun's philosophical argument. It provides the audit framework to show that generative video models DON'T learn causal world models — they learn to produce plausible continuations without understanding.
+- **Research Line**: World Model Evaluation — distinguishing real understanding from memorized appearance.
+
+- **Future Directions**: Extend CGDJ to action-conditioned generation; test JEPA-based models against generative ones.
+- **GitHub**: To be checked
+
+---
+
+## 3. [2026-07-20] Patch Policy: Efficient Embodied Control via Dense Visual Representations
+
+- **arXiv**: [2607.18236](https://arxiv.org/abs/2607.18236)
+- **Authors**: Gaoyue Zhou, Zichen Jeff Cui, Ada Langford, Bowen Tan, Yann LeCun, Lerrel Pinto
+- **Abstract**: Pretrained dense visual features from Vision Transformers (ViTs) are powerful yet have been underutilized in robot learning. Modern robot policies either compress each observation into a single global token, or rely on visual backbones trained from scratch, sacrificing both fine-grained spatial detail and the benefits of large-scale visual pre-training. While there exist policies that do operate on dense patch features like large vision-language-action models (VLAs), they tend to be heavy and slow, inheriting the full cost of a billion-parameter vision-language model (VLM) backbone. We close this gap with Patch Policy, a minimal architectural extension that enables transformer-based policies to consume dense pre-trained patch tokens directly without the computational overhead of a full VLM. At its core is a block-causal attention mask that preserves the temporal causality of standard policies while letting the model attend over many patch tokens per observation, alongside other state information. Patch Policy is lightweight, fast, and highly effective. Across four simulated and three real-world environment suites, our method achieves a 40% relative improvement over policies using state-of-the-art global-pooled representations. Furthermore, it surpasses fine-tuned OpenVLA-OFT by 18% while using roughly 0.7% of the parameters.
+- **Compute Scale**: Small-Mid (8-24G): Minimal architectural extension — 0.7% of OpenVLA parameters. Efficient block-causal attention.
+- **LeCun Alignment**: MEDIUM — LeCun co-author. Uses dense pretrained visual features (JEPA-like philosophy of leveraging SSL representations) for embodied control. Not a world model, but advances the embodied AI component of LeCun's architecture.
+
+### What / Why / Solve
+
+- **Proposal**: Patch Policy — A minimal architectural extension using block-causal attention masks to let transformer policies consume dense ViT patch tokens directly, without full VLM overhead.
+- **Motivation**: Robot policies either lose spatial detail (global pooling) or are too heavy (billion-parameter VLAs). Dense patch-level features are powerful but underutilized.
+- **Problem Solved**: 40% improvement over global-pooled methods; beats OpenVLA-OFT by 18% with 0.7% of the parameters. Enables efficient, reactive control with rich visual features.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on ViT pretraining (DINO, JEPA-family features). Addresses the efficiency gap between VLAs and lightweight policies.
+- **Implicit Connection**: From LeCun's group at NYU/Meta. While not a world model paper, it advances the perceptual front-end that world models and policies need. The dense patch representation philosophy echoes JEPA's emphasis on preserving spatial structure.
+- **Research Line**: Embodied AI — efficient visual representations for robot control.
+
+- **Future Directions**: Integration with JEPA-pretrained features; action-conditioned patch attention.
+- **GitHub**: Project page: https://patch-policy.github.io
+
+---
+
+## 4. [2026-07-18] Learning from World Feedback: Why Model Uncertainty Fails as a Risk Signal in Model-Based RL
+
+- **arXiv**: [2607.16591](https://arxiv.org/abs/2607.16591)
+- **Authors**: Zhaohui Wang
+- **Abstract**: The RLxF programme argues that learning signals should come from world feedback rather than from internal model proxies. We instantiate this position in safe model-based control and distil it into three concrete design principles. Empirically, across four world-model architectures spanning a 2x MSE range, MPC planning is statistically equivalent (TOST, n=200), and dynamics-based uncertainty penalties increase collision rates from 26% to 34%: the standard MBRL safety proxy is anti-correlated with safety in this regime. Replacing the model-internal proxy with three world-feedback signals (a sensor-derived margin via minimum lidar, a temporal signal via time-to-collision, and an outcome-supervised feedback model g_psi trained on prior collision labels, structurally analogous to outcome-trained reward models in RLHF) reduces collisions to 1-14% without retraining the world model or the planner. The mechanism is structural: model uncertainty has support over state-prediction space, whereas task risk has support over constraint boundaries, with empirical correlation r < 0.15. From this we extract three RLxF principles (ground risk in world outcomes, validate proxies before deployment, and substitute outcome-trained feedback models when direct world signals are unavailable) and argue they apply equally to model-based control and to verifier-based or RLHF approaches in LLM alignment.
+- **Compute Scale**: Small-Mid (8-24G): Standard MBRL benchmarks. Four world-model architectures tested.
+- **LeCun Alignment**: HIGH — Foundational critique of model-based RL that reinforces JEPA philosophy. Shows model-internal metrics (uncertainty) are anti-correlated with real-world outcomes. Argues for "world feedback" over "model proxy" signals — directly aligned with LeCun's emphasis on grounding in real-world consequences.
+
+### What / Why / Solve
+
+- **Proposal**: RLxF (Reinforcement Learning from X Feedback) programme applied to model-based control. Shows model uncertainty is anti-correlated with safety (r < 0.15). Proposes three world-feedback signals that reduce collisions from 26-34% to 1-14%.
+- **Motivation**: Standard MBRL uses model uncertainty as a safety signal — but this assumes uncertainty in prediction space correlates with real-world risk. It doesn't.
+- **Problem Solved**: Empirically proves that model uncertainty is WORSE than useless for safety (increases collisions). Provides three practical world-feedback alternatives. Extracts three design principles applicable to both MBRL and LLM alignment.
+
+### Academic Context
+
+- **Inheritance / Response**: Connects to the RLxF programme and safe RL. Provides structural analysis of why current MBRL safety approaches fail. The outcome-supervised feedback model g_psi is structurally analogous to RLHF reward models.
+- **Implicit Connection**: This paper strengthens LeCun's position: internal model metrics (prediction error, uncertainty) don't capture what matters for real-world performance. The "world feedback" emphasis mirrors JEPA's focus on latent-space prediction quality over pixel reconstruction. The finding that prediction error doesn't correlate with task success echoes 2607.10362 (Control Theory of Predictability).
+- **Research Line**: World Model Evaluation — world-feedback signals over model-internal proxies.
+
+- **Future Directions**: Extend RLxF principles to JEPA-based planners; test with more complex safety constraints.
+- **GitHub**: To be checked
+
+---
+
+## 5. [2026-07-04] Separating Representation from Reconstruction Enables Scalable Text Encoders
+
+- **arXiv**: [2607.04011](https://arxiv.org/abs/2607.04011)
+- **Authors**: Megi Dervishi, Mathurin Videau, Yann LeCun
+- **Abstract**: While decoders have rapidly scaled, encoders have remained largely unchanged since BERT. We revisit this disparity by frozen backbone evaluation via probing. Under this lens, the representations of BERT encoders become increasingly unexploitable by frozen probes, despite improved perplexity. The misalignment originates in BERT's flat design, which couples representation learning to the token reconstruction loss. We propose CrossBERT, a two-part architecture that separates the learning of high-quality encoded representations from the rigid grounding of token reconstruction. This design further enables high masking ratios (≥50%) and gradient collection over all tokens via a Complementary Masking Strategy, respectively increasing throughput by 1.5 to 2× and sample efficiency by 2×. Overall, CrossBERT demonstrates monotonic scaling and superior performance on MTEB(eng, v2) and frozen GLUE benchmarks.
+- **Compute Scale**: Mid (24G): MTEB/GLUE benchmarks with 1.5-2× throughput improvement.
+- **LeCun Alignment**: MEDIUM — LeCun co-author. The philosophy of separating representation learning from reconstruction is JEPA-aligned (JEPA separates representation from pixel reconstruction; CrossBERT separates representation from token reconstruction). Not a world model, but demonstrates the JEPA principle in NLP.
+
+### What / Why / Solve
+
+- **Proposal**: CrossBERT — A two-part text encoder that separates representation learning from token reconstruction, unlike BERT's flat design. Uses Complementary Masking Strategy for 2× efficiency.
+- **Motivation**: BERT encoders become "unexploitable" by frozen probes as they scale, despite improving perplexity. The coupling of representation and reconstruction is the root cause.
+- **Problem Solved**: Demonstrates that decoupling representation from reconstruction enables monotonic scaling in text encoders. 1.5-2× throughput and 2× sample efficiency improvements.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on BERT and masked autoencoding. The "separate representation from reconstruction" philosophy directly parallels JEPA's core design principle.
+- **Implicit Connection**: Although in NLP rather than vision/robotics, this paper validates a core JEPA insight across modalities: coupling representation quality to reconstruction fidelity is harmful to scalability. LeCun's name on this paper signals an intentional cross-modal research programme.
+- **Research Line**: JEPA Philosophy — decoupling representation from reconstruction across modalities.
+
+- **Future Directions**: Extend to multilingual and multimodal encoders; integrate with JEPA-style predictive objectives.
+- **GitHub**: To be checked
+
+---
+
+## 6. [2026-06-07] Unifying Object-Centric World Models and Diffusion Policy: A Hierarchical Framework for Multi-Stage Robotic Tasks
+
+- **arXiv**: [2606.08775](https://arxiv.org/abs/2606.08775)
+- **Authors**: Raktim Gautam Goswami, Prashanth Krishnamurthy, Yann LeCun, Farshad Khorrami
+- **Abstract**: Visual world models have shown great potential in learning complex system dynamics. Recent advancements leverage these models as transition functions within Model Predictive Control (MPC) frameworks to solve various control tasks. When applied to robotics, however, they are limited to single-stage tasks such as reaching or grasping, and struggle with multi-stage ones that demand complex sequential planning. In this work, we introduce WorldDP, a world model framework designed for multi-stage robotic manipulation. Our hierarchical approach utilizes a high-level world model as a transition function to optimize for feasible subgoals during runtime, which are subsequently reached by a low-level Diffusion Policy. To further aid in learning dynamics and planning, we incorporate object-centric representations that decouple environmental entities and enable us to plan sequentially with respect to each. Evaluated across several robotics benchmarks, WorldDP consistently outperforms existing baselines, validating that coupling the world model's physically grounded planning with diffusion policy's efficient execution yields superior multi-stage performance.
+- **Compute Scale**: Mid (24G): Standard robotic manipulation benchmarks.
+- **LeCun Alignment**: MEDIUM-HIGH — LeCun co-author. Hierarchical world model + diffusion policy. Object-centric representations align with LeCun's modular agent architecture (separate entity representations). However, uses generative diffusion for low-level execution rather than purely predictive latent-space approach.
+
+### What / Why / Solve
+
+- **Proposal**: WorldDP — Hierarchical framework: high-level object-centric world model plans subgoals via MPC; low-level Diffusion Policy executes. Object-centric representations decouple entities for sequential planning.
+- **Motivation**: Current world model approaches are limited to single-stage tasks (reach, grasp). Multi-stage manipulation requires hierarchical planning with object-level decomposition.
+- **Problem Solved**: Outperforms baselines on multi-stage robotic manipulation by combining world model planning (physically grounded) with diffusion policy execution (efficient, reactive).
+
+### Academic Context
+
+- **Inheritance / Response**: Bridges world model literature (Dreamer, TD-MPC) with diffusion policy work. Object-centric representations connect to slot attention and entity-based reasoning.
+- **Implicit Connection**: From LeCun's group. The hierarchical architecture (high-level world model → low-level execution) mirrors LeCun's modular agent design. Object-centric decoupling aligns with the configurator + world model separation. However, the low-level Diffusion Policy is generative rather than JEPA-style predictive — a practical compromise for reactive control.
+- **Research Line**: Hierarchical World Models — bridging model-based planning with learned reactive policies.
+
+- **Future Directions**: Replace low-level diffusion with JEPA-style predictive policy; extend to more complex multi-object scenes.
+- **GitHub**: To be checked
+
+---
+
+## 7. [2026-07-20] AV-JEPA: Extending LeJEPA to Audio-Visual Self-Supervised Learning
 
 - **arXiv**: [2607.15295](https://arxiv.org/abs/2607.15295)
 - **Authors**: Benjamin Robson, Santeri Mentu, Wenshuai Zhao, Arno Solin
@@ -81,7 +237,7 @@
 
 ---
 
-## 2. [2026-07-15] The SIGReg Objective as Variational Free Energy: A Theoretical Active-Inference Account of JEPA World Models
+## 8. [2026-07-15] The SIGReg Objective as Variational Free Energy: A Theoretical Active-Inference Account of JEPA World Models
 
 - **arXiv**: [2607.13612](https://arxiv.org/abs/2607.13612)
 - **Authors**: Fabio Arnez, Alexandra Gomez-Villa
@@ -106,7 +262,7 @@
 
 ---
 
-## 3. [2026-07-14] Mind the Gap: Promises and Pitfalls of Hierarchical Planning in LeWorldModel
+## 9. [2026-07-14] Mind the Gap: Promises and Pitfalls of Hierarchical Planning in LeWorldModel
 
 - **arXiv**: [2607.12547](https://arxiv.org/abs/2607.12547)
 - **Authors**: Niccolò Caselli, Francesco Massafra, Samuele Punzo, Salvatore Lo Sardo, Ippokratis Pantelidis, Sathya Kamesh Bhethanabhotla
@@ -131,7 +287,7 @@
 
 ---
 
-## 4. [2026-07-13] From World Action Models to Embodied Brains: A Roadmap for Open-World Physical Intelligence
+## 10. [2026-07-13] From World Action Models to Embodied Brains: A Roadmap for Open-World Physical Intelligence
 
 - **arXiv**: [2607.11689](https://arxiv.org/abs/2607.11689)
 - **Authors**: Yuanzhi Liang, Xufeng Zhan, Haibin Huang, Chi Zhang, Xuelong Li
@@ -156,7 +312,7 @@
 
 ---
 
-## 5. [2026-07-11] A Control Theory of Predictability in Latent World Models
+## 11. [2026-07-11] A Control Theory of Predictability in Latent World Models
 
 - **arXiv**: [2607.10362](https://arxiv.org/abs/2607.10362)
 - **Authors**: Hanzhe You, Yonggang Zhang, Maohao Ran, Zhiqin Yang, Zhenyuan Zhang, Wei Xue, Jun Song, Xinmei Tian, Yike Guo
@@ -181,7 +337,7 @@
 
 ---
 
-## 6. [2026-07-17] Orbis 2: A Hierarchical World Model for Driving
+## 12. [2026-07-17] Orbis 2: A Hierarchical World Model for Driving
 
 - **arXiv**: [2607.15898](https://arxiv.org/abs/2607.15898)
 - **Authors**: Sudhanshu Mittal, Arian Mousakhan, Silvio Galesso, Karim Farid, Jonannes Dienert, Rajat Sahay, Thomas Brox
@@ -206,7 +362,7 @@
 
 ---
 
-## 7. [2026-07-04] SiamJEPA: On the Role of Siamese Student Encoders in JEPA
+## 13. [2026-07-04] SiamJEPA: On the Role of Siamese Student Encoders in JEPA
 
 - **arXiv**: [2607.04044](https://arxiv.org/abs/2607.04044)
 - **Authors**: Makoto Yamada
@@ -231,7 +387,7 @@
 
 ---
 
-## 8. [2026-06-30] AdaJEPA: An Adaptive Latent World Model
+## 14. [2026-06-30] AdaJEPA: An Adaptive Latent World Model
 
 - **arXiv**: [2606.32026](https://arxiv.org/abs/2606.32026)
 - **Authors**: Ying Wang, Oumayma Bounou, Yann LeCun, Mengye Ren
@@ -256,7 +412,7 @@
 
 ---
 
-## 9. [2026-06-22] SkyJEPA: Learning Long-Horizon World Models for Zero-Shot Sim-to-Real Control of Quadrotors
+## 15. [2026-06-22] SkyJEPA: Learning Long-Horizon World Models for Zero-Shot Sim-to-Real Control of Quadrotors
 
 - **arXiv**: [2606.23444](https://arxiv.org/abs/2606.23444)
 - **Authors**: Pratyaksh Rao, Wancong Zhang, Randall Balestriero, Yann LeCun, Giuseppe Loianno
@@ -281,7 +437,7 @@
 
 ---
 
-## 10. [2026-06-17] S-JEPA : Soft Clustering Anchors for Self-Supervised Speech Representation Learning
+## 16. [2026-06-17] S-JEPA : Soft Clustering Anchors for Self-Supervised Speech Representation Learning
 
 - **arXiv**: [2606.19398](https://arxiv.org/abs/2606.19398)
 - **Authors**: Georgios Ioannides, Adrian Kieback, Judah Goldfeder, Linsey Pang, Aman Chadha, Aaron Elkins, Yann LeCun, Ravid Shwartz-Ziv
@@ -306,7 +462,7 @@
 
 ---
 
-## 11. [2026-06-14] You Don't Need Strong Assumptions: Visual Representation Learning via Temporal Differences
+## 17. [2026-06-14] You Don't Need Strong Assumptions: Visual Representation Learning via Temporal Differences
 
 - **arXiv**: [2606.15956](https://arxiv.org/abs/2606.15956)
 - **Authors**: Ninad Daithankar, Alexi Gladstone, Yann LeCun, Heng Ji
@@ -331,7 +487,7 @@
 
 ---
 
-## 12. [2026-05-25] When Does LeJEPA Learn a World Model?
+## 18. [2026-05-25] When Does LeJEPA Learn a World Model?
 
 - **arXiv**: [2605.26379](https://arxiv.org/abs/2605.26379)
 - **Authors**: David Klindt, Yann LeCun, Randall Balestriero
@@ -356,7 +512,7 @@
 
 ---
 
-## 13. [2026-05-25] UWM-JEPA: Predictive World Models That Imagine in Belief Space
+## 19. [2026-05-25] UWM-JEPA: Predictive World Models That Imagine in Belief Space
 
 - **arXiv**: [2605.25313](https://arxiv.org/abs/2605.25313)
 - **Authors**: Santosh Kumar Radha, Oktay Goktas
@@ -381,7 +537,7 @@
 
 ---
 
-## 14. [2026-05-20] stable-worldmodel: A Platform for Reproducible World Modeling Research and Evaluation
+## 20. [2026-05-20] stable-worldmodel: A Platform for Reproducible World Modeling Research and Evaluation
 
 - **arXiv**: [2605.21800](https://arxiv.org/abs/2605.21800)
 - **Authors**: Lucas Maes, Quentin Le Lidec, Luiz Facury, Nassim Massaudi, Ayush Chaurasia, Francesco Capuano, Richard Gao, Taj Gillin et al.
@@ -406,7 +562,7 @@
 
 ---
 
-## 15. [2026-05-15] DiLA: Disentangled Latent Action World Models
+## 21. [2026-05-15] DiLA: Disentangled Latent Action World Models
 
 - **arXiv**: [2605.15725](https://arxiv.org/abs/2605.15725)
 - **Authors**: Tianqiu Zhang, Muyang Lyu, Yufan Zhang, Fang Fang, Si Wu
@@ -431,7 +587,7 @@
 
 ---
 
-## 16. [2026-05-10] Sub-JEPA: Subspace Gaussian Regularization for Stable End-to-End World Models
+## 22. [2026-05-10] Sub-JEPA: Subspace Gaussian Regularization for Stable End-to-End World Models
 
 - **arXiv**: [2605.09241](https://arxiv.org/abs/2605.09241)
 - **Authors**: Kai Zhao, Dongliang Nie, Yuchen Lin, Zhehan Luo, Yixiao Gu, Deng-Ping Fan, Dan Zeng
@@ -456,7 +612,7 @@
 
 ---
 
-## 17. [2026-05-05] Text-Conditional JEPA for Learning Semantically Rich Visual Representations
+## 23. [2026-05-05] Text-Conditional JEPA for Learning Semantically Rich Visual Representations
 
 - **arXiv**: [2605.03245](https://arxiv.org/abs/2605.03245)
 - **Authors**: Chen Huang, Xianhang Li, Vimal Thilak, Etai Littwin, Josh Susskind
@@ -481,7 +637,7 @@
 
 ---
 
-## 18. [2026-04-03] Hierarchical Planning with Latent World Models
+## 24. [2026-04-03] Hierarchical Planning with Latent World Models
 
 - **arXiv**: [2604.03208](https://arxiv.org/abs/2604.03208)
 - **Authors**: Wancong Zhang, Basile Terver, Artem Zholus, Soham Chitnis, Harsh Sutaria, Mido Assran, Randall Balestriero, Amir Bar et al.
@@ -506,7 +662,7 @@
 
 ---
 
-## 19. [2026-03-20] Probing the Latent World: Emergent Discrete Symbols and Physical Structure in Latent Representations
+## 25. [2026-03-20] Probing the Latent World: Emergent Discrete Symbols and Physical Structure in Latent Representations
 
 - **arXiv**: [2603.20327](https://arxiv.org/abs/2603.20327)
 - **Authors**: Liu hung ming
@@ -532,7 +688,7 @@
 
 ---
 
-## 20. [2026-03-15] V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning
+## 26. [2026-03-15] V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning
 
 - **arXiv**: [2603.14482](https://arxiv.org/abs/2603.14482)
 - **Authors**: Lorenzo Mur-Labadia, Matthew Muckley, Amir Bar, Mido Assran, Koustuv Sinha, Mike Rabbat, Yann LeCun, Nicolas Ballas et al.
@@ -557,7 +713,7 @@
 
 ---
 
-## 21. [2026-03-13] LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels
+## 27. [2026-03-13] LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels
 
 - **arXiv**: [2603.19312](https://arxiv.org/abs/2603.19312)
 - **Authors**: Lucas Maes, Quentin Le Lidec, Damien Scieur, Yann LeCun, Randall Balestriero
@@ -582,7 +738,7 @@
 
 ---
 
-## 22. [2026-03-07] Dreamer-CDP: Improving Reconstruction-free World Models Via Continuous Deterministic Representation Prediction
+## 28. [2026-03-07] Dreamer-CDP: Improving Reconstruction-free World Models Via Continuous Deterministic Representation Prediction
 
 - **arXiv**: [2603.07083](https://arxiv.org/abs/2603.07083)
 - **Authors**: Michael Hauri, Friedemann Zenke
@@ -607,7 +763,7 @@
 
 ---
 
-## 23. [2026-03-05] Probabilistic Dreaming for World Models
+## 29. [2026-03-05] Probabilistic Dreaming for World Models
 
 - **arXiv**: [2603.04715](https://arxiv.org/abs/2603.04715)
 - **Authors**: Gavin Wong
@@ -632,7 +788,7 @@
 
 ---
 
-## 24. [2026-02-12] JEPA-VLA: Video Predictive Embedding is Needed for VLA Models
+## 30. [2026-02-12] JEPA-VLA: Video Predictive Embedding is Needed for VLA Models
 
 - **arXiv**: [2602.11832](https://arxiv.org/abs/2602.11832)
 - **Authors**: Shangchen Miao, Ningya Feng, Jialong Wu, Ye Lin, Xu He, Dong Li, Mingsheng Long
@@ -657,7 +813,7 @@
 
 ---
 
-## 25. [2026-01-29] Drive-JEPA: Video JEPA Meets Multimodal Trajectory Distillation for End-to-End Driving
+## 31. [2026-01-29] Drive-JEPA: Video JEPA Meets Multimodal Trajectory Distillation for End-to-End Driving
 
 - **arXiv**: [2601.22032](https://arxiv.org/abs/2601.22032)
 - **Authors**: Linhan Wang, Zichong Yang, Chen Bai, Guoxiang Zhang, Xiaotong Liu, Xiaoyin Zheng, Xiao-Xiao Long, Chang-Tien Lu et al.
@@ -682,7 +838,7 @@
 
 ---
 
-## 26. [2025-11-21] DSeq-JEPA: Discriminative Sequential Joint-Embedding Predictive Architecture
+## 32. [2025-11-21] DSeq-JEPA: Discriminative Sequential Joint-Embedding Predictive Architecture
 
 - **arXiv**: [2511.17354](https://arxiv.org/abs/2511.17354)
 - **Authors**: Xiangteng He, Shunsuke Sakai, Shivam Chandhok, Sara Beery, Kun Yuan, Nicolas Padoy, Tatsuhito Hasegawa, Leonid Sigal
@@ -707,7 +863,7 @@
 
 ---
 
-## 27. [2025-10-07] Gaussian Embeddings: How JEPAs Secretly Learn Your Data Density
+## 33. [2025-10-07] Gaussian Embeddings: How JEPAs Secretly Learn Your Data Density
 
 - **arXiv**: [2510.05949](https://arxiv.org/abs/2510.05949)
 - **Authors**: Randall Balestriero, Nicolas Ballas, Mike Rabbat, Yann LeCun
@@ -732,7 +888,7 @@
 
 ---
 
-## 28. [2025-09-29] Rethinking JEPA: Compute-Efficient Video SSL with Frozen Teachers
+## 34. [2025-09-29] Rethinking JEPA: Compute-Efficient Video SSL with Frozen Teachers
 
 - **arXiv**: [2509.24317](https://arxiv.org/abs/2509.24317)
 - **Authors**: Xianhang Li, Chen Huang, Chun-Liang Li, Eran Malach, Josh Susskind, Vimal Thilak, Etai Littwin
@@ -757,7 +913,7 @@
 
 ---
 
-## 29. [2025-06-11] V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning
+## 35. [2025-06-11] V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning
 
 - **arXiv**: [2506.09985](https://arxiv.org/abs/2506.09985)
 - **Authors**: Mido Assran, Adrien Bardes, David Fan, Quentin Garrido, Russell Howes,  Mojtaba,  Komeili, Matthew Muckley et al.
@@ -782,7 +938,7 @@
 
 ---
 
-## 30. [2024-10-25] Connecting Joint-Embedding Predictive Architecture with Contrastive Self-supervised Learning
+## 36. [2024-10-25] Connecting Joint-Embedding Predictive Architecture with Contrastive Self-supervised Learning
 
 - **arXiv**: [2410.19560](https://arxiv.org/abs/2410.19560)
 - **Authors**: Shentong Mo, Shengbang Tong
@@ -807,7 +963,7 @@
 
 ---
 
-## 31. [2024-08-14] CNN-JEPA: Self-Supervised Pretraining Convolutional Neural Networks Using Joint Embedding Predictive Architecture
+## 37. [2024-08-14] CNN-JEPA: Self-Supervised Pretraining Convolutional Neural Networks Using Joint Embedding Predictive Architecture
 
 - **arXiv**: [2408.07514](https://arxiv.org/abs/2408.07514)
 - **Authors**: András Kalapos, Bálint Gyires-Tóth
@@ -832,7 +988,7 @@
 
 ---
 
-## 32. [2024-05-06] Sora and V-JEPA Have Not Learned The Complete Real World Model -- A Philosophical Analysis of Video AIs Through the Theory of Productive Imagination
+## 38. [2024-05-06] Sora and V-JEPA Have Not Learned The Complete Real World Model -- A Philosophical Analysis of Video AIs Through the Theory of Productive Imagination
 
 - **arXiv**: [2407.10311](https://arxiv.org/abs/2407.10311)
 - **Authors**: Jianqiu Zhang
@@ -857,7 +1013,7 @@
 
 ---
 
-## 33. [2024-05-06] Is Sora a World Simulator? A Comprehensive Survey on General World Models and Beyond
+## 39. [2024-05-06] Is Sora a World Simulator? A Comprehensive Survey on General World Models and Beyond
 
 - **arXiv**: [2405.03520](https://arxiv.org/abs/2405.03520)
 - **Authors**: Zheng Zhu, Xiaofeng Wang, Wangbo Zhao, Chen Min, Bohan Li, Nianchen Deng, Min Dou, Yuqi Wang et al.
@@ -882,7 +1038,7 @@
 
 ---
 
-## 34. [2024-04-25] Point-JEPA: A Joint Embedding Predictive Architecture for Self-Supervised Learning on Point Cloud
+## 40. [2024-04-25] Point-JEPA: A Joint Embedding Predictive Architecture for Self-Supervised Learning on Point Cloud
 
 - **arXiv**: [2404.16432](https://arxiv.org/abs/2404.16432)
 - **Authors**: Ayumu Saito, Prachi Kudeshia, Jiju Poovvancheri
@@ -907,7 +1063,7 @@
 
 ---
 
-## 35. [2024-03-16] Dreaming of Many Worlds: Learning Contextual World Models Aids Zero-Shot Generalization
+## 41. [2024-03-16] Dreaming of Many Worlds: Learning Contextual World Models Aids Zero-Shot Generalization
 
 - **arXiv**: [2403.10967](https://arxiv.org/abs/2403.10967)
 - **Authors**: Sai Prasanna, Karim Farid, Raghu Rajan, André Biedenkapp
@@ -932,7 +1088,7 @@
 
 ---
 
-## 36. [2024-03-08] Sora as a World Model? A Complete Survey on Text-to-Video Generation
+## 42. [2024-03-08] Sora as a World Model? A Complete Survey on Text-to-Video Generation
 
 - **arXiv**: [2403.05131](https://arxiv.org/abs/2403.05131)
 - **Authors**: Fachrina Dewi Puspitasari, Chaoning Zhang, Joseph Cho, Adnan Haider, Noor Ul Eman, Omer Amin, Alexis Mankowski, Muhammad Umair et al.
@@ -957,7 +1113,7 @@
 
 ---
 
-## 37. [2023-11-27] A-JEPA: Joint-Embedding Predictive Architecture Can Listen
+## 43. [2023-11-27] A-JEPA: Joint-Embedding Predictive Architecture Can Listen
 
 - **arXiv**: [2311.15830](https://arxiv.org/abs/2311.15830)
 - **Authors**: Zhengcong Fei, Mingyuan Fan, Junshi Huang
@@ -982,7 +1138,7 @@
 
 ---
 
-## 38. [2023-09-29] GAIA-1: A Generative World Model for Autonomous Driving
+## 44. [2023-09-29] GAIA-1: A Generative World Model for Autonomous Driving
 
 - **arXiv**: [2309.17080](https://arxiv.org/abs/2309.17080)
 - **Authors**: Anthony Hu, Lloyd Russell, Hudson Yeo, Zak Murez, George Fedoseev, Alex Kendall, Jamie Shotton, Gianluca Corrado
@@ -1008,7 +1164,7 @@
 
 ---
 
-## 39. [2023-07-24] MC-JEPA: A Joint-Embedding Predictive Architecture for Self-Supervised Learning of Motion and Content Features
+## 45. [2023-07-24] MC-JEPA: A Joint-Embedding Predictive Architecture for Self-Supervised Learning of Motion and Content Features
 
 - **arXiv**: [2307.12698](https://arxiv.org/abs/2307.12698)
 - **Authors**: Adrien Bardes, Jean Ponce, Yann LeCun
@@ -1033,7 +1189,7 @@
 
 ---
 
-## 40. [2023-07-14] SafeDreamer: Safe Reinforcement Learning with World Models
+## 46. [2023-07-14] SafeDreamer: Safe Reinforcement Learning with World Models
 
 - **arXiv**: [2307.07176](https://arxiv.org/abs/2307.07176)
 - **Authors**: Weidong Huang, Jiaming Ji, Chunhe Xia, Borong Zhang, Yaodong Yang
@@ -1058,7 +1214,7 @@
 
 ---
 
-## 41. [2023-01-19] Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture
+## 47. [2023-01-19] Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture
 
 - **arXiv**: [2301.08243](https://arxiv.org/abs/2301.08243)
 - **Authors**: Mahmoud Assran, Quentin Duval, Ishan Misra, Piotr Bojanowski, Pascal Vincent, Michael Rabbat, Yann LeCun, Nicolas Ballas
@@ -1083,7 +1239,7 @@
 
 ---
 
-## 42. [2022-06-28] DayDreamer: World Models for Physical Robot Learning
+## 48. [2022-06-28] DayDreamer: World Models for Physical Robot Learning
 
 - **arXiv**: [2206.14176](https://arxiv.org/abs/2206.14176)
 - **Authors**: Philipp Wu, Alejandro Escontrela, Danijar Hafner, Ken Goldberg, Pieter Abbeel
@@ -1108,7 +1264,7 @@
 
 ---
 
-## 43. [2022-02-19] TransDreamer: Reinforcement Learning with Transformer World Models
+## 49. [2022-02-19] TransDreamer: Reinforcement Learning with Transformer World Models
 
 - **arXiv**: [2202.09481](https://arxiv.org/abs/2202.09481)
 - **Authors**: Chang Chen, Yi-Fu Wu, Jaesik Yoon, Sungjin Ahn
