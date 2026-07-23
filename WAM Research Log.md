@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **49 papers** (2022—2026) | Daily monitoring at 08:00 UTC
+> **52 papers** (2022—2026) | Daily monitoring at 08:00 UTC
 
 ---
 
@@ -59,6 +59,81 @@
 | 47 | 2026-07-18 | [Learning from World Feedback: Why Model Uncertainty Fails as a Risk Signal in Model-Based RL](https://arxiv.org/abs/2607.16591) | HIGH — RLxF: model uncertainty anti-correlated with safety; world-feedback signals essential. | Small-Mid (8-24G): Standard MBRL benchmarks. |
 | 48 | 2026-07-04 | [Separating Representation from Reconstruction Enables Scalable Text Encoders](https://arxiv.org/abs/2607.04011) | MEDIUM — LeCun co-author; CrossBERT separates representation from reconstruction (JEPA-aligned philosophy). | Mid (24G): MTEB/GLUE benchmarks. |
 | 49 | 2026-06-07 | [Unifying Object-Centric World Models and Diffusion Policy: A Hierarchical Framework for Multi-Stage Robotic Tasks](https://arxiv.org/abs/2606.08775) | MEDIUM-HIGH — LeCun co-author; WorldDP: hierarchical world model + diffusion policy for multi-stage manipulation. | Mid (24G): Standard robotic manipulation benchmarks. |
+| 50 | 2026-07-21 | [Masked Visual Actions for Unified World Modeling](https://arxiv.org/abs/2607.19343) | MEDIUM — Video world models for robotics; pixel-space action interface; generative video counterpoint. | Large (40G+): Video generation + robotics fine-tuning. |
+| 51 | 2026-07-15 | [When a Verified World Model Still Loses: Play-Adequacy vs Prediction-Accuracy in LLM-Synthesized Code World Models](https://arxiv.org/abs/2607.14169) | MEDIUM — Proves prediction accuracy ≠ planning adequacy; critical for world model evaluation. | Small (8-12G): LLM-synthesized code world models on board games. |
+| 52 | 2026-05-14 | [Crys-JEPA: Accelerating Crystal Discovery via Embedding Screening and Generative Refinement](https://arxiv.org/abs/2605.14759) | MEDIUM — LeCun co-author; extends JEPA architecture to materials science for energy-aware crystal discovery. | Mid (24G): Crystal structure prediction benchmarks. |
+
+---
+
+## 1. [2026-07-21] Masked Visual Actions for Unified World Modeling
+
+- **arXiv**: [2607.19343](https://arxiv.org/abs/2607.19343)
+- **Authors**: Hadi Alzayer, Wenlong Huang, Haonan Chen, Christopher Luey, Lvmin Zhang, Maneesh Agrawala, Gordon Wetzstein, Li Fei-Fei, Yilun Du, Jiajun Wu, Jia-Bin Huang
+- **Abstract**: Video models absorb rich priors over how the visual world moves, interacts, and responds to contact, making them promising substrates for robotic world modeling. The central challenge is how to communicate action to such models in a form aligned with the visual space in which they learned these interaction priors, yet still grounded in physical manipulation. We introduce Masked Visual Actions, a pixel-space control interface that expresses action as a partially revealed trajectory of an arbitrary entity in a video. Revealing robot motion makes the model act as a forward dynamics model that predicts the scene's response to low-level robot actions, while revealing desired object motion makes the same model recover robot behavior consistent with that outcome. Finetuned with only 15 hours of masked examples from real videos and simulation, a single checkpoint achieves strong visual fidelity and controllability across diverse scenes and multiple embodiments. In downstream manipulation settings, the model produces imagined rollouts whose outcomes correlate with real-world execution for policy evaluation, improves decision making by ranking candidate futures in model-based planning, and supports inverse modeling by synthesizing robot motion from desired object motion.
+- **Compute Scale**: Large (40G+): Video generation + robotics fine-tuning on multiple embodiments.
+- **LeCun Alignment**: MEDIUM — Uses generative video models as world model substrates (counterpoint to JEPA). Pixel-space action conditioning provides practical robotics utility, but LeCun would argue latent-space prediction is more efficient. Relevant as a strong generative-video world modeling baseline for robotics.
+
+### What / Why / Solve
+
+- **Proposal**: Masked Visual Actions — a pixel-space control interface for video models that expresses action as partially revealed trajectories in video frames. Enables a single checkpoint to serve as forward dynamics model (robot→scene), inverse model (object→robot), and planner.
+- **Motivation**: Video models have learned rich visual-physics priors, but communicating physical actions to them is hard. Most approaches use text or numeric tokens that don't align with the visual space.
+- **Problem Solved**: Demonstrates that video models fine-tuned with masked visual actions can serve as world models for robotics — generating rollouts correlated with real execution, improving model-based planning, and supporting inverse modeling. Only 15 hours of fine-tuning data needed.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on video generation models (Sora, etc.) and extends them for robotic world modeling. The pixel-space action interface is novel — different from text-conditioning or latent actions.
+- **Implicit Connection**: Represents the generative video approach to world modeling that LeCun critiques. Strong results with minimal data suggest video models capture useful physical priors, even if the generative approach is computationally expensive.
+- **Research Line**: Video World Models — using pre-trained video generators as world simulators for robotics.
+- **Future Directions**: Integration with JEPA-style latent prediction for efficiency; multi-task generalization beyond the trained embodiments.
+- **GitHub**: To be checked
+
+---
+
+## 2. [2026-07-15] When a Verified World Model Still Loses: Play-Adequacy vs Prediction-Accuracy in LLM-Synthesized Code World Models
+
+- **arXiv**: [2607.14169](https://arxiv.org/abs/2607.14169)
+- **Authors**: Javier Aguilar Martín
+- **Abstract**: Large language models can synthesize a game's rules as executable code — a Code World Model (CWM) — which a classical planner then searches over. Such models are typically accepted when they reach high transition accuracy on sampled trajectories. We argue this is the wrong notion of adequacy for planning. We show four things: (1) An LLM-synthesized CWM can pass a sampling gate at 100% transition accuracy and be ≥98% state-accurate on the planner's own search distribution, yet lose systematically at play, because the <1% it gets wrong is exactly the pivotal dynamics. (2) The harm follows a quantitative law: danger = play_cost × (1−rarity)^N. (3) The failure is not repaired by more data — LLM synthesis behaves as rule translation, not rule inference. (4) The same mechanism recurs on the belief-inference function of imperfect-information CWMs. These results suggest adequacy for planning-oriented world models should be measured on the search distribution or by play directly, not by prediction accuracy on sampled transitions.
+- **Compute Scale**: Small (8-12G): LLM-synthesized code world models on board games; primarily conceptual/theoretical.
+- **LeCun Alignment**: MEDIUM — The core insight that prediction accuracy ≠ planning utility directly supports LeCun's argument that world models should be evaluated by their usefulness for downstream tasks, not raw reconstruction/prediction fidelity. However, the paper uses LLM-synthesized symbolic world models rather than learned latent world models.
+
+### What / Why / Solve
+
+- **Proposal**: Code World Models (CWMs) synthesized by LLMs can have near-perfect transition accuracy yet fail catastrophically at planning because the tiny fraction of errors hits exactly the pivotal dynamics. Introduces a quantitative danger law and argues for play-based evaluation.
+- **Motivation**: Current world model evaluation uses prediction accuracy on sampled transitions, which systematically misses rare-but-critical dynamics. This "verified-vs-correct gap" means models that pass all tests can still lose every game.
+- **Problem Solved**: Provides formal analysis of why prediction accuracy is insufficient for world model evaluation. Proposes that adequacy should be measured on the planner's search distribution or by actual play outcomes.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the literature of LLM-synthesized world models and model-based planning. Responds to the assumption that high transition accuracy implies good planning performance.
+- **Implicit Connection**: The danger law (danger = play_cost × (1−rarity)^N) parallels concerns in LeCun's vision: a world model that is 99% accurate but misses rare critical events (collisions, physical violations) fails as a planning substrate. This validates the need for architectures like JEPA that learn causally relevant representations rather than pixel-perfect predictions.
+- **Research Line**: World Model Evaluation — establishing proper adequacy criteria for planning-oriented world models.
+- **Future Directions**: Extending the analysis to continuous-state learned world models; integration with JEPA-style evaluation protocols.
+- **GitHub**: To be checked
+
+---
+
+## 3. [2026-05-14] Crys-JEPA: Accelerating Crystal Discovery via Embedding Screening and Generative Refinement
+
+- **arXiv**: [2605.14759](https://arxiv.org/abs/2605.14759)
+- **Authors**: Nian Liu, Nikita Kazeev, Stephen Gregory Dale, Artem Maevskiy, Yuwei Zeng, Ryoji Kubo, Pengru Huang, Thomas Laurent, Yann LeCun, Kostya S. Novoselov, Xavier Bresson
+- **Abstract**: De novo crystal generation seeks to discover materials that are not merely realistic, but also stable and novel. However, most existing generative models are trained to maximize the likelihood of observed crystals, which encourages samples to stay close to known materials yet not necessarily align with the criteria that matter in discovery. Our empirical analysis shows that current crystal generative models exhibit a clear conflict between stability and novelty. To move beyond this limitation, we introduce Crys-JEPA, a joint embedding predictive architecture for crystals that learns an energy-aware latent space preserving formation-energy differences. In this space, stability assessment can be reformulated as an embedding-based screening, enabling efficient filtering of candidate structures. Combined with a generative refinement stage, Crys-JEPA achieves state-of-the-art performance in discovering stable and novel crystals, outperforming purely generative approaches.
+- **Compute Scale**: Mid (24G): Crystal structure prediction benchmarks; JEPA training + generative refinement.
+- **LeCun Alignment**: MEDIUM — **LeCun is a co-author.** Extends JEPA architecture to scientific discovery (materials science). Demonstrates JEPA's generality beyond vision/robotics. The energy-aware latent space aligns with LeCun's energy-based model philosophy. However, the paper is about crystal discovery, not autonomous intelligence/world models for planning.
+
+### What / Why / Solve
+
+- **Proposal**: Crys-JEPA — a JEPA for crystals that learns an energy-aware latent space preserving formation-energy differences. Stability assessment becomes embedding-based screening (fast), combined with generative refinement (accurate). Outperforms purely generative crystal discovery methods.
+- **Motivation**: Existing generative models for crystal discovery optimize for likelihood of known crystals, creating a stability-novelty trade-off. Samples near the training distribution are stable but not novel; samples far from it lose stability.
+- **Problem Solved**: Crys-JEPA's energy-aware latent space enables efficient screening for both stability and novelty. The JEPA architecture avoids the stability-novelty conflict that plagues likelihood-based generative models.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the I-JEPA and V-JEPA architectures, adapting joint embedding prediction to crystal structures. Responds to limitations of FlowMM, DiffCSP, and other generative crystal models.
+- **Implicit Connection**: Demonstrates the generality of JEPA — the same architectural principles (joint embedding, latent prediction, no reconstruction) that work for vision also work for materials science. Validates LeCun's claim that JEPA is a broadly applicable self-supervised learning paradigm.
+- **Research Line**: JEPA Applications — extending joint embedding predictive architectures to scientific domains.
+- **Future Directions**: Multi-property JEPA for simultaneous optimization of stability, band gap, and synthesizability; integration with active learning for closed-loop materials discovery.
+- **GitHub**: To be checked
 
 ---
 
@@ -1290,4 +1365,4 @@
 ---
 
 
-*Generated: 2026-07-21 | Papers: 43 | All 43 papers with deep analysis*
+*Generated: 2026-07-23 | Papers: 52 | Daily scan +3 new (Masked Visual Actions, Code World Models, Crys-JEPA)*
