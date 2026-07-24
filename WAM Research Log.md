@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **52 papers** (2022—2026) | Daily monitoring at 08:00 UTC
+> **52 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-24 (no new papers)
 
 ---
 

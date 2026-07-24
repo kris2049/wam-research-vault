@@ -1,0 +1,58 @@
+DINO-WM与JEPA+VCReg
+论文 5：2602.03604 — EB-JEPA: A Lightweight Library for JEPAs
+提交：2026 年 2 月 | 作者：Basile Terver, Randall Balestriero, Megi Dervishi, ..., Yann LeCun, Amir Bar
+核心贡献：Meta FAIR 的第一个开源 JEPA 库——标准化实现 + 模块化设计。
+
+库的内容：
+
+EB-JEPA 提供：
+
+1. 编码器模块（可插拔）：
+   - ViT (S/B/L)
+   - CNN (ResNet variants)
+   - 冻结特征（DINOv2, CLIP）
+   
+2. 预测器模块：
+   - MLP Predictor
+   - Transformer Predictor
+   - Causal Predictor (时间序列)
+   
+3. 防坍缩策略（可插拔）：
+   - EMA + Stop-Gradient (I-JEPA 风格)
+   - VCReg (方差-协方差)
+   - LeJEPA 高斯正则化
+   - Lp 稀疏正则化 (Rectified LpJEPA)
+   
+4. Masking 策略：
+   - 随机 block masking
+   - 时空管 masking (视频)
+   - Object-centric masking (Causal-JEPA)
+   
+5. 预训练权重：
+   - I-JEPA (ViT-H/14, ImageNet-1K)
+   - V-JEPA (ViT-L/16, 200 万视频)复制
+为什么重要：
+开源库 = 社区可以快速实验。之前每个 JEPA 变体都有自己的代码库（I-JEPA 一个 repo，V-JEPA 一个 repo，DINO-WM 一个 repo...）。EB-JEPA 统一了这些分散的实现，降低了实验门槛。后来 stable-worldmodel (2605.21800) 在这个库的基础上增加了标准评估协议。
+
+论文 6：2602.08968 — stable-worldmodel-v1 & 2605.21800 — stable-worldmodel
+提交：2026 年 2 月 / 5 月 | 作者：Lucas Maes, Quentin Le Lidec, ..., Damien Scieur, Yann LeCun, Randall Balestriero
+核心贡献：世界模型领域的标准化基准——类似 ImageNet 对计算机视觉的作用。
+
+问题：
+
+世界模型研究中，每篇论文用不同的：
+  - 环境（DMControl / Atari / MetaWorld / 自定义环境）
+  - 评估指标（MSE / SSIM / FVD / 下游任务成功率）
+  - 基线实现（Dreamer 的哪个版本？I-JEPA 的哪个变体？）
+  → 无法公平比较复制
+stable-worldmodel 提供了什么：
+
+1. 统一的训练/评估管道
+2. 5 个标准环境 + 评估协议
+3. 主流世界模型的标准化实现
+4. 数据加载优化（视频加载加速 10 倍）
+5. 实验追踪和复现工具复制
+对我们 CarRacing 的意义：
+如果 stable-worldmodel 收录了 CarRacing 作为标准环境 → 我们的 JEPA 方案就可以和 Dreamer、TD-MPC 等方法公平比较。
+
+
