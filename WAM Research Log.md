@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **53 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-25 (1 new paper)
+> **56 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-26 (3 new papers)
 
 ---
 
@@ -62,7 +62,91 @@
 | 50 | 2026-07-21 | [Masked Visual Actions for Unified World Modeling](https://arxiv.org/abs/2607.19343) | MEDIUM — Video world models for robotics; pixel-space action interface; generative video counterpoint. | Large (40G+): Video generation + robotics fine-tuning. |
 | 51 | 2026-07-15 | [When a Verified World Model Still Loses: Play-Adequacy vs Prediction-Accuracy in LLM-Synthesized Code World Models](https://arxiv.org/abs/2607.14169) | MEDIUM — Proves prediction accuracy ≠ planning adequacy; critical for world model evaluation. | Small (8-12G): LLM-synthesized code world models on board games. |
 | 52 | 2026-05-14 | [Crys-JEPA: Accelerating Crystal Discovery via Embedding Screening and Generative Refinement](https://arxiv.org/abs/2605.14759) | MEDIUM — LeCun co-author; extends JEPA architecture to materials science for energy-aware crystal discovery. | Mid (24G): Crystal structure prediction benchmarks. |
-| 53 | 2026-07-23 | [Self-Supervised Learning of Structured Dynamics from Videos](https://arxiv.org/abs/2607.21576) | MEDIUM-HIGH — JEPA-aligned future-feature prediction; structured dynamics decomposition (camera vs object). | Small-Mid (8-24G): Frozen ViT + prediction heads. |
+|| 53 | 2026-07-23 | [Self-Supervised Learning of Structured Dynamics from Videos](https://arxiv.org/abs/2607.21576) | MEDIUM-HIGH — JEPA-aligned future-feature prediction; structured dynamics decomposition (camera vs object). | Small-Mid (8-24G): Frozen ViT + prediction heads. |
+|| 54 | 2026-07-15 | [Depth-Regularized JEPA World Models Learn More Transferable Representations from Real Outdoor Robot Data](https://arxiv.org/abs/2607.16314) | HIGH — JEPA world model with geometric depth prior; 33% lower VO error on real agricultural robot data. | Small (8-12G): 18M-param model on single GPU. |
+|| 55 | 2026-07-08 | [The JEPA Predictor: A Transferable Operator for Occluded Feature Completion](https://arxiv.org/abs/2607.16274) | HIGH — Proves JEPA predictors are portable across encoder families; closes gap against discriminative baselines. | Small-Mid (8-24G): Frozen encoder + linear projection on 500 images. |
+|| 56 | 2026-07-22 | [JEPA-CFM: A JEPA-based Channel Foundation Model for Robust Fluid Antenna Systems](https://arxiv.org/abs/2607.20202) | MEDIUM — Cross-domain validation: JEPA + SIGReg for 6G wireless channel modeling. | Mid (24G): DeepMIMO urban scenario simulations. |
+
+---
+
+## [2026-07-15] Depth-Regularized JEPA World Models Learn More Transferable Representations from Real Outdoor Robot Data
+
+- **arXiv**: [2607.16314](https://arxiv.org/abs/2607.16314)
+- **Authors**: Usman M. Khan
+- **TL;DR**: Adds depth as a geometric prior during JEPA world model training on real outdoor robot video, achieving 33% lower visual odometry error and improved surprise detection — all without inference overhead.
+- **Problem**: JEPA world models struggle with visually complex real-world outdoor data. Standard approaches don't leverage geometric structure that could help learn more robust latent dynamics from noisy, unstructured robot video.
+- **Architecture**: Depth-regularized JEPA world model — Combines depth supervision with SIGReg (isotropy-inducing latent regularizer) during training. Adds training-only overparameterization for handling greater complexity without increasing inference cost. 18M parameters. Evaluated via frozen-representation visual odometry probes, predictor-based surprise detection, and multi-step latent rollout fidelity on real agricultural robot data.
+- **Compute Scale**: Small (8-12G): 18M-parameter model trained on single GPU.
+- **LeCun Alignment**: HIGH — Directly extends JEPA world models for real embodied deployment. Depth as a physically-grounded prior aligns with LeCun's vision of world models that learn from structured sensory input. Uses SIGReg (the same anti-collapse regularizer from LeJEPA). Evaluates on surprise detection and multi-step rollout — core world model capabilities. Shows that lightweight geometric priors make JEPA world models more transferable without adding inference overhead, critical for deployment on real robots.
+- **GitHub**: To be checked
+
+### What / Why / Solve
+
+- **Proposal**: Depth-Regularized JEPA — A JEPA world model that uses monocular depth as a training-time geometric prior (combined with SIGReg regularization) to learn more robust latent dynamics from real outdoor robot video. The depth supervision acts as a physically grounded inductive bias that helps the world model disentangle scene geometry from appearance.
+- **Motivation**: Existing JEPA world models are mostly evaluated in simulation or controlled indoor settings. Real outdoor environments (agricultural robots, autonomous vehicles) introduce visual complexity — varying lighting, shadows, terrain textures — that challenge purely appearance-based latent dynamics learning. Depth provides a complementary geometric signal that is invariant to many appearance variations.
+- **Problem Solved**: Demonstrates that adding depth as a training-only prior (no inference cost) significantly improves JEPA world model quality on real outdoor data: 33% lower visual odometry error, substantially better surprise-score separation (both in-domain and on out-of-domain TartanGround benchmark), and improved multi-step rollout fidelity under domain shift. Gains grow with rollout horizon, suggesting the geometric prior helps learn more stable long-term dynamics.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds directly on LeWM (LeWorldModel) and SIGReg-regularized JEPA. Extends the JEPA world model paradigm from controlled settings to real outdoor robot data. The use of SIGReg connects to the broader LeCun research programme on anti-collapse regularization for JEPA.
+- **Implicit Connection**: This work demonstrates a key principle in LeCun's vision: world models should learn from multiple complementary sensory modalities (here, RGB + depth). The finding that a geometric prior improves representations even for non-geometric tasks (lighting, shadows) suggests that structured inductive biases help JEPA learn more factorized, generalizable world representations.
+- **Research Line**: Real-World JEPA — scaling JEPA world models from simulation to real outdoor deployment, with emphasis on training efficiency (training-only priors, no inference overhead).
+- **Future Directions**: Extension to multi-modal priors (semantic segmentation, surface normals); application to planning and control on real agricultural robots; scaling to larger models and more diverse outdoor environments.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-08] The JEPA Predictor: A Transferable Operator for Occluded Feature Completion
+
+- **arXiv**: [2607.16274](https://arxiv.org/abs/2607.16274)
+- **Authors**: William Nguyen, Christopher Nguyen
+- **TL;DR**: Shows that the trained predictor from JEPA models (I-JEPA, V-JEPA 2) is a portable operator that can be bolted onto non-JEPA encoders (CLIP, DINOv3, DINOv2, MAE) via a simple linear projection, recovering accuracy under heavy occlusion — the JEPA predictor generalizes across encoder families.
+- **Problem**: JEPA predictors are typically discarded after training — only the encoder is used downstream. But the predictor is a learned operator from visible-context features to features at masked positions. Can this capability be transferred to other encoders that weren't trained with JEPA?
+- **Architecture**: Portable JEPA Predictor — Take a frozen JEPA predictor (from I-JEPA or V-JEPA 2) and bolt it onto a frozen non-JEPA host encoder (CLIP, DINOv3, DINOv2, MAE) via a single linear projection between feature spaces, fit in closed form on just 500 ImageNet-1k images. The projection pays a fixed cost on visible patches; the predictor provides growing benefit on masked patches. At heavy occlusion (high K), the benefit dominates. Evaluated on ImageNet-9 and Stanford Dogs across three mask fractions.
+- **Compute Scale**: Small-Mid (8-24G): Frozen encoders + linear projection on 500 images. No retraining required.
+- **LeCun Alignment**: HIGH — This work validates a core architectural insight of JEPA: the predictor learns a general-purpose operator for completing latent features from partial observations, not just a task-specific byproduct of training. The portability finding suggests that JEPA-style training produces representations and operators that capture fundamental structure, aligning with LeCun's vision of architectures that learn the underlying structure of the world rather than surface-level pixel correlations. The occluded feature completion task is directly relevant to world models operating under partial observability.
+- **GitHub**: To be checked
+
+### What / Why / Solve
+
+- **Proposal**: The Frozen JEPA Predictor — Demonstrate that JEPA-trained predictors function as portable, transferable operators for occluded feature completion. A single linear projection (fit on 500 images) is sufficient to bridge the feature spaces between the JEPA encoder and any host encoder, enabling the host to benefit from the JEPA predictor's learned completion capability.
+- **Motivation**: The standard JEPA pipeline discards the predictor after training. But the predictor has been trained on a difficult task — predicting features at masked locations from visible context — and may have learned generalizable completion strategies. If portable, JEPA predictors could be a drop-in module to improve any vision encoder's robustness to occlusion.
+- **Problem Solved**: Empirically demonstrates that frozen JEPA predictors substantially close the accuracy gap between masked and unmasked encoders across diverse host architectures. CLIP paired with I-JEPA predictor recovers most accuracy on ImageNet-9 at heavy occlusion. On fine-grained Stanford Dogs, lifts accuracy from 15.9% to 52.1% (+36pp). The mechanism is identifiable: the projection has a fixed cost on visible patches, the predictor provides growing benefit on masked patches, and the benefit dominates in heavy-occlusion regimes.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on I-JEPA, V-JEPA 2, and the broader JEPA literature. The key insight — that the JEPA predictor is a generalizable operator, not just an auxiliary training component — reframes how we think about JEPA architectures.
+- **Implicit Connection**: This finding supports a core tenet of LeCun's vision: learning to predict in latent space (rather than pixel space) produces more transferable, generalizable representations and operators. The predictor's portability suggests it has learned something fundamental about feature completion that transcends the specific encoder it was trained with — a form of structural knowledge that aligns with the world model agenda.
+- **Research Line**: JEPA Architecture Analysis — understanding the components of JEPA and their generalization properties.
+- **Future Directions**: Extension to video predictors (V-JEPA → CLIP for temporal completion); application to robotic perception under occlusion; theoretical analysis of why the linear bridge works; scaling to larger predictors and more diverse hosts.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-22] JEPA-CFM: A JEPA-based Channel Foundation Model for Robust Fluid Antenna Systems
+
+- **arXiv**: [2607.20202](https://arxiv.org/abs/2607.20202)
+- **Authors**: Yuan Gao, Yiming Liu, Jun Jiang, Jianbo Du, Shunqing Zhang, Xiaoli Chu, Kai-Kit Wong
+- **TL;DR**: Applies JEPA with SIGReg regularization to 6G wireless channel modeling, outperforming standard masked autoencoders on channel extrapolation and positioning tasks for fluid antenna systems.
+- **Problem**: Fluid antenna systems (FAS) for 6G need real-time channel state information (CSI) extrapolation to unmeasured antenna ports and accurate user positioning, but strong spatial correlations and sparse observations make this challenging for conventional approaches.
+- **Architecture**: JEPA-CFM — JEPA-based channel foundation model. Pre-training combines three loss terms: standard MAE reconstruction loss + JEPA latent prediction loss + SIGReg regularization. After pre-training, the encoder is frozen and lightweight task heads are attached for channel extrapolation (decoder) and wireless positioning (MLP regression). Evaluated on DeepMIMO urban scenario simulations.
+- **Compute Scale**: Mid (24G): Pre-training on simulated wireless channel data + lightweight task heads.
+- **LeCun Alignment**: MEDIUM — Cross-domain validation of the JEPA + SIGReg recipe in a completely different modality (wireless channel state information). Demonstrates that JEPA's latent prediction approach generalizes beyond vision/audio to structured physical signals. However, this is primarily a domain application rather than advancing world model theory or architecture. The use of MAE reconstruction loss alongside JEPA is a hybrid approach that partially contradicts JEPA's pure latent-prediction philosophy.
+- **GitHub**: To be checked
+
+### What / Why / Solve
+
+- **Proposal**: JEPA-CFM — Adapt the JEPA pre-training paradigm (latent prediction + SIGReg regularization) to wireless channel modeling for fluid antenna systems. The model learns versatile representations of channel state information that transfer to downstream tasks (channel extrapolation, positioning) with lightweight task-specific heads.
+- **Motivation**: 6G fluid antenna systems promise rich spatial diversity but require accurate CSI estimation at unmeasured antenna ports — a prediction task that JEPA's masked latent prediction is naturally suited for. Conventional MAE approaches that reconstruct raw CSI coefficients are inefficient and don't capture the abstract structure of wireless channels.
+- **Problem Solved**: JEPA-CFM substantially outperforms conventional MAE baselines on both channel extrapolation and wireless positioning in realistic DeepMIMO urban scenarios. The SIGReg regularizer prevents representation collapse under severe spatial correlation and sparse observations — a practical validation of SIGReg's effectiveness in a new domain.
+
+### Academic Context
+
+- **Inheritance / Response**: Combines JEPA (I-JEPA/V-JEPA style latent prediction) with SIGReg regularization and MAE reconstruction in a hybrid objective. The application to wireless communications demonstrates the generality of the JEPA paradigm.
+- **Implicit Connection**: Interesting as a cross-domain stress test of JEPA + SIGReg. The fact that this recipe works for wireless signals (fundamentally different from images/video) supports the claim that JEPA captures a general principle of representation learning rather than a vision-specific trick. However, the hybrid MAE+JEPA approach is less aligned with LeCun's pure latent-prediction philosophy.
+- **Research Line**: JEPA Domain Transfer — validating the JEPA paradigm across diverse modalities beyond vision/audio.
+- **Future Directions**: Extension to other wireless scenarios (massive MIMO, mmWave); integration with real-time adaptive systems; removing the MAE reconstruction component for a pure JEPA approach.
+- **GitHub**: To be checked
 
 ---
 
