@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **56 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-26 (3 new papers)
+> **56 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-27 (0 new papers — weekend, no arXiv submissions)
 
 ---
 
@@ -1477,4 +1477,4 @@
 ---
 
 
-*Generated: 2026-07-23 | Papers: 52 | Daily scan +3 new (Masked Visual Actions, Code World Models, Crys-JEPA)*
+*Generated: 2026-07-27 | Papers: 56 | Daily scan: 0 new (weekend — arXiv had no new submissions July 25-27)*
