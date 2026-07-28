@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **56 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-27 (0 new papers — weekend, no arXiv submissions)
+> **61 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-28 (5 new papers)
 
 ---
 
@@ -65,7 +65,147 @@
 || 53 | 2026-07-23 | [Self-Supervised Learning of Structured Dynamics from Videos](https://arxiv.org/abs/2607.21576) | MEDIUM-HIGH — JEPA-aligned future-feature prediction; structured dynamics decomposition (camera vs object). | Small-Mid (8-24G): Frozen ViT + prediction heads. |
 || 54 | 2026-07-15 | [Depth-Regularized JEPA World Models Learn More Transferable Representations from Real Outdoor Robot Data](https://arxiv.org/abs/2607.16314) | HIGH — JEPA world model with geometric depth prior; 33% lower VO error on real agricultural robot data. | Small (8-12G): 18M-param model on single GPU. |
 || 55 | 2026-07-08 | [The JEPA Predictor: A Transferable Operator for Occluded Feature Completion](https://arxiv.org/abs/2607.16274) | HIGH — Proves JEPA predictors are portable across encoder families; closes gap against discriminative baselines. | Small-Mid (8-24G): Frozen encoder + linear projection on 500 images. |
-|| 56 | 2026-07-22 | [JEPA-CFM: A JEPA-based Channel Foundation Model for Robust Fluid Antenna Systems](https://arxiv.org/abs/2607.20202) | MEDIUM — Cross-domain validation: JEPA + SIGReg for 6G wireless channel modeling. | Mid (24G): DeepMIMO urban scenario simulations. |
+||| 56 | 2026-07-22 | [JEPA-CFM: A JEPA-based Channel Foundation Model for Robust Fluid Antenna Systems](https://arxiv.org/abs/2607.20202) | MEDIUM — Cross-domain validation: JEPA + SIGReg for 6G wireless channel modeling. | Mid (24G): DeepMIMO urban scenario simulations. |
+|| 57 | 2026-07-24 | [Music-JEPA: Learning a World Model of Sound from Action](https://arxiv.org/abs/2607.22000) | HIGH — LeCun co-author; action-conditioned JEPA world model for music; piano transcription via planning. | Mid (24G): Audio-pianoroll paired data. |
+|| 58 | 2026-07-24 | [On the Identifiability of Controlled World Models](https://arxiv.org/abs/2607.22430) | HIGH — JEPA identifiability theory; proves conditions for latent state/transition recovery under Gaussian policies. | Small (8-12G): Theoretical with synthetic experiments. |
+|| 59 | 2026-07-24 | [Robot-Factored World Models via Robot Rendering](https://arxiv.org/abs/2607.22535) | MEDIUM-HIGH — Factorizes robot kinematics/geometry out of world model; cross-embodiment generalization. | Mid (24G): Robot manipulation video prediction. |
+|| 60 | 2026-07-24 | [ViTacWorld: Scaling Visuo-Tactile World Models for Contact-Rich Robot Manipulation](https://arxiv.org/abs/2607.22530) | MEDIUM-HIGH — First visuo-tactile world model; policy evaluation + data augmentation via rollout. | Large (40G+): Multi-modal visuo-tactile pretraining + finetuning. |
+|| 61 | 2026-07-24 | [Unbiased Open World Regularization for Fair Self-Supervised Learning](https://arxiv.org/abs/2607.22149) | MEDIUM — JEPA bias regularization; conditional distribution matching for debiased SSL. | Small-Mid (8-24G): Encoder-only framework on CelebA. |
+
+---
+
+## [2026-07-24] Music-JEPA: Learning a World Model of Sound from Action
+
+- **arXiv**: [2607.22000](https://arxiv.org/abs/2607.22000)
+- **Authors**: Ziyu Wang, Kun Fang, Yann LeCun
+- **TL;DR**: Frames music as an action-conditioned system for JEPA world model learning — piano audio as state, pianoroll as action — enabling piano transcription via planning by searching for actions that best explain target sound.
+- **Problem**: JEPA has been applied to music before but without the world model framing. Can JEPA learn a genuine world model of musical sound by treating it as an action-conditioned dynamical system?
+- **Architecture**: Music-JEPA — Action-conditioned JEPA world model. Takes current audio state + pianoroll action → predicts future audio state in latent space. Trained fully offline on paired audio-pianoroll data. Evaluated on beat tracking, composer identification, key estimation, and piano transcription via planning (searching actions that minimize prediction error against target audio).
+- **Compute Scale**: Mid (24G): Audio-pianoroll paired data; standard GPU training.
+- **LeCun Alignment**: HIGH — **LeCun is co-author.** Directly instantiates the core JEPA world model concept in the audio/music domain. Action-conditioned latent prediction mirrors LeCun's vision of world models that predict consequences of interventions. The planning loop (search actions → predict outcome → compare to target) is a miniature version of MPC in latent space. Demonstrates JEPA's generality beyond vision/robotics into creative domains.
+- **GitHub**: To be checked
+
+### What / Why / Solve
+
+- **Proposal**: Music-JEPA — Learn a world model of piano sound by framing music as an action-conditioned dynamical system: audio = state, pianoroll = action. Given current audio and an action (notes to play), predict the resulting future audio in latent space.
+- **Motivation**: Music is inherently action-conditioned — a pianist's actions produce sound. This makes it a natural domain for JEPA-style world models. Previous music JEPA attempts didn't exploit this action-state structure for full world model learning.
+- **Problem Solved**: Demonstrates that JEPA world models can capture musical causality: the relationship between instrumental actions and resulting sound. The learned representations transfer to multiple downstream tasks (beat tracking, composer ID, key estimation). Most innovatively, enables piano transcription via planning — searching for the action sequence that best predicts a target audio, essentially "explaining" the audio as the result of imagined actions.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on I-JEPA, V-JEPA, and action-conditioned JEPA extensions. Extends the world model paradigm to the music/audio domain with explicit action conditioning.
+- **Implicit Connection**: This paper closes an important gap: JEPA world models have been demonstrated for visual/physical domains (robotics, driving) but not for creative/artistic domains where actions are discrete symbolic events (musical notes). It validates LeCun's claim that JEPA is a general-purpose world model architecture, not tied to any specific sensory modality or action space.
+- **Research Line**: Multimodal JEPA — extending action-conditioned world models beyond physical control to creative/symbolic action spaces.
+- **Future Directions**: Extension to multi-instrument music; improvisation via planning; integration with music generation; joint audio-visual-motor world models for music performance.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-24] On the Identifiability of Controlled World Models
+
+- **arXiv**: [2607.22430](https://arxiv.org/abs/2607.22430)
+- **Authors**: Xiangteng Zhang, Yang Guan, Bo Zhang, Ya-Qin Zhang, Shengbo Eben Li
+- **TL;DR**: Establishes the first joint identifiability theory for JEPA-based controlled world models — proving that under Gaussian latent dynamics and sufficient action variation, JEPA recovers true latent states and transitions up to orthogonal transformation.
+- **Problem**: Action-conditioned JEPA world models work well empirically, but there's no theoretical guarantee that they actually identify the true underlying state and dynamics. Under nonlinear observations and limited action variation, state evolution and action effects can be statistically confounded — the model might learn a scrambled representation.
+- **Architecture**: Theoretical analysis of controlled JEPA — Gaussian latent states with state-dependent Gaussian behavior policies. Two conditions identified: (1) spectral separation of predictable signal governs representation identifiability; (2) non-degenerate conditional action variation governs transition identifiability. Proves that when both hold, every global minimizer identifies latent state and controlled transition up to orthogonal transformation. Also constructs a counterfactual diagnostic: predictor perturbations along weakly excited action directions whose error ratio reveals transition-identifiability margins.
+- **Compute Scale**: Small (8-12G): Primarily theoretical with synthetic experiments across nonlinear observation maps and behavior policies.
+- **LeCun Alignment**: HIGH — Provides the theoretical foundation that the JEPA world model program has been missing. Answers the fundamental question: *when does training a JEPA world model actually recover the true world state?* The identifiability conditions (spectral separation, action variation) give practical guidance for designing training environments and data collection. The counterfactual diagnostic directly addresses the evaluation problem raised by 2607.10362 (prediction error ≠ control success).
+- **GitHub**: To be checked
+
+### What / Why / Solve
+
+- **Proposal**: Joint identifiability theory for controlled world models — proves that under Gaussian latent dynamics and sufficient policy variation, JEPA training recovers the true latent state and controlled transition up to an orthogonal transformation. Derives quantitative bounds under approximate optimization.
+- **Motivation**: The JEPA community has been building increasingly sophisticated world models without answering the foundational question: does the training objective actually identify the true dynamics? Without identifiability, a world model could achieve low prediction error on training data while learning a scrambled representation that fails under distribution shift.
+- **Problem Solved**: Provides necessary and sufficient conditions for JEPA identifiability. Shows that two factors matter: (1) how predictable the latent signal is (spectral separation), and (2) how much the behavior policy varies actions conditional on state. When action variation is limited, the model can't disentangle state evolution from action effects — a practical warning for data collection in robotics.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on nonlinear ICA identifiability theory and JEPA literature (I-JEPA, LeWM, action-conditioned JEPA). Extends identifiability analysis from static representation learning to controlled dynamical systems.
+- **Implicit Connection**: This paper is a crucial piece of the JEPA research programme's theoretical foundation. Together with 2607.13612 (SIGReg as Variational Free Energy) and 2605.26379 (When Does LeJEPA Learn a World Model?), it forms a trilogy of theoretical papers that establish JEPA as a principled rather than heuristic architecture. The identifiability results also connect to the evaluation critique in 2607.10362 — if the model isn't identifiable, prediction error on training data tells you nothing about control.
+- **Research Line**: JEPA Theory — identifiability and recovery guarantees for world model learning.
+- **Future Directions**: Extension to non-Gaussian latent dynamics; identifiability under partial observability; practical identifiability diagnostics for deployed world models.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-24] Robot-Factored World Models via Robot Rendering
+
+- **arXiv**: [2607.22535](https://arxiv.org/abs/2607.22535)
+- **Authors**: Byungjun Kim, Taeksoo Kim, Hyunsoo Cha, Hanbyul Joo
+- **TL;DR**: Factorizes robot kinematics and geometry OUT of the world model by pre-rendering actions as robot geometry via URDF — the world model only sees visible robot geometry and learns object response, enabling cross-embodiment generalization.
+- **Problem**: Standard action-conditioned video world models must learn BOTH how actions translate to robot motion AND how objects respond to that motion. This entangles robot-specific factors (kinematics, appearance) with general physical dynamics, preventing transfer across embodiments.
+- **Architecture**: Robot-Factored World Model — Two robot-specific factors moved outside the world model: (1) Action Realization: commands go through robot controller/kinematics to produce a nominal trajectory. (2) Robot Rendering: this trajectory is rendered through URDF as visible robot geometry, paired with scene depth for occlusion/contact reasoning. The world model receives camera-aware static RGB/depth context + rendered robot geometry as input, and predicts how objects respond. No robot-specific learning inside the model.
+- **Compute Scale**: Mid (24G): Video prediction with pre-rendered robot geometry; generalizes to unseen embodiments at inference.
+- **LeCun Alignment**: MEDIUM-HIGH — The factorization philosophy strongly aligns with LeCun's modular agent architecture: the world model should learn about the WORLD, not about the agent's specific embodiment. By factoring out robot kinematics/geometry (which are known/controllable), the model focuses on learning general physical dynamics — exactly the kind of reusable world knowledge LeCun envisions. However, uses pixel-space video prediction (generative) rather than JEPA-style latent prediction. The robot-rendering interface could be paired with a JEPA backbone.
+- **GitHub**: To be checked
+
+### What / Why / Solve
+
+- **Proposal**: Robot-Factored World Models — Instead of conditioning directly on action commands or future states, pre-render actions as robot geometry using known URDF/kinematics. The world model sees a visual interface (rendered robot + scene) and learns how objects respond. This factorization means the model never needs to learn robot-specific realization.
+- **Motivation**: Current approaches either condition on raw actions (forcing the model to learn robot kinematics) or condition on future states (leaking the outcome). Neither is right: the model should focus on general physical dynamics, not robot-specific implementation details.
+- **Problem Solved**: Demonstrates that robot-factored interface (1) outperforms vector-conditioned baselines, (2) generalizes to unseen robot embodiments at inference, and (3) enables robot manipulation video generation from human demonstrations by retargeting hand motion as robot geometry. The depth-aware rendering resolves contact/occlusion ambiguity.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on video world model literature (Dreamer, video prediction) and robot learning. The factorization insight echoes modular robotics and sim-to-real approaches.
+- **Implicit Connection**: This paper represents an important architectural principle: not everything should be learned. Known physical properties (robot kinematics, geometry) should be factored out so the learned model can focus on unknown physical dynamics (object response, contact). This aligns with LeCun's argument that world models should leverage structured knowledge rather than learning everything from scratch. The visual interface (rendered geometry) is compatible with JEPA encoders — future work could combine robot-factored input with JEPA-style latent prediction.
+- **Research Line**: Structured World Models — factoring known physics out of learned models.
+- **Future Directions**: Integration with JEPA latent prediction; extension to multi-object scenes; real-robot deployment with imperfect URDF/kinematics.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-24] ViTacWorld: Scaling Visuo-Tactile World Models for Contact-Rich Robot Manipulation
+
+- **arXiv**: [2607.22530](https://arxiv.org/abs/2607.22530)
+- **Authors**: Yunao Huang, Shiyu Sang, Haotao Lu, Suting Ni, Shijie Wu, Ziyang Guo, Ye Shi, Jingya Wang
+- **TL;DR**: First visuo-tactile world model — pretrains on large-scale real + simulated visuo-tactile trajectories, then finetunes on real policy rollouts, enabling rollout generation for data augmentation and action-conditioned policy evaluation.
+- **Problem**: Contact-rich manipulation requires tactile sensing (forces, contacts invisible to cameras), but real tactile data is expensive to collect and hardware-specific. How can we scale visuo-tactile world model training when real data is scarce?
+- **Architecture**: ViTacWorld — Action-conditioned world model that predicts both visual observations AND tactile feedback from robot actions. Two-stage training: (1) large-scale pretraining on public real tactile datasets + simulated visuo-tactile trajectories (exploiting that tactile signals have smaller sim-to-real gap than vision), (2) finetuning on real-world policy rollouts. Serves dual purpose: synthesizing rollouts to augment downstream policy training, and evaluating policies by predicting action-conditioned outcomes.
+- **Compute Scale**: Large (40G+): Multi-modal pretraining on visuo-tactile data + finetuning on real robot rollouts.
+- **LeCun Alignment**: MEDIUM-HIGH — Addresses a critical gap for embodied world models: tactile sensing. LeCun's vision emphasizes multi-modal world models that integrate all sensory streams. ViTacWorld demonstrates that world models can bridge vision and touch, predicting both from actions. However, uses pixel-level video prediction (generative) rather than JEPA-style latent prediction. The sim-to-real insight (tactile has smaller gap) is practically valuable.
+- **GitHub**: Project page: https://vitacworld.github.io/
+
+### What / Why / Solve
+
+- **Proposal**: ViTacWorld — Scale visuo-tactile world model training by leveraging public real datasets + simulation, exploiting the fact that tactile signals are more transferable across sim-to-real than visual observations. The model predicts aligned visual and tactile futures from actions.
+- **Motivation**: Contact-rich tasks (peg insertion, assembly, button pressing) require tactile feedback that cameras can't provide. But collecting real tactile data at scale is prohibitively expensive. A world model that can simulate both vision and touch would enable scalable policy learning.
+- **Problem Solved**: First framework to use a world model for visuo-tactile trajectory generation. Demonstrates two practical applications: (1) synthesizing additional rollouts to improve downstream policy performance (data augmentation), (2) evaluating policies by predicting their visuo-tactile outcomes without real execution (policy evaluation). Generates physically meaningful rollouts on contact-rich tasks.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on video world models (Dreamer, video prediction) and tactile sensing literature. Extends world models to the visuo-tactile modality for the first time.
+- **Implicit Connection**: Multi-modal world models are essential for LeCun's vision of autonomous intelligence — agents need to predict across ALL sensory modalities, not just vision. ViTacWorld takes a step toward this by incorporating touch. However, the generative (pixel-prediction) approach is less aligned with JEPA than a latent-prediction approach would be. Future work could combine ViTacWorld's multi-modal pretraining strategy with JEPA's latent-space prediction.
+- **Research Line**: Multi-Modal World Models — incorporating tactile, force, and proprioceptive sensing.
+- **Future Directions**: JEPA-style latent visuo-tactile prediction; real-time model-predictive control with tactile feedback; integration with force/torque sensing.
+- **GitHub**: https://vitacworld.github.io/
+
+---
+
+## [2026-07-24] Unbiased Open World Regularization for Fair Self-Supervised Learning
+
+- **arXiv**: [2607.22149](https://arxiv.org/abs/2607.22149)
+- **Authors**: Léo Nicollier, Marc Pic, Pablo Musé, Enric Meinhardt-Llopis, Gabriele Facciolo
+- **TL;DR**: Shows JEPA/SSL global regularization (Gaussian/uniform priors) is insufficient to prevent bias entanglement; proposes conditional distribution matching (UOWReg) that provably guarantees statistical independence between representations and protected attributes.
+- **Problem**: JEPA and SSL methods enforce global target distributions (Gaussian, uniform on sphere) to prevent collapse, but these global constraints don't prevent the latent space from segregating along spurious bias dimensions (race, gender, etc.). Task-irrelevant features can still dominate the representation.
+- **Architecture**: UOWReg (Unbiased Open World Regularization) — Replaces global distribution matching with conditional distribution matching. For each protected attribute value, enforce the target distribution independently. This shift from global to conditional objective provably guarantees statistical independence between learned representations and protected attributes. Works with both Gaussian and spherical target distributions. Encoder-only framework — no auxiliary networks needed.
+- **Compute Scale**: Small-Mid (8-24G): Encoder-only; evaluated on CelebA and a novel Synthetic Engraving Task.
+- **LeCun Alignment**: MEDIUM — Addresses a practical concern for JEPA deployment (bias/fairness) but doesn't advance the core world model theory. The finding that global regularization is insufficient for debiasing is relevant to JEPA practitioners, as all JEPA variants (I-JEPA, V-JEPA, LeWM) use global regularization (SIGReg, VICReg, etc.) that could encode spurious biases. The conditional matching approach could be integrated into JEPA training.
+- **GitHub**: To be checked
+
+### What / Why / Solve
+
+- **Proposal**: UOWReg — Shift JEPA/SSL regularization from global distribution matching to conditional distribution matching. For each value of a protected attribute, enforce the target distribution independently. This guarantees statistical independence between representations and attributes.
+- **Motivation**: Standard JEPA regularization (SIGReg enforces isotropic Gaussian) prevents collapse but doesn't prevent bias — the latent space can still segregate by spurious attributes. This is a practical concern for deploying JEPA-based systems in high-stakes applications where fairness matters.
+- **Problem Solved**: Provides theoretical guarantee (statistical independence) for debiased SSL/JEPA representations. Empirically reduces Equalized Odds violations on CelebA while maintaining accuracy. On a novel Synthetic Engraving Task (macro-structure masks micro-signature), UOWReg successfully isolates micro-signatures that standard SSL collapses into the dominant macro-structure.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on JEPA/SSL regularization literature (VICReg, SIGReg) and fairness in representation learning (EnD, FSCL). Shows that existing debiasing methods are partial approximations of conditional distribution matching.
+- **Implicit Connection**: This paper flags a blind spot in the JEPA research programme: the same global regularization that prevents collapse can also encode dataset biases. For JEPA world models deployed in social contexts (e.g., autonomous driving where pedestrian detection must be fair across demographics), this is a practical concern. The conditional matching approach is compatible with SIGReg and could be incorporated into LeWM training.
+- **Research Line**: Fair JEPA — debiasing joint embedding representations for equitable deployment.
+- **Future Directions**: Integration with SIGReg-regularized JEPA training; multi-attribute debiasing; fairness-aware world model planning.
+- **GitHub**: To be checked
 
 ---
 
@@ -1477,4 +1617,4 @@
 ---
 
 
-*Generated: 2026-07-27 | Papers: 56 | Daily scan: 0 new (weekend — arXiv had no new submissions July 25-27)*
+*Generated: 2026-07-28 | Papers: 61 | Daily scan: 5 new (Music-JEPA, Identifiability Theory, Robot-Factored WM, ViTacWorld, UOWReg)*
