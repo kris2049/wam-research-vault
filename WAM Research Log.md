@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **61 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-28 (5 new papers)
+> **68 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-29 (7 new papers)
 
 ---
 
@@ -70,7 +70,203 @@
 || 58 | 2026-07-24 | [On the Identifiability of Controlled World Models](https://arxiv.org/abs/2607.22430) | HIGH — JEPA identifiability theory; proves conditions for latent state/transition recovery under Gaussian policies. | Small (8-12G): Theoretical with synthetic experiments. |
 || 59 | 2026-07-24 | [Robot-Factored World Models via Robot Rendering](https://arxiv.org/abs/2607.22535) | MEDIUM-HIGH — Factorizes robot kinematics/geometry out of world model; cross-embodiment generalization. | Mid (24G): Robot manipulation video prediction. |
 || 60 | 2026-07-24 | [ViTacWorld: Scaling Visuo-Tactile World Models for Contact-Rich Robot Manipulation](https://arxiv.org/abs/2607.22530) | MEDIUM-HIGH — First visuo-tactile world model; policy evaluation + data augmentation via rollout. | Large (40G+): Multi-modal visuo-tactile pretraining + finetuning. |
-|| 61 | 2026-07-24 | [Unbiased Open World Regularization for Fair Self-Supervised Learning](https://arxiv.org/abs/2607.22149) | MEDIUM — JEPA bias regularization; conditional distribution matching for debiased SSL. | Small-Mid (8-24G): Encoder-only framework on CelebA. |
+||| 61 | 2026-07-24 | [Unbiased Open World Regularization for Fair Self-Supervised Learning](https://arxiv.org/abs/2607.22149) | MEDIUM — JEPA bias regularization; conditional distribution matching for debiased SSL. | Small-Mid (8-24G): Encoder-only framework on CelebA. |
+|| 62 | 2026-07-27 | [LeapBot-WA: World-Anchor Action Models via Predictive Latent Alignments](https://arxiv.org/abs/2607.23969) | HIGH — JEPA-as-World-Anchor WAM paradigm; Predictive-Latent replaces pixel generation. | Large (40G+): Asymmetric MoT + Anchor/Action Diffusion Transformers. |
+|| 63 | 2026-07-26 | [The JEPA Paradox in Language: The Geometry of Linguistic Alternatives](https://arxiv.org/abs/2607.23531) | MEDIUM-HIGH — Explains why JEPA fails for text; conditional concentration mismatch formalized. | Small (8-12G): I-JEPA/T-JEPA experiments; theoretical analysis. |
+|| 64 | 2026-07-21 | [Toward Goal-Agnostic Joint-Embedding Predictive Control of Partial Differential Equations](https://arxiv.org/abs/2607.21644) | HIGH — JEPA + MPPI for PDE control; goal-agnostic latent dynamics with physical observables. | Small-Mid (8-24G): Small 2D ViT encoder; Navier-Stokes benchmark. |
+|| 65 | 2026-07-16 | [DriftWorld: Fast World Modeling through Drifting](https://arxiv.org/abs/2607.15065) | MEDIUM — Drifting generative world model; 17× faster than diffusion; strong counterpoint to generative critics. | Mid (24G): Single forward pass at 30+ fps. |
+|| 66 | 2026-07-10 | [Causally Debiased Latent Action Model for Embodied Action Conditioned World Models](https://arxiv.org/abs/2607.09185) | MEDIUM-HIGH — Causal debiasing for LAM-based world models; disentangles action from visual confounders. | Large (40G+): 2B/14B ACWM backbones. |
+|| 67 | 2026-06-29 | [Latent Actions from Factorized Transition Effects under Agent Ambiguity](https://arxiv.org/abs/2606.30544) | MEDIUM-HIGH — Balestriero co-author; OTF-LAM with decoder-free DINOv2 variant; sparse transition primitives. | Small-Mid (8-24G): DINOv2-based; ICML 2026 Workshop. |
+|| 68 | 2026-07-13 | [WALA: Learning Executable Latent Actions from Action-Labeled Demonstrations and Action-Free Videos](https://arxiv.org/abs/2607.11397) | MEDIUM — Latent actions from videos without reconstruction; DINOv3 + depth prediction space. | Mid (24G): SOTA on RoboCasa (75.2%). |
+
+---
+
+## [2026-07-27] LeapBot-WA: World-Anchor Action Models via Predictive Latent Alignments
+
+- **arXiv**: [2607.23969](https://arxiv.org/abs/2607.23969)
+- **Authors**: Pei Liu, Nan Zheng, Lang Zhang, Daojie Peng, Yanan Zhang, Feilong Kong, Mingyue Feng, Jiachao Liu, Yaonong Wang, Qifeng Chen, Jun Ma
+- **TL;DR**: Proposes a Predictive-Latent paradigm for World Action Models (WAMs) that replaces pixel-level video generation with JEPA-based latent semantic alignment — the "World-Anchor" — achieving state-of-the-art performance without large-scale trajectory pretraining.
+- **Problem**: Existing WAMs rely on pixel-level video generation, wasting capacity on task-irrelevant visual details and making policies vulnerable to visual distractors. Diffusion-based generation is computationally expensive for planning.
+- **Architecture**: LeapBot-WA — Three key innovations: (1) **Predictive Semantic Alignment** via JEPA as World-Anchor: extracts abstract physical dynamics in latent foundation space rather than generating pixels. (2) **Isotropic Semantic Autoencoder (ISAE)**: reshapes the anchor's non-Gaussian latent space into a diffusion-friendly manifold to prevent off-manifold drift. (3) **Asymmetric Mixture-of-Transformers (MoT)**: Anchor Diffusion Transformer acts as privileged dynamics expert during training, guiding the Action Diffusion Transformer; at inference, the heavy dynamics branch is pruned for zero-overhead execution.
+- **Compute Scale**: Large (40G+): Asymmetric MoT architecture with Anchor and Action Diffusion Transformers.
+- **LeCun Alignment**: HIGH — Directly instantiates LeCun's vision: JEPA as the core world model, latent-space prediction replacing pixel generation, modular architecture with separate dynamics and action components. The paper explicitly positions itself against pixel-generation WAMs and adopts JEPA as the predictive core. The "Predictive-Latent" paradigm is precisely the direction LeCun advocates.
+- **GitHub**: [github.com/LeapWM/leapbot-wa](https://github.com/LeapWM/leapbot-wa)
+
+### What / Why / Solve
+
+- **Proposal**: LeapBot-WA — Replace pixel-generation in WAMs with JEPA-based Predictive Semantic Alignment. The World-Anchor predicts future latent states, and actions are generated by aligning with these predictions rather than reconstructing pixels.
+- **Motivation**: Pixel-level video generation in WAMs is a bottleneck — it wastes capacity on irrelevant details, is vulnerable to distractors, and is computationally expensive. JEPA offers a more efficient alternative: predict in latent space, not pixel space.
+- **Problem Solved**: Achieves SOTA among predictive models on LIBERO, matches top-tier generative WAMs on RoboTwin 2.0 without large-scale pretraining, and demonstrates superior zero-shot robustness to unseen environments with real-world transfer.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds directly on LeCun's JEPA framework and the WAM paradigm. Responds to the limitation of pixel-generative WAMs (like GAIA-1, UniSim) by proposing a purely latent predictive approach.
+- **Implicit Connection**: This is the closest paper yet to LeCun's full "Path Towards Autonomous Machine Intelligence" vision applied to robotics: a JEPA-based world model that predicts in latent space, with a separate action module, deployed in an MPC-like planning loop.
+- **Research Line**: Predictive-Latent WAMs — a new subcategory of World Action Models that abandon pixel generation entirely.
+- **Future Directions**: Scaling to longer horizons; integration with hierarchical planning; multi-embodiment transfer via the World-Anchor abstraction.
+- **GitHub**: [github.com/LeapWM/leapbot-wa](https://github.com/LeapWM/leapbot-wa)
+
+---
+
+## [2026-07-26] The JEPA Paradox in Language: The Geometry of Linguistic Alternatives
+
+- **arXiv**: [2607.23531](https://arxiv.org/abs/2607.23531)
+- **Authors**: Anh Trac Duc Dinh, Khang Nhat Hoang Vo
+- **TL;DR**: Formalizes why deterministic JEPA fails for text — language has multiple valid completions that don't share a coherent latent center, violating the conditional concentration assumption that makes JEPA work for images/video/audio.
+- **Problem**: JEPA is highly effective for images, video, and audio, but has not become standard for text encoders. Why? The paper identifies a fundamental geometric mismatch between squared-error latent prediction and the multi-modal conditional structure of language.
+- **Architecture**: Theoretical analysis using three conditions: (1) **Predictability** — context must carry information about the target, (2) **Non-collapse** — representations must not collapse to a trivial constant, (3) **Low conditional variance** — given context, the target representation must lie near a single meaningful point. The paper proves that text violates condition 3 because masked positions admit multiple valid completions (e.g., "the cat sat on the ___" could be "mat", "chair", "floor", etc. whose representations don't cluster). Validated with matched I-JEPA and T-JEPA experiments showing mutual-information saturation, effective-rank degeneration, cosine collapse, and poor downstream transfer.
+- **Compute Scale**: Small (8-12G): Controlled experiments with I-JEPA/T-JEPA on text; theoretical analysis.
+- **LeCun Alignment**: MEDIUM-HIGH — Directly addresses a critical question in the JEPA research program: why hasn't JEPA succeeded for language? The answer (conditional multimodality) has implications for how to design text-compatible JEPA objectives. LeCun's architecture envisions language as a separate module — this paper provides theoretical justification for that separation.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Formal analysis of why JEPA fails for text — the "JEPA Paradox" — and identification of conditional concentration as the key requirement that language violates.
+- **Motivation**: Understanding JEPA's domain boundaries is crucial for the research program. If JEPA is truly general, it should work for text. If it fundamentally can't, we need to understand why.
+- **Problem Solved**: Provides rigorous geometric explanation for JEPA's failure in NLP: text's multi-modal conditional distribution means no single latent point can represent all valid completions, causing centroid degeneracy and representation collapse.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on I-JEPA, V-JEPA, and the broader JEPA literature. Responds to the puzzle: why has deterministic JEPA not displaced BERT-style masked token prediction?
+- **Implicit Connection**: Validates LeCun's architectural choice to treat language as a separate module rather than fitting it into the same JEPA framework. The paper's finding that "text-compatible JEPA objectives must preserve multiple plausible completions" suggests future JEPA variants for language need stochastic or multi-modal prediction heads.
+- **Research Line**: JEPA theory — understanding the fundamental constraints and domain boundaries of predictive architectures.
+- **Future Directions**: Stochastic JEPA for language (multi-modal prediction heads); energy-based JEPA for text; connection to LeCun's proposed "world model + configurator" architecture.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-21] Toward Goal-Agnostic Joint-Embedding Predictive Control of Partial Differential Equations
+
+- **arXiv**: [2607.21644](https://arxiv.org/abs/2607.21644)
+- **Authors**: Jonathan Gallagher, Roberto Guglielmi
+- **TL;DR**: Applies JEPA to PDE control: a goal-agnostic framework where a small ViT encoder + action-conditioned latent dynamics are trained offline without any reward, frozen, and reused by an MPPI controller — demonstrating that physical observables (not raw latent distance) are better control objectives.
+- **Problem**: Can JEPA-learned latent dynamics support goal-agnostic control of complex physical systems (PDEs) without task-specific training? And what objective should the controller optimize — latent distance or a physical observable?
+- **Architecture**: JEPA-based control framework: (1) Small 2D ViT encoder maps PDE states to latent embeddings. (2) Action-conditioned latent dynamics predictor trained offline with no reward or downstream goal. (3) Frozen model reused by Model-Predictive Path Integral (MPPI) controller. Key finding: controlling via a learned linear probe on physical observables (kinetic energy) outperforms raw latent L² distance, because the latent space isn't necessarily Euclidean-meaningful for control.
+- **Compute Scale**: Small-Mid (8-24G): Small 2D ViT encoder; Navier-Stokes benchmark on PDE Control Gym.
+- **LeCun Alignment**: HIGH — Directly instantiates LeCun's vision of goal-agnostic world models: learn the dynamics once, freeze, reuse for many tasks. The finding that "physical observables beat latent distance" aligns with LeCun's emphasis on the world model learning abstract, controllable representations rather than pixel-perfect reconstructions.
+- **GitHub**: Code to be open-sourced with V2 submission
+
+### What / Why / Solve
+
+- **Proposal**: A JEPA-based goal-agnostic control framework for PDEs. Train the world model once without any task-specific objective, freeze it, and use MPPI to solve diverse control tasks by optimizing physical observables rather than latent distance.
+- **Motivation**: Traditional PDE control methods are task-specific (trained per objective). A goal-agnostic world model that learns general dynamics could be reused across many control tasks, dramatically improving sample efficiency.
+- **Problem Solved**: Demonstrates that JEPA-learned latent dynamics on Navier-Stokes equations support diverse control tasks (trajectory following, stabilization) with a single frozen model. The KE-probe approach improves control quality by 53% over latent-L² planning on held-out targets.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on JEPA for representation learning and extends it to PDE control. Bridges the gap between self-supervised world models and scientific computing/control theory.
+- **Implicit Connection**: This paper validates LeCun's claim that world models should be goal-agnostic — learned once and reused. The MPPI controller on frozen dynamics is essentially the "actor" in LeCun's modular agent architecture.
+- **Research Line**: Scientific JEPA — applying predictive world models to physical systems beyond robotics (fluids, climate, materials).
+- **Future Directions**: Extension to 3D PDEs; integration with real-world sensor data; hierarchical JEPA for multi-scale physical systems.
+- **GitHub**: To be released
+
+---
+
+## [2026-07-16] DriftWorld: Fast World Modeling through Drifting
+
+- **arXiv**: [2607.15065](https://arxiv.org/abs/2607.15065)
+- **Authors**: Susie Lu, Haonan Chen, Weirui Ye, Yilun Du
+- **TL;DR**: Replaces iterative diffusion denoising in world models with a learned "drift" that generates future frames in a single forward pass at 30+ fps — 17× faster than diffusion — while matching or exceeding planning performance.
+- **Problem**: Diffusion-based world models are too slow for real-time planning because each rollout requires multi-step iterative denoising. This limits the number of action sequences that can be evaluated at inference time.
+- **Architecture**: DriftWorld — An action-conditioned world model based on drifting generative models. During training, it learns an action-conditioned drift function that maps current observation + action sequence → future frames directly, without iterative denoising. At inference: single forward pass at 30+ fps. Evaluated on Bridge-V2, RT-1, Language Table, Push-T, and Robomimic.
+- **Compute Scale**: Mid (24G): Single forward pass generation; standard manipulation benchmarks.
+- **LeCun Alignment**: MEDIUM — Still uses generative (frame prediction) approach rather than latent prediction, BUT directly addresses LeCun's key criticism of generative world models: they're too slow. DriftWorld shows that fast generation is possible, which partially mitigates the efficiency argument against generative approaches. However, it still wastes capacity on pixel-level details that JEPA avoids entirely.
+- **GitHub**: [susie-lu.github.io/driftworld](https://susie-lu.github.io/driftworld/)
+
+### What / Why / Solve
+
+- **Proposal**: DriftWorld — Replace iterative denoising with a learned deterministic drift for fast world model rollouts.
+- **Motivation**: World models need many rollouts for planning. Diffusion models are accurate but slow (multi-step). Drift models are fast (single-step) and can match diffusion quality when properly trained.
+- **Problem Solved**: Achieves 17× faster inference than diffusion-based world models while maintaining competitive planning performance. Also serves as an offline policy evaluator with rollout scores correlating up to 0.99 with ground truth.
+
+### Academic Context
+
+- **Inheritance / Response**: Responds to the speed limitation of diffusion-based world models (UniSim, GAIA-1, etc.). Builds on the drifting generative model framework.
+- **Implicit Connection**: This paper is the best counterargument to LeCun's "generative models are wasteful" critique — it shows that generation CAN be fast. However, it doesn't address the deeper critique about wasting capacity on irrelevant details. A hybrid DriftWorld + JEPA (drifting in latent space) could be a promising direction.
+- **Research Line**: Efficient Generative World Models — making pixel-level world models fast enough for real-time control.
+- **Future Directions**: Drifting in JEPA latent space; combining drift efficiency with latent prediction; scaling to longer horizons.
+- **GitHub**: [susie-lu.github.io/driftworld](https://susie-lu.github.io/driftworld/)
+
+---
+
+## [2026-07-10] Causally Debiased Latent Action Model for Embodied Action Conditioned World Models
+
+- **arXiv**: [2607.09185](https://arxiv.org/abs/2607.09185)
+- **Authors**: Yufan Wei, Kun Zhou, Lingjun Mao, Zijun Zhang, Ziming Xu, Ziqiao Xi, Shuang Liang, Ruobing Han, Yuchen Yan, Xinyue Wang, Fan Feng, Biwei Huang
+- **TL;DR**: Identifies and fixes action-irrelevant bias in latent action models for world models using causal debiasing: embodiment-centric reconstruction + action-centric contrastive learning + latent calibration, requiring only 6K fine-tuning steps.
+- **Problem**: Latent action models (LAMs) infer actions from unlabeled videos, but existing methods entangle action-relevant dynamics with irrelevant visual factors (backgrounds, untouched objects). This "action-irrelevant bias" prevents controllable world models.
+- **Architecture**: CD-LAM (Causally Debiased LAM) — Three fine-tuning objectives: (1) Embodiment-centric reconstruction: focus on the robot/agent, not background. (2) Action-centric contrastive learning: push apart latents for different actions, pull together for same actions. (3) Latent space calibration: prevent representation collapse. Applied to 2B and 14B ACWM backbones with 12× fewer adaptation updates.
+- **Compute Scale**: Large (40G+): Built on 2B and 14B ACWM backbones.
+- **LeCun Alignment**: MEDIUM-HIGH — Directly addresses a core challenge in LeCun's vision: learning controllable latent representations that isolate action effects from irrelevant factors. The causal debiasing approach aligns with LeCun's emphasis on learning "abstract representations" that capture only what matters for planning and control.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: CD-LAM — Identify and remove action-irrelevant bias from LAM-based world models using causal debiasing objectives.
+- **Motivation**: For world models to be controllable, latent actions must capture only action-relevant dynamics. Existing LAMs mix in irrelevant visual factors, making downstream control unreliable.
+- **Problem Solved**: Substantially improves latent-action controllability, robot-action following, visual fidelity, and adaptation efficiency — requiring only 6K fine-tuning steps and 12× fewer robot-action adaptation updates than baselines.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the LAM literature (learning actions from videos) and ACWM literature (action-conditioned world models). Brings causal inference tools to bear on the entanglement problem.
+- **Implicit Connection**: This is the kind of representation-quality work that LeCun's vision demands. The emphasis on disentangling action-relevant from action-irrelevant factors is exactly what the JEPA objective implicitly achieves through its design. CD-LAM makes this disentanglement explicit and causally grounded.
+- **Research Line**: Causal World Models — applying causal discovery and debiasing to learned dynamics models.
+- **Future Directions**: Integration with JEPA-style objectives; causal discovery of action effects in multi-agent settings; real-robot deployment.
+- **GitHub**: To be checked
+
+---
+
+## [2026-06-29] Latent Actions from Factorized Transition Effects under Agent Ambiguity
+
+- **arXiv**: [2606.30544](https://arxiv.org/abs/2606.30544)
+- **Authors**: Heejeong Nam, Chandradithya S Jonnalagadda, Harshit Aggarwal, Eric Xu, Randall Balestriero
+- **TL;DR**: Factorizes video transitions into sparse reusable primitives (OTF) to learn robust latent actions even when the agent is ambiguous — with a decoder-free DINOv2 variant that predicts future states in frozen representation space.
+- **Problem**: In multi-object or distractor-rich scenes, latent action models confuse agent motion with distractors, camera moves, and background changes. Which visual change is the "action"?
+- **Architecture**: OTF-LAM — (1) Observed Transition Factorization (OTF): decomposes each transition into sparse observed transition primitives. (2) OTF-LAM: uses these primitives in a standard inverse-forward dynamics framework. (3) OTF-LAM-Dino: decoder-free variant that predicts future states in frozen DINOv2 representation space — aligning with JEPA's "predict in representation space" philosophy. Accepted at ICML 2026 Workshop on Compositional Learning.
+- **Compute Scale**: Small-Mid (8-24G): DINOv2-based; standard manipulation benchmarks.
+- **LeCun Alignment**: MEDIUM-HIGH — Randall Balestriero is a LeCun collaborator. The decoder-free DINOv2 variant (predicting in representation space) is conceptually JEPA-aligned. The factorization approach addresses the compositionality that LeCun sees as essential for world models.
+- **GitHub**: [hazel-heejeong-nam.github.io/LAM](https://hazel-heejeong-nam.github.io/LAM/)
+
+### What / Why / Solve
+
+- **Proposal**: OTF-LAM — Factorize transitions into reusable primitives to disambiguate which visual effects are the agent's actions, enabling robust latent action inference.
+- **Motivation**: In real-world scenes, many things move simultaneously. Without factorization, LAMs can't tell which motion belongs to the agent. This is the "agent ambiguity" problem.
+- **Problem Solved**: OTF primitives transfer zero-shot across carrier and morphology shifts. The decoder-free variant (OTF-LAM-Dino) matches or outperforms baselines under complex transition ambiguity, demonstrating that pixel reconstruction isn't necessary.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on LAM and inverse-forward dynamics literature. The decoder-free variant is a direct step toward JEPA-style world models.
+- **Implicit Connection**: Balestriero's involvement connects this to the Meta/LeCun research ecosystem. The decoder-free approach (predicting in DINOv2 space) is essentially JEPA with a frozen target encoder — the same architecture as I-JEPA. This paper provides an alternative path to the same goal: learn actionable representations without pixel reconstruction.
+- **Research Line**: Factorized World Models — learning compositional, reusable dynamics primitives.
+- **Future Directions**: Scaling to more complex multi-agent scenes; integration with JEPA training objectives; hierarchical factorization.
+- **GitHub**: [Project page](https://hazel-heejeong-nam.github.io/LAM/)
+
+---
+
+## [2026-07-13] WALA: Learning Executable Latent Actions from Action-Labeled Demonstrations and Action-Free Videos
+
+- **arXiv**: [2607.11397](https://arxiv.org/abs/2607.11397)
+- **Authors**: Jiahao Liu, Zhongpu Xia, Shuai Tian, Huangrui Li, Yuhang Zheng, Ning Ma, Xin Fu, Xiaotian Liu, Jing Li, Yixian Li, ShangQing Zhou, Zebin Xing, Linbo Wang, Chaoyue Li, Haoran Li, Dongbin Zhao
+- **TL;DR**: Learns executable latent actions from both labeled demos and unlabeled videos by predicting future deltas in DINOv3 + depth space (not pixels), achieving SOTA 75.2% on RoboCasa with strong real-world transfer.
+- **Problem**: Robot policies need action-labeled data (expensive), but massive video data exists without action labels. How to leverage both?
+- **Architecture**: WALA — (1) Pretrain a semantic-geometric latent action model from videos by predicting future deltas in DINOv3 feature space + dense depth space (not raw pixels), preserving task-relevant structure while ignoring appearance. (2) During policy training: pretrained encoder provides stable latent action targets, decoder serves as trainable latent world model. (3) Joint supervision: robot action prediction + latent action target matching + future dynamics prediction.
+- **Compute Scale**: Mid (24G): DINOv3 + depth prediction; RoboTwin, RoboCasa, real-world manipulation.
+- **LeCun Alignment**: MEDIUM — Predicts in representation space (DINOv3 + depth) rather than pixel space, which aligns with JEPA's philosophy. However, the focus is on policy learning rather than building a general-purpose world model. The "latent world model" component connects to the broader world model ecosystem.
+- **GitHub**: [liujiahao2077.github.io/WALA](https://liujiahao2077.github.io/WALA)
+
+### What / Why / Solve
+
+- **Proposal**: WALA — Bridge action-labeled demos and action-free videos by predicting future representations (not pixels) in a shared semantic-geometric latent space.
+- **Motivation**: Action-labeled robot data is scarce and expensive; video data is abundant but lacks action labels. WALA leverages both by learning what changes between frames in representation space.
+- **Problem Solved**: SOTA 75.2% average success on RoboCasa, strong performance on RoboTwin, and improved real-world manipulation generalization — all while leveraging unlabeled video data.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on LAM literature and DINOv3. The key innovation is predicting in DINOv3 + depth space rather than pixels — a step toward JEPA-style representation prediction.
+- **Implicit Connection**: WALA doesn't use JEPA explicitly, but its core design choice — predict future representation deltas rather than reconstruct pixels — is the same insight that motivates JEPA. This convergence from the robot learning community validates LeCun's architectural argument.
+- **Research Line**: Representation-Space Dynamics — learning world dynamics in pretrained feature spaces as an alternative to both pixel generation and end-to-end latent world models.
+- **Future Directions**: Integration with JEPA training for the latent world model; scaling to more diverse video sources; multi-embodiment transfer.
+- **GitHub**: [Project page](https://liujiahao2077.github.io/WALA)
 
 ---
 
@@ -1617,4 +1813,4 @@
 ---
 
 
-*Generated: 2026-07-28 | Papers: 61 | Daily scan: 5 new (Music-JEPA, Identifiability Theory, Robot-Factored WM, ViTacWorld, UOWReg)*
+*Generated: 2026-07-29 | Papers: 68 | Daily scan: 7 new (LeapBot-WA, JEPA Paradox, JEPA PDE Control, DriftWorld, CD-LAM, OTF-LAM, WALA)*
