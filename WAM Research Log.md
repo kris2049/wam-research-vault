@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **68 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-29 (7 new papers)
+> **72 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-30 (4 new papers)
 
 ---
 
@@ -10,7 +10,11 @@
 
 | # | Date | Paper | Alignment | Compute |
 |---|------|-------|-----------|--------|
-| 1 | 2026-07-20 | [AV-JEPA: Extending LeJEPA to Audio-Visual Self-Supervised Learning](https://arxiv.org/abs/2607.15295) | HIGH — Multimodal JEPA, LeJEPA-based, no decoder/EMA. | Mid (24G): Audio-visual ViT on VGGSound/AudioSet. |
+|| 1 | 2026-07-28 | [INTACT: Isomorphic Intent-to-Action Learning for Search-Free World Models](https://arxiv.org/abs/2607.26056) | HIGH — JEPA-based search-free world model on LeWM; 2.9–5.5ms inference. | Mid (24G): LeWM push/pick/place/navigation benchmarks. |
+|| 2 | 2026-07-28 | [TD-JEPA: Plan-Aware Representation Learning for Latent World Model MPC](https://arxiv.org/abs/2607.25337) | HIGH — Temporal-distance JEPA closes train-plan gap; 100% Two-Room, +14.2 OGB-Cube. | Mid (24G): LeWM encoder-predictor backbone. |
+|| 3 | 2026-07-27 | [τ: Touch-Augmented VLA Models from Future Visual Supervision](https://arxiv.org/abs/2607.24485) | MEDIUM-HIGH — JEPA-inspired tactile representation for VLA models; no deployment overhead. | Mid (24G): VLA + tactile encoder finetuning. |
+|| 4 | 2026-07-24 | [IQ-JEPA: JEPA with Hermitian ViT for Ultrasound Sound Speed Estimation](https://arxiv.org/abs/2607.22351) | MEDIUM — Cross-domain validation: complex-valued JEPA for medical imaging. | Mid (24G): Fullwave 79K simulations; 3–4× label efficiency gain. |
+|| 5 | 2026-07-20 | [AV-JEPA: Extending LeJEPA to Audio-Visual Self-Supervised Learning](https://arxiv.org/abs/2607.15295) | HIGH — Multimodal JEPA, LeJEPA-based, no decoder/EMA. | Mid (24G): Audio-visual ViT on VGGSound/AudioSet. |
 | 2 | 2026-07-15 | [The SIGReg Objective as Variational Free Energy: A Theoretical Active-Inference Account of JEPA World Models](https://arxiv.org/abs/2607.13612) | HIGH — Foundational theory connecting JEPA to Active Inference. | Small (8-12G): Theoretical with Lean 4 verification. |
 | 3 | 2026-07-14 | [Mind the Gap: Promises and Pitfalls of Hierarchical Planning in LeWorldModel](https://arxiv.org/abs/2607.12547) | HIGH — Direct LeWorldModel investigation with Hi-LeWM. | Mid (24G): Two-level planning over frozen LeWM. |
 | 4 | 2026-07-13 | [From World Action Models to Embodied Brains: A Roadmap for Open-World Physical Intelligence](https://arxiv.org/abs/2607.11689) | HIGH — Explicit WAM roadmap; coins "embodied brain" concept. | N/A (roadmap/position paper) |
@@ -78,6 +82,114 @@
 || 66 | 2026-07-10 | [Causally Debiased Latent Action Model for Embodied Action Conditioned World Models](https://arxiv.org/abs/2607.09185) | MEDIUM-HIGH — Causal debiasing for LAM-based world models; disentangles action from visual confounders. | Large (40G+): 2B/14B ACWM backbones. |
 || 67 | 2026-06-29 | [Latent Actions from Factorized Transition Effects under Agent Ambiguity](https://arxiv.org/abs/2606.30544) | MEDIUM-HIGH — Balestriero co-author; OTF-LAM with decoder-free DINOv2 variant; sparse transition primitives. | Small-Mid (8-24G): DINOv2-based; ICML 2026 Workshop. |
 || 68 | 2026-07-13 | [WALA: Learning Executable Latent Actions from Action-Labeled Demonstrations and Action-Free Videos](https://arxiv.org/abs/2607.11397) | MEDIUM — Latent actions from videos without reconstruction; DINOv3 + depth prediction space. | Mid (24G): SOTA on RoboCasa (75.2%). |
+
+---
+
+## [2026-07-28] INTACT: Isomorphic Intent-to-Action Learning for Search-Free World Models
+
+- **arXiv**: [2607.26056](https://arxiv.org/abs/2607.26056)
+- **Authors**: Junhan Sun, Hao Zhao, Guofeng Zhang
+- **TL;DR**: An end-to-end JEPA that maps latent "intent" (desired state change) directly to actions without test-time search, achieving 85.78%–100% on LeWM benchmarks with inference in 2.9–5.5ms — 23.44× fewer samples than pure CEM.
+- **Problem**: Forward latent world models (JEPA-based) can predict how actions change a scene, but recovering which actions produce a desired change requires expensive test-time search (CEM/MPPI sampling). This search bottleneck limits real-time deployment.
+- **Architecture**: INTACT — Isomorphic architecture where local motion intent (zₜ₊₁−zₜ from transitions) and goal motion intent (sg(z_g)−zₜ from future targets) share identical four-slot input graphs and parameters. Key innovations: (1) **Isomorphic backbones**: the same predictor induces action-law semantics for both local and goal intents, eliminating pointwise latent matching. (2) **Asymmetric endpoint gradients**: physical successors are grounded via gradient, while future goals are fixed as anchors via stop-gradient — joining representation learning and control without globally linear dynamics. (3) **Distributional action law**: conditional mean of the predicted action distribution serves as a search-free direct policy; sampling remains available for diversity/verification. Evaluated on four LeWM tasks with one-epoch, zero-search models. Optional local CEM centered on the Direct plan reduces sampling 23.44× while improving CEM by 16 points.
+- **Compute Scale**: Mid (24G): LeWM push/pick/place/navigation benchmarks. Direct inference 2.9–5.5ms. Shared four-task encoder.
+- **LeCun Alignment**: HIGH — Directly addresses the search-to-plan bottleneck in JEPA world models. INTACT shows that JEPA training can produce action-effective latent coordinates that support search-free planning, fundamentally changing the relationship between world models and control. The isomorphic design (same architecture for local and goal intents) mirrors LeCun's vision of unified predictive architectures. The search-free direct policy closes the loop between JEPA representation learning and actionable control — a key gap in LeCun's modular agent design.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: INTACT — Learn an intent-to-action interface directly from JEPA training, eliminating test-time search. The model learns to map latent state changes (intents) to actions during training, so at deployment, a desired goal produces an intent that maps directly to an action.
+- **Motivation**: JEPA-based world models excel at predicting future states, but planning still requires sampling thousands of action sequences (CEM/MPPI). This search is the computational bottleneck for real-time control. If JEPA can learn to invert its own prediction — mapping desired outcomes back to actions — planning becomes search-free.
+- **Problem Solved**: Zero-search models reach 85.78–100% on LeWM tasks after one epoch. Direct inference takes 2.9–5.5ms compared to CEM's ~9,000 candidate evaluations. When search IS used (local CEM centered on Direct plan), only 384 samples are needed vs 9,000 — a 23.44× reduction. Shared encoder across all four tasks improves over per-task LeWM.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds directly on LeWorldModel (2603.19312) and JEPA-based latent world models. Addresses the planner bottleneck identified by SAGE (2607.17973) and the search limitation of prior JEPA planners.
+- **Implicit Connection**: This paper represents a critical architectural innovation for JEPA world models. LeCun's vision separates the world model (predicts consequences) from the actor (chooses actions). INTACT shows these can be learned jointly with an isomorphic architecture — the same predictor that models forward dynamics also provides the inverse mapping. This could simplify LeCun's modular agent design by collapsing the world model + actor interface.
+- **Research Line**: Search-Free WAM — eliminating planning search in JEPA-based world models through learned intent-action mappings.
+- **Future Directions**: Extension to visual observation spaces (currently uses LeWM latent states); multi-task continual learning; integration with hierarchical planning.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-28] TD-JEPA: Plan-Aware Representation Learning for Latent World Model Predictive Control
+
+- **arXiv**: [2607.25337](https://arxiv.org/abs/2607.25337)
+- **Authors**: Jiaxin Bai, Jiaxuan Xiong
+- **TL;DR**: Mines temporal-distance supervision from offline trajectory logs to train JEPA world models whose latent geometry is plan-aware — achieving 100% Two-Room and +14.2 points on OGB-Cube over LeWM under shared evaluation, with released code.
+- **Problem**: JEPA-style training optimizes short-horizon latent prediction, whereas planning requires multi-step ranking of imagined futures by goal progress. Prior JEPA planners inherit their ranking metric from embedding geometry (typically Euclidean distance), which arises as a byproduct of representation learning rather than being explicitly optimized for planning. There's a fundamental train-plan gap.
+- **Architecture**: TD-JEPA — Retains the LeWorldModel (LeWM) encoder-predictor backbone and adds a directed temporal cost mined from reward-free trajectories: (1) **Same-trajectory step order** supplies positive targets (later timesteps should have lower temporal distance to goal), (2) **Cross-trajectory pairs** serve as heuristic negatives, (3) **Rollout-consistency term** matches the planner's multi-step horizon. The mined supervision serves dual purpose: as the deployed planning cost when progress is topological (Two-Room: 100% vs LeWM's 97.4%), and as a representation signal that improves Euclidean planning when contact geometry dominates (OGB-Cube: +14.2 points over LeWM).
+- **Compute Scale**: Mid (24G): LeWM encoder-predictor backbone on PushT, OGB-Cube, Two-Room. Locked evaluation protocol.
+- **LeCun Alignment**: HIGH — Addresses a fundamental gap in JEPA-based planning: the cost function used for planning is not optimized during world model training. TD-JEPA shows that mining temporal structure from offline logs and co-designing the cost with planning deployment substantially improves JEPA planners. This aligns with LeCun's vision of world models that are trained not just to predict, but to support downstream reasoning. The train-plan gap has been a criticism of JEPA — TD-JEPA directly responds.
+- **GitHub**: [github.com/HKBU-KnowComp/TD-JEPA](https://github.com/HKBU-KnowComp/TD-JEPA)
+
+### What / Why / Solve
+
+- **Proposal**: TD-JEPA — Augment JEPA world model training with temporal-distance supervision mined from offline trajectories. The model learns a latent geometry where temporal distance to goal is explicitly represented, enabling effective planning without post-hoc cost design.
+- **Motivation**: JEPA world models predict well but plan poorly because their latent space isn't optimized for ranking futures by goal progress. Euclidean distance in latent space is a weak proxy for temporal distance to goal. Mining temporal structure from the same offline logs used for training solves this without additional data.
+- **Problem Solved**: Under locked evaluation (frozen encoder + predictor, only changing planning cost), TD-JEPA's temporally-aware cost achieves 100% on Two-Room (vs LeWM's 97.4%) and +14.2 points on OGB-Cube. Even when using shared Euclidean planning, the temporally-trained checkpoint improves over LeWM — showing the temporal supervision also improves the latent geometry itself.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on LeWorldModel (2603.19312), I-JEPA (2301.08243), and the growing literature on JEPA-based planning. Directly addresses the train-plan gap critique raised by works like 2607.10362 (prediction error ≠ control success) and SAGE (2607.17973).
+- **Implicit Connection**: TD-JEPA operationalizes a key insight: world models for planning need plan-aware representations. The temporal-distance cost is not just a better planner — it's a training signal that reshapes the latent space to be more useful for planning. This blurs the line between representation learning and planning that LeCun's architecture keeps separate, suggesting a more integrated approach may be beneficial.
+- **Research Line**: Plan-Aware JEPA — training world model representations explicitly for planning utility.
+- **Future Directions**: Extension to longer horizons; integration with hierarchical planning; learned temporal distances for multi-goal settings.
+- **GitHub**: [github.com/HKBU-KnowComp/TD-JEPA](https://github.com/HKBU-KnowComp/TD-JEPA)
+
+---
+
+## [2026-07-27] τ: Learning Touch-Augmented Vision-Language-Action Models from Future Visual Supervision
+
+- **arXiv**: [2607.24485](https://arxiv.org/abs/2607.24485)
+- **Authors**: Ning Cheng, Jinan Xu, Wanlin Li, Yangzhi Chen, Jing Gao, Yiqun Wang, Kelan Peng, Wenjuan Han
+- **TL;DR**: Learns action-conditioned spatiotemporal tactile representations via JEPA-inspired future visual latent prediction (training-only, no inference overhead), fusing with pretrained VLA models for contact-rich manipulation with improved generalization.
+- **Problem**: Incorporating tactile sensing into Vision-Language-Action (VLA) models is challenging: (1) task-specific tactile data is scarce, (2) large-scale tactile pretraining is expensive, (3) existing methods either focus on instantaneous contact or use low-dimensional wrench sequences that don't exploit rich high-dimensional tactile signals.
+- **Architecture**: τ (tau) — Two key innovations: (1) **JEPA-inspired tactile encoder**: an action-conditioned spatiotemporal tactile encoder is trained to predict future visual features (from the VLA's vision encoder) in latent space — supervision that operates only during training and adds zero deployment overhead. (2) **Tactile fusion**: the trained tactile representations are fused with VLA vision-language features for action generation. Introduces TacAura dataset with synchronized vision, proprioception, and vision-based tactile signals across four contact-rich tasks. Training supervision follows JEPA principles: predict in latent space (future visual features), not reconstruct tactile signals.
+- **Compute Scale**: Mid (24G): VLA backbone + tactile encoder finetuning. No inference overhead from tactile training.
+- **LeCun Alignment**: MEDIUM-HIGH — The JEPA-inspired training objective (predict future visual latents from tactile+action context) directly applies LeCun's core insight to a novel modality. The "training-only supervision, zero deployment overhead" pattern mirrors how JEPA world models use prediction during training but only the encoder during inference. However, the primary architecture is a VLA policy, not a world model — making this JEPA-inspired rather than JEPA-based. The TacAura dataset contribution enables future JEPA-based visuo-tactile world models.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: τ — A touch-augmented VLA framework that learns tactile representations by predicting future visual features (JEPA-style latent prediction) during training, with zero inference overhead. The tactile encoder captures spatiotemporal contact dynamics, fused with vision-language for improved action prediction.
+- **Motivation**: Contact-rich tasks (insertion, grasping delicate objects) require tactile feedback that vision alone can't provide. But collecting large-scale tactile data is expensive, and integrating touch into billion-parameter VLAs is architecturally challenging. JEPA-style latent prediction offers a way to learn from limited tactile data by predicting in the already-rich visual feature space.
+- **Problem Solved**: τ outperforms existing VLA models on contact-rich manipulation tasks and generalizes to unseen objects and scenes. The JEPA-inspired tactile pretraining improves manipulation performance and robustness without adding inference cost.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on VLA models (OpenVLA, π₀) and JEPA (I-JEPA, V-JEPA). The tactile-predicts-visual-future design echoes the JEPA predictor's role: learn by predicting in representation space. Complements ViTacWorld (2607.22530) which builds full visuo-tactile world models — τ shows a lighter-weight approach focused on policy learning.
+- **Implicit Connection**: τ demonstrates a practical, lightweight way to bring JEPA principles into robot learning without building a full world model. The "predict future visual features" objective is a minimal JEPA — context encoder (tactile+action) → predictor → target (future visual features). This suggests a spectrum of JEPA adoption: from full world models (SkyJEPA, LeWM) to JEPA-inspired auxiliary objectives (τ). Also complements Patch Policy (2607.18236) from LeCun's group — together they suggest a research direction of lightweight JEPA-inspired modules for robot learning.
+- **Research Line**: JEPA-Inspired Robotics — auxiliary JEPA objectives for policy learning without full world model deployment.
+- **Future Directions**: Multi-modal JEPA pretraining for visuo-tactile-action spaces; real-time tactile JEPA for reactive control.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-24] IQ-JEPA: A JEPA with Hermitian ViT for Ultrasound Sound Speed Estimation
+
+- **arXiv**: [2607.22351](https://arxiv.org/abs/2607.22351)
+- **Authors**: Masashi Sode, Gianmarco Pinton
+- **TL;DR**: Adapts JEPA to complex-valued medical ultrasound data via a Hermitian Vision Transformer that is equivariant to phase offset — achieving 3–4× label efficiency gains for sound speed estimation, a step toward foundation models for quantitative ultrasound.
+- **Problem**: Ultrasound sound speed estimation from raw IQ (in-phase/quadrature) channel data is a nonlinear inverse problem. Learned solvers are fast but require large labeled datasets, while abundant real channel data is unlabeled. How to leverage JEPA pretraining for complex-valued medical signals?
+- **Architecture**: IQ-JEPA — (1) JEPA pretraining: context encoder + predictor trained to predict masked IQ region latents from visible context, without labels. (2) **Hermitian Vision Transformer**: operates directly on complex IQ data. Its attention is equivariant to constant phase offset (a nuisance parameter in ultrasound), and its conjugate-product feed-forward is invariant to it — the encoder reads a quantity analogous to classical coherence methods. (3) Fine-tuning on simulated sound speed maps. Trained on 79,293 Fullwave 2.5 MHz simulations (63,435 unlabeled for pretraining). The equivariance/invariance properties make the architecture physically principled for the domain.
+- **Compute Scale**: Mid (24G): Fullwave 79K simulation dataset; JEPA pretraining + supervised fine-tuning.
+- **LeCun Alignment**: MEDIUM — Cross-domain validation of JEPA in medical imaging with complex-valued signals. Demonstrates JEPA's generality to modalities beyond RGB images and to signals with domain-specific physical invariances. The Hermitian ViT's treatment of phase equivariance is a nice example of building physical structure into JEPA encoders. However, this is primarily a domain application rather than advancing world model theory. The 3–4× label efficiency gain validates JEPA's practical value for label-scarce scientific domains.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: IQ-JEPA — Apply JEPA pretraining to complex-valued ultrasound data using a physically-principled encoder (Hermitian ViT). Pretrain on unlabeled IQ data to predict masked region latents, then fine-tune on simulated sound speed maps with dramatically improved label efficiency.
+- **Motivation**: Medical imaging has abundant unlabeled data and scarce labeled data. JEPA's self-supervised pretraining is ideal for this regime, but ultrasound IQ data is complex-valued with domain-specific structure (phase offset nuisance, coherence-like features). A vanilla ViT would waste capacity learning phase invariance from data; a Hermitian ViT bakes it in architecturally.
+- **Problem Solved**: JEPA pretraining achieves 15.60 m/s RMSE at 10,000 labels — roughly 3× label efficiency over supervised training (4× at 1,000 labels). The pretrained encoder's frozen features expose both sound speed and attenuation, suggesting transfer to multiple downstream tasks. Cross-distribution pretraining (layered→abdominal phantoms) costs little accuracy.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on I-JEPA (2301.08243) and quantitative ultrasound literature. Adapts JEPA to complex-valued signals with domain-specific neural architecture (Hermitian ViT).
+- **Implicit Connection**: This paper extends the JEPA application portfolio to medical/scientific domains, following Crys-JEPA (2605.14759, materials science) and JEPA-CFM (2607.20202, wireless communications). Together these papers demonstrate that JEPA is a general-purpose SSL paradigm for structured physical signals, not just natural images. The Hermitian ViT's treatment of physical invariances echoes LeCun's call for architectures that incorporate known physical structure rather than learning everything from data.
+- **Research Line**: Scientific JEPA — adapting JEPA to domain-specific physical signals.
+- **Future Directions**: Extension to other medical imaging modalities (MRI, CT); foundation model for quantitative ultrasound; real-time clinical deployment.
+- **GitHub**: To be checked
 
 ---
 
@@ -1813,4 +1925,4 @@
 ---
 
 
-*Generated: 2026-07-29 | Papers: 68 | Daily scan: 7 new (LeapBot-WA, JEPA Paradox, JEPA PDE Control, DriftWorld, CD-LAM, OTF-LAM, WALA)*
+*Generated: 2026-07-30 | Papers: 72 | Daily scan: 4 new (INTACT, TD-JEPA, τ, IQ-JEPA)*
