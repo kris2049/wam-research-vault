@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **72 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-30 (4 new papers)
+> **77 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-31 (5 new papers)
 
 ---
 
@@ -82,6 +82,149 @@
 || 66 | 2026-07-10 | [Causally Debiased Latent Action Model for Embodied Action Conditioned World Models](https://arxiv.org/abs/2607.09185) | MEDIUM-HIGH — Causal debiasing for LAM-based world models; disentangles action from visual confounders. | Large (40G+): 2B/14B ACWM backbones. |
 || 67 | 2026-06-29 | [Latent Actions from Factorized Transition Effects under Agent Ambiguity](https://arxiv.org/abs/2606.30544) | MEDIUM-HIGH — Balestriero co-author; OTF-LAM with decoder-free DINOv2 variant; sparse transition primitives. | Small-Mid (8-24G): DINOv2-based; ICML 2026 Workshop. |
 || 68 | 2026-07-13 | [WALA: Learning Executable Latent Actions from Action-Labeled Demonstrations and Action-Free Videos](https://arxiv.org/abs/2607.11397) | MEDIUM — Latent actions from videos without reconstruction; DINOv3 + depth prediction space. | Mid (24G): SOTA on RoboCasa (75.2%). |
+||| 69 | 2026-07-29 | [What Can Latent World Models Know? Physical Parameter Identifiability in Multimodal Predictive Representations](https://arxiv.org/abs/2607.27017) | HIGH — POKEWORLD identifiability study: objective structure determines which physics enters the latent; data scale only amplifies what's already acquired. | Small-Mid (8-24G): Controlled interventions + RH20T scaling curves. |
+||| 70 | 2026-07-29 | [DLAM: Distributional Latent Actions with Temporal Constraints](https://arxiv.org/abs/2607.27138) | MEDIUM-HIGH — Distributional latent actions with temporal variance constraints; reconstruction-free flow-matching policy; improved MetaWorld MT50 and real-world manipulation. | Mid (24G): Encoder + flow-matching policy. |
+||| 71 | 2026-07-26 | [Action from Adjacent Set in Physical Space Outperforms the Best Prediction in World Models](https://arxiv.org/abs/2607.23602) | HIGH — Proves latent-cost selection systematically fails; ASAR adjacency-based reconstruction; +18.7–28.0pp improvement. | Small-Mid (8-24G): Cube + Carry-and-Release benchmarks. |
+||| 72 | 2026-07-25 | [WCM: World-Cognition Model for Generalizable Human-Robot Interaction](https://arxiv.org/abs/2607.22999) | MEDIUM — SLAK modular architecture for HRI; human-in-the-loop teaching mode; 73.8% across 9 real-world HRI tasks. | Mid (24G): Modular perception/reasoning/control/memory. |
+||| 73 | 2026-07-29 | [Mental World Modeling](https://arxiv.org/abs/2607.27201) | MEDIUM — Extends world models to hidden mental states (beliefs, intentions); MENTIS baseline; LLM-based, not JEPA-aligned architecturally. | Small (8-12G): LLM-based world model; situated decision scenarios. |
+
+---
+
+
+---
+
+## [2026-07-29] What Can Latent World Models Know? Physical Parameter Identifiability in Multimodal Predictive Representations
+
+- **arXiv**: [2607.27017](https://arxiv.org/abs/2607.27017)
+- **Authors**: Kaizhen Tan, Xin Xu, Siru Tao, Hanzhe Hong, Yang Feng, Heqing Du
+- **TL;DR**: Demonstrates via controlled POKEWORLD interventions that a latent world model's prediction TARGETS (not data scale) determine which physical parameters enter the representation — and single-step vision-only prediction discards even perfectly visible object state.
+- **Problem**: The central premise of latent world models is that predicting the future forces the representation to internalize physics. But which physical quantities actually enter the latent, and what determines this? Without answering this, we don't know what world models actually know.
+- **Architecture**: POKEWORLD — an interactive environment with visually identical objects that hide mass, drag, and contact stiffness. Uses a certificate-gated protocol: first certify each parameter is recoverable from raw observations, then measure whether it enters the latent. Key findings: (1) Inputs limit what can be known, but prediction targets decide what is retained. (2) Stiffness enters the latent only when touch is forecast (R²=0.50 vs -0.02 when merely fused into input). (3) Single-step vision-only prediction discards even perfectly visible object state. (4) Drag carries 0.89 recoverability certificate yet plateaus near 0.13 under every deterministic prediction objective. (5) On RH20T (4,258 episodes, 2 robots), only the full multimodal objective forecasts force beyond persistence baseline — and these gains grow with scale. The fundamental finding: objective structure determines WHICH physical parameters a latent acquires; additional data only improves parameters it ALREADY acquires.
+- **Compute Scale**: Small-Mid (8-24G): Controlled POKEWORLD interventions + RH20T scaling curves across two robots and 4,258 episodes.
+- **LeCun Alignment**: HIGH — Foundational paper for the JEPA/world model research program. Proves that prediction targets (not data volume) govern what physics world models learn. Directly validates LeCun's emphasis on multimodal prediction (vision + touch + force) as essential for acquiring complete physical understanding. The finding that vision-only prediction discards object state is a powerful argument against purely visual world models and for the multimodal sensor fusion LeCun advocates. Critical empirical grounding for the "what does a world model know?" question.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Use controlled interventions in POKEWORLD + RH20T scaling curves to create an "identifiability map" — showing exactly which physical parameters enter a world model's latent representation under different prediction objectives and data scales.
+- **Motivation**: The world model community assumes more data = better physics. This paper shows that assumption is wrong: a latent world model will NEVER acquire certain physical parameters regardless of data scale if the prediction objective doesn't demand them. This is the "frontier" problem — some physics is fundamentally inaccessible to certain objectives.
+- **Problem Solved**: Provides the first systematic empirical map of physical parameter identifiability in latent world models. Establishes that prediction targets (not data scale) are the binding constraint. Shows that multimodal prediction (vision + proprioception + force) is necessary for acquiring complete physics. Identifies "drag" as a parameter class that fundamentally challenges deterministic prediction objectives.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on JEPA/world model literature, identifiability theory (2607.22430), and multimodal world models. The certificate-gated protocol is a methodological contribution for future identifiability studies.
+- **Implicit Connection**: This paper provides the empirical complement to the theoretical identifiability work (2607.22430) and the evaluation critique (2607.10362). Together they form a trilogy: identifiability tells us what CAN be learned, this paper tells us what ACTUALLY gets learned under different objectives, and the control theory paper tells us whether what's learned supports planning.
+- **Research Line**: World Model Identifiability — empirical investigation of what physics predictive objectives actually extract.
+- **Future Directions**: Extend to more complex physics (friction models, deformables); test with JEPA-style objectives rather than reconstruction-based ones; develop objectives that explicitly target currently-unacquired physics (like drag).
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-29] DLAM: Distributional Latent Actions with Temporal Constraints
+
+- **arXiv**: [2607.27138](https://arxiv.org/abs/2607.27138)
+- **Authors**: Zuojin Tang, Feifan Luo, Haoyun Liu, Botai Yuan, Dekang Qi, Ronghan Chen, Yandan Yang, Tong Lin, Xinyuan Chang, Mu Xu, Bin Liu, De Ma, Zhiheng Ma
+- **TL;DR**: Replaces deterministic latent action codes with diagonal Gaussian distributions, adding normalized temporal constraints (composition + reversal over equal-gap triplets) — the learned variance and correlation-aware composition improve downstream control while the flow-matching policy operates reconstruction-free on frozen encoders.
+- **Problem**: Latent action models (LAMs) extract action priors from action-free videos, but reconstruction-trained codes may lack the temporal structure required for joint generation with robot actions. Existing structured methods add temporal constraints but retain deterministic transition points, so residual errors propagate and compound under recursive composition.
+- **Architecture**: DLAM — Three innovations: (1) **Distributional representation**: each transition is a diagonal Gaussian — the mean grounds in observed visual change (via reconstruction conditioned on reference frame), and the variance captures transition uncertainty. (2) **Temporal constraints**: normalized composition (how two consecutive latents compose) and reversal (negating the mean while preserving variance) over equal-gap triplets constrain both the mean and dimension-wise variance. Variance composition uses a lightweight shared-correlation coefficient to account for dependence between adjacent transitions sharing an intermediate frame. (3) **Reconstruction-free policy**: For downstream learning, the encoder is frozen and a flow-matching policy jointly generates mean transition sequences and robot actions — no reconstruction needed at deployment. Evaluated on MetaWorld MT50, LIBERO, and real-world manipulation.
+- **Compute Scale**: Mid (24G): Encoder training + flow-matching policy. Reconstruction-free at deployment.
+- **LeCun Alignment**: MEDIUM-HIGH — The reconstruction-free downstream policy (operating purely in latent space) aligns with JEPA's philosophy. The distributional approach addresses the "multiple valid futures" problem that JEPA faces (cf. 2607.23531 on JEPA Paradox in language). However, the encoder is still trained with reconstruction, making this a hybrid rather than pure-JEPA approach. The temporal constraint design (composition + reversal) is a principled way to inject physical structure into learned dynamics.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: DLAM — Move from deterministic latent actions to distributional ones (Gaussian mean + variance), constrain the distributions with physically-motivated temporal rules (composition, reversal), and deploy with a reconstruction-free flow-matching policy.
+- **Motivation**: Deterministic LAMs can't express uncertainty about transitions — when a latent action is ambiguous (common in real videos), forcing a single point estimate injects error that compounds across multi-step rollouts. Distributional codes with learned variance let the model express uncertainty, and temporal constraints regularize how uncertainties compose.
+- **Problem Solved**: DLAM learns more temporally consistent latent dynamics than existing LAM baselines. Under controlled π₀ transfer protocol, improves policy performance on MetaWorld MT50, LIBERO, and real-world manipulation. Ablations show normalized mean constraints account for most reconstruction gain, while learned variance and correlation-aware composition provide complementary improvements in downstream control.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on LAM literature (including WALA 2607.11397, CD-LAM 2607.09185, OTF-LAM 2606.30544). The distributional approach addresses the same fundamental issue as the JEPA Paradox paper (2607.23531): when multiple futures are valid, a deterministic point prediction is wrong.
+- **Implicit Connection**: DLAM represents a convergence point between LAM research and JEPA philosophy. The reconstruction-free downstream policy mirrors JEPA's latent-space operation, while the distributional transition model addresses a limitation of deterministic JEPA predictors.
+- **Research Line**: Distributional World Models — moving from deterministic to probabilistic latent dynamics.
+- **Future Directions**: Pure JEPA-style training (no reconstruction objective); learned correlation structures beyond diagonal Gaussians; integration with planning algorithms that exploit transition variance for risk-aware control.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-26] Action from Adjacent Set in Physical Space Outperforms the Best Prediction in World Models
+
+- **arXiv**: [2607.23602](https://arxiv.org/abs/2607.23602)
+- **Authors**: Liangyu Li, Qingwen Liu, Mingqing Liu
+- **TL;DR**: Proves that standard latent-cost-based action selection in world model MPC systematically fails — residual prediction error gives infeasible sequences anomalously low costs, and larger proposal pools make this WORSE. Introduces ASAR (Adjacent Set Action Reconstruction) which recovers feasible actions from the density of adjacent proposals, improving success by 18.7–28.0pp.
+- **Problem**: World model MPC selects actions by: (1) sample many action sequences, (2) predict their terminal cost via the world model, (3) pick the cheapest. This rule can fail even when the terminal cost PERFECTLY reflects the true task objective — residual prediction error gives infeasible sequences anomalously low costs, and more proposals give more chances for such errors to outrank feasible alternatives ("proposal overgeneration").
+- **Architecture**: ASAR — Adjacent Set Action Reconstruction. Instead of blindly trusting the minimum-cost proposal, ASAR (1) measures density from standardized early action prefixes among low-cost proposals, (2) reconstructs a full sequence from an adjacent set with a light anchor from the minimum-cost sequence. This exploits the insight that feasible actions tend to cluster in action space even when their predicted costs are unreliable. Three variants: Kernel ASAR (best), Distance ASAR, and Prefix ASAR. Evaluated on Cube and Carry-and-Release benchmarks.
+- **Compute Scale**: Small-Mid (8-24G): Cube + Carry-and-Release benchmarks. Modest computational overhead (density estimation on proposal pool).
+- **LeCun Alignment**: HIGH — This paper provides the strongest empirical demonstration yet that the standard "predict → rank → select" pipeline in world model planning is fundamentally broken. The finding that larger proposal pools can REDUCE selection reliability directly challenges current MPC practices. Supports the search-free planning direction pursued by INTACT (2607.26056) and TD-JEPA (2607.25337). The ASAR approach — using structure in the action space rather than trusting predicted costs — suggests a principled alternative.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: ASAR — Replace minimum-cost selection with adjacency-based reconstruction. Identify clusters of similar action proposals, and reconstruct the final action from adjacent proposals rather than trusting the single lowest-cost one.
+- **Motivation**: In Cube candidate execution audits, increasing the proposal budget from 72 to 288 reduces the feasibility of minimum-cost selection from 0.375 to 0.062 for position targets — even though EVERY larger pool contains a feasible sequence. More computation makes the planner WORSE. This is a structural failure.
+- **Problem Solved**: Kernel ASAR improves event completion success by 18.7–28.0pp over standard minimum-cost selection across proposal budgets (72/144/288). Even trajectory reachability cost (a better cost function) still benefits from ASAR (+17.3–20.0pp). Analysis characterizes selection risk, separation by radius support statistic, and sequence containment under local feasibility.
+
+### Academic Context
+
+- **Inheritance / Response**: Directly challenges the core planning loop used by Dreamer, TD-MPC, LeWM, and all MPC-based world model planners. Connects to the growing critique of prediction-based evaluation (2607.10362, 2607.16591, 2607.14169).
+- **Implicit Connection**: Together with INTACT (search-free planning) and TD-JEPA (plan-aware representations), this paper contributes to a growing consensus that the standard MPC-over-latent-world-model pipeline needs fundamental redesign.
+- **Research Line**: World Model Planning Critique — identifying and fixing structural failures in sampling-based planning.
+- **Future Directions**: Integration with search-free planners (INTACT-style); learned adjacency metrics; extension to continuous action spaces.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-25] WCM: World-Cognition Model for Generalizable Human-Robot Interaction
+
+- **arXiv**: [2607.22999](https://arxiv.org/abs/2607.22999)
+- **Authors**: Yuzhen Chen, KC Zhou
+- **TL;DR**: A human-centered embodied agent built on the modular SLAK architecture (Sensing, Logic, Action, Knowledge) with asynchronous runtime and human-in-the-loop teaching mode — achieving 73.8% across 9 real-world HRI tasks including long-horizon tasks learned through interactive teaching.
+- **Problem**: Current robot-control paradigms (VLA policies, world-model-based planners) are optimized for instruction execution, leaving users with little visibility into WHY an action is chosen and few mechanisms to redirect, correct, or teach the robot through interaction.
+- **Architecture**: WCM (World-Cognition Model) — Built on SLAK: four separated modules (Sensing, Logic, Action, Knowledge) communicating through an asynchronous runtime that allows reasoning, dialogue, and execution to proceed concurrently. Key innovation: human-in-the-loop teaching mode where teaching episodes and autonomous task rollouts are refined into chain-of-thought supervision for continual improvement. The SLAK architecture's modular decomposition echoes LeCun's modular agent design (perception → world model → cost → actor).
+- **Compute Scale**: Mid (24G): Modular architecture — perception/reasoning/control/memory run concurrently on GPU.
+- **LeCun Alignment**: MEDIUM — The SLAK architecture's modular decomposition aligns with LeCun's modular agent architecture. The human-in-the-loop teaching mode connects to how world models acquire knowledge. However, WCM is not a latent predictive world model — it's an HRI architecture that uses world models as a component.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: WCM — A modular embodied agent architecture (SLAK) that separates perception, reasoning, control, and memory, connected through an asynchronous runtime. Adds human-in-the-loop teaching mode for continual improvement from interaction.
+- **Motivation**: Robots deployed in human environments need to be teachable, interpretable, and responsive to real-time human feedback. Current systems are black boxes optimized for autonomous execution.
+- **Problem Solved**: 73.8% average success across 9 real-world HRI tasks, including tasks held out from CoT fine-tuning and a long-horizon task learned entirely through interactive teaching.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on VLA models, world model planners, and HRI literature. The SLAK architecture is a practical instantiation of modular agent design principles.
+- **Implicit Connection**: The SLAK decomposition mirrors LeCun's modular agent architecture. The asynchronous runtime addresses a practical concern: how modules coordinate in real time. The human teaching mode raises the question of whether world models should learn from human feedback.
+- **Research Line**: Interactive World Models — making world models teachable and interpretable for human interaction.
+- **Future Directions**: Integration with JEPA-based predictive world models; multi-modal teaching signals.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-29] Mental World Modeling
+
+- **arXiv**: [2607.27201](https://arxiv.org/abs/2607.27201)
+- **Authors**: Hao Fei, Yiran Zhao
+- **TL;DR**: Extends world models beyond physical prediction to include hidden mental states (beliefs, intentions, desires) as first-class components — a coupled physical-mental world state — necessary for predicting human behavior in social scenarios. Introduces MENTIS baseline evaluated on text, image, and video decision scenarios.
+- **Problem**: Existing world models answer only physical questions (what/where/how will it evolve). But human behavior is driven by hidden mental states — beliefs, wants, intentions, social norms. A model tracking only the physical scene predicts the wrong action for the right-looking scene.
+- **Architecture**: MWM (Mental World Modeling) — Generic theoretical framework with coupled physical-mental world state. Maintains physical + mental state (beliefs, desires, intentions for each agent), renders target-specific partial observations, and simulates how candidate actions jointly update both components. MENTIS is a training-free, LLM-based baseline that decomposes the process into state parsing, target-observation generation, action decomposition, coupled physical+mental transition, and branch-level value evaluation. Tested on 8 modern LLM-based world models across text, image, and video story scenarios.
+- **Compute Scale**: Small (8-12G): LLM-based world model inference; manually constructed dataset of situated decision scenarios.
+- **LeCun Alignment**: MEDIUM — The idea of extending world models to mental states is conceptually aligned with LeCun's vision of agents that understand other agents (theory of mind). However, the implementation is LLM-based (not JEPA/latent-predictive) and focused on language/social reasoning rather than physical control. The paper argues mental world modeling is the "next stage" beyond physical world modeling — interesting but not on LeCun's current research trajectory.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: MWM — Formalize "mental world modeling" as extending world models from physical prediction to coupled physical-mental state prediction. A world model that doesn't track what agents believe and want will predict wrong actions.
+- **Motivation**: Human interaction requires theory of mind. An autonomous agent navigating social environments must predict how others will act based on mental states, not just physical positions. Current world models are "mind-blind."
+- **Problem Solved**: Demonstrates that explicitly modeling mental states is essential for predicting human decisions in social scenarios. MENTIS baseline provides proof-of-concept across text, image, and video modalities.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends the world model concept from physical dynamics to social/mental dynamics. Builds on cognitive science (theory of mind) and LLM-based reasoning.
+- **Implicit Connection**: Raises the question: can JEPA-style architectures learn mental world models from observation alone? Mental states are linguistic/conceptual rather than visual/physical — testing whether JEPA objectives can discover mental state latents from multi-agent video would be fascinating.
+- **Research Line**: Social World Models — extending predictive architectures to multi-agent, mental-state-aware domains.
+- **Future Directions**: Learning mental state representations from interaction data; integrating mental + physical world models for embodied social agents; testing JEPA-style objectives on multi-agent video.
+- **GitHub**: To be checked
 
 ---
 
@@ -1925,4 +2068,4 @@
 ---
 
 
-*Generated: 2026-07-30 | Papers: 72 | Daily scan: 4 new (INTACT, TD-JEPA, τ, IQ-JEPA)*
+*Generated: 2026-07-31 | Papers: 77 | Daily scan: 5 new (Physical Parameter Identifiability, DLAM, Action from Adjacent Set, WCM, Mental World Modeling)*
