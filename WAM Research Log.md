@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **77 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-07-31 (5 new papers)
+> **80 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-01 (3 new papers)
 
 ---
 
@@ -10,7 +10,10 @@
 
 | # | Date | Paper | Alignment | Compute |
 |---|------|-------|-----------|--------|
-|| 1 | 2026-07-28 | [INTACT: Isomorphic Intent-to-Action Learning for Search-Free World Models](https://arxiv.org/abs/2607.26056) | HIGH — JEPA-based search-free world model on LeWM; 2.9–5.5ms inference. | Mid (24G): LeWM push/pick/place/navigation benchmarks. |
+||| 1 | 2026-07-30 | [QQWorld: Quantile-Quantile Matching for World Model Regularization](https://arxiv.org/abs/2607.28415) | HIGH — Replaces LeWM's Epps-Pulley with quantile-quantile matching; fixes vanishing tail gradients. | Small-Mid (8-24G): Four LeWM control environments. |
+||| 2 | 2026-07-30 | [QuantWAMs: Calibrating at the Right Granularity for World Action Models](https://arxiv.org/abs/2607.28405) | MEDIUM — PTQ for WAM deployment; 29% memory, 0.2–0.7pp accuracy loss. | Large (40G+): Fast-WAM, LingBot-VA on RoboTwin 2.0/LIBERO. |
+||| 3 | 2026-07-30 | [ShadowDancer: Teaching Video World Models Any Action by Learning Unified Dynamics Representations](https://arxiv.org/abs/2607.28362) | MEDIUM — Cross-shadow prediction for appearance-invariant action control; 86% blinded win rate. | Mid-Large (24-40G+): Block-causal video world model. |
+||| 1 | 2026-07-28 | [INTACT: Isomorphic Intent-to-Action Learning for Search-Free World Models](https://arxiv.org/abs/2607.26056) | HIGH — JEPA-based search-free world model on LeWM; 2.9–5.5ms inference. | Mid (24G): LeWM push/pick/place/navigation benchmarks. |
 || 2 | 2026-07-28 | [TD-JEPA: Plan-Aware Representation Learning for Latent World Model MPC](https://arxiv.org/abs/2607.25337) | HIGH — Temporal-distance JEPA closes train-plan gap; 100% Two-Room, +14.2 OGB-Cube. | Mid (24G): LeWM encoder-predictor backbone. |
 || 3 | 2026-07-27 | [τ: Touch-Augmented VLA Models from Future Visual Supervision](https://arxiv.org/abs/2607.24485) | MEDIUM-HIGH — JEPA-inspired tactile representation for VLA models; no deployment overhead. | Mid (24G): VLA + tactile encoder finetuning. |
 || 4 | 2026-07-24 | [IQ-JEPA: JEPA with Hermitian ViT for Ultrasound Sound Speed Estimation](https://arxiv.org/abs/2607.22351) | MEDIUM — Cross-domain validation: complex-valued JEPA for medical imaging. | Mid (24G): Fullwave 79K simulations; 3–4× label efficiency gain. |
@@ -90,6 +93,87 @@
 
 ---
 
+
+---
+
+## [2026-07-30] QQWorld: Quantile-Quantile Matching for World Model Regularization
+
+- **arXiv**: [2607.28415](https://arxiv.org/abs/2607.28415)
+- **Authors**: Zhoushun Yu, Xiaoyu Hu, Xiangyu Xu
+- **TL;DR**: Replaces LeWM's Epps-Pulley regularization with quantile-quantile matching — EP's corrective gradients vanish for tail samples, while QQ matching maintains effective tail control, directly improving planning success rates across four control environments.
+- **Problem**: LeWorldModel (LeWM) regularizes latent distributions toward isotropic Gaussian using the Epps-Pulley (EP) objective. However, EP's corrective gradients rapidly vanish for isolated tail samples, leaving heavy-tailed latent deviations insufficiently controlled. These fat tails degrade planning because extreme latent values produce unpredictable dynamics rollouts.
+- **Architecture**: QQWorld — Replaces EP with a quantile-quantile (QQ) matching objective: projected latent samples are directly aligned with rank-matched Gaussian quantiles, maintaining effective corrective gradients even in the tails. Cross-batch QQ enlarges the effective ranking pool using detached samples from previous batches, with a characterized bias-variance trade-off. The encoder-predictor backbone is unchanged from LeWM; only the regularization term is replaced.
+- **Compute Scale**: Small-Mid (8-24G): Four LeWM control environments. Cross-batch QQ adds negligible memory overhead.
+- **LeCun Alignment**: HIGH — Directly improves a core architectural component of the JEPA/LeWM stack. The finding that EP's tail-control failure is structural (not a hyperparameter issue) suggests LeWM's current regularization may be fundamentally limited. QQ matching provides a principled fix that preserves the isotropic-Gaussian prior while ensuring all samples — including outliers — receive effective regularization gradients. This is a classic example of the kind of architectural refinement the JEPA program needs: identify where the inductive bias fails and replace it with a better one, without changing the overall predictive-architecture philosophy.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: QQWorld — Replace Epps-Pulley regularization in LeWM with quantile-quantile matching. QQ aligns projected latents with Gaussian quantiles directly, maintaining non-vanishing corrective gradients for all samples including tail outliers.
+- **Motivation**: The Epps-Pulley test statistic used in LeWM measures distributional discrepancy but provides weak correction signals for samples far from the distribution center. In practice, latent world models develop heavy tails that EP cannot control, and these tails cause planning failures because extreme latent values cascade through multi-step rollouts.
+- **Problem Solved**: QQWorld improves average planning success rate over LeWM across four control environments, while consistently yielding better Gaussian alignment and thinner latent tails. Cross-batch QQ further stabilizes training by enlarging the ranking pool.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds directly on LeWorldModel (2603.19312). The EP→QQ replacement is a drop-in improvement — same encoder-predictor backbone, different regularization term. This makes adoption straightforward.
+- **Implicit Connection**: The regularization quality of JEPA world models has been an under-explored dimension. Most work focuses on architectures (LeWM, INTACT, TD-JEPA) but assumes the SIGReg/EP regularization is sufficient. QQWorld shows it isn't — and provides a principled alternative. The QQ approach is conceptually related to the distribution-matching philosophy behind SIGReg but operates in quantile space rather than moment space, giving it better tail sensitivity.
+- **Research Line**: JEPA Regularization — improving the anti-collapse and distribution-shaping mechanisms in predictive architectures.
+- **Future Directions**: Integration with other JEPA variants (V-JEPA, action-conditioned JEPA); theoretical analysis of optimal latent distribution shape for planning; adaptive QQ targets that evolve during training.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-30] QuantWAMs: Calibrating at the Right Granularity for World Action Models
+
+- **arXiv**: [2607.28405](https://arxiv.org/abs/2607.28405)
+- **Authors**: Jiacheng Zhou, Jinfan Lv, Ruixuan Li, Longtai Zhang, Yan Wang, Wenqiang Zhang, Lizhe Qi
+- **TL;DR**: A post-training quantization (PTQ) framework specifically designed for World Action Models — aligning quantization decisions with WAM-specific structure (denoising, rollout distribution, task objective) to preserve deployment accuracy within 0.2–0.7pp of FP16 while reducing memory to 29%.
+- **Problem**: WAMs jointly predict future observations and actions via iterative denoising and closed-loop execution, making efficient deployment costly. Existing PTQ methods fail for WAMs because they: (1) use open-loop objectives that ignore the closed-loop rollout distribution, (2) treat all modules homogeneously despite heterogeneous sensitivity, (3) use calibration distributions that don't match deployment conditions.
+- **Architecture**: QuantWAMs — Three WAM-specific strategies: (1) **Shared-basis outlier calibration**: pools activation evidence only across coordinate-compatible modules to catch deployment-specific outliers. (2) **Co-training-objective saliency**: computes empirical-Fisher scores from the joint video-action gradient, assigning weight precision at calibration-stable layer granularity. (3) **Fixed-intervention rollout auditing**: revises denoising-step protection schedules using reachable closed-loop states without changing the precision budget. Evaluated on Fast-WAM and LingBot-VA across RoboTwin 2.0, LIBERO, and real-robot AgiBot G2 manipulation.
+- **Compute Scale**: Large (40G+): WAM backbones. Quantization reduces peak weight-and-activation memory to ~29% of FP16, providing 1.4–1.6× block-level speedups.
+- **LeCun Alignment**: MEDIUM — Deployment engineering for WAMs. While not advancing core world model theory, efficient deployment is critical for the embodied AI vision LeCun advocates. WAMs that can't run on embedded hardware are irrelevant for real-world autonomous systems. QuantWAMs demonstrates that WAMs can be compressed to practical levels with minimal accuracy loss — a necessary condition for the vision of always-on, real-time world models in robots.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: QuantWAMs — A WAM-specific PTQ framework that aligns quantization decisions with three deployment realities: model structure (which modules are coordinate-compatible), rollout distribution (what states the model actually encounters in closed loop), and task objective (what matters for the joint video-action prediction).
+- **Motivation**: WAMs are computationally heavy at deployment. Without efficient quantization, they can't run on robot-embeddable hardware. But naive quantization destroys WAM performance because their iterative denoising amplifies quantization errors across steps, and their closed-loop execution means calibration distributions must match deployment, not training.
+- **Problem Solved**: Under W4A4-dominant quantization, simulation means differ from FP16 by only 0.2–0.7pp. Real-robot trials confirm deployment feasibility on three manipulation tasks with an AgiBot G2. Memory reduced to ~29% of FP16.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends PTQ methodology to the WAM domain. Builds on Fast-WAM, LingBot-VA, and the broader WAM deployment literature. The WAM-specific calibration strategies (rollout auditing, co-training saliency) are novel contributions.
+- **Implicit Connection**: Efficiency is a prerequisite for LeCun's vision of autonomous intelligence. A world model that requires a datacenter GPU defeats the purpose of embodied deployment. QuantWAMs addresses this practical bottleneck. The rollout auditing strategy (using closed-loop states for calibration) echoes the closed-loop nature of LeCun's agent architecture where perception → world model → actor form a tight loop.
+- **Research Line**: Efficient WAM Deployment — making world action models practical for real-world embodied systems.
+- **Future Directions**: Integration with JEPA-based WAMs (currently evaluated on diffusion-based WAMs); hardware-aware quantization for specific robot platforms; quantization-aware training for WAMs.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-30] ShadowDancer: Teaching Video World Models Any Action by Learning Unified Dynamics Representations
+
+- **arXiv**: [2607.28362](https://arxiv.org/abs/2607.28362)
+- **Authors**: Jin Cao, Zian Meng, Kaipeng Zhang
+- **TL;DR**: Creates "shadow pairs" — video pairs replaying the same dynamics under independently resampled appearance — and learns a unified dynamics representation via cross-shadow prediction, enabling any-action control of video world models without action labels, motion estimators, or fine-tuning (86% blinded win rate).
+- **Problem**: Interactive video world models need precise action control, but existing interfaces either: (1) encode actions loosely (text descriptions), leaving the model to improvise how the action unfolds, or (2) encode actions through structured signals (joint angles, optical flow) that serve only one dynamics family and are hard to acquire. Demonstration videos specify any dynamics frame-by-frame, but the dynamics are entangled with appearance — actions learned from one scene don't transfer to another.
+- **Architecture**: ShadowDancer — Two key innovations: (1) **Shadow pairs**: video pairs that replay the same underlying dynamics under independently resampled appearance, constructed at scale via a Shadow Library. A dynamics family becomes controllable exactly when such pairs can be constructed. (2) **Cross-shadow prediction**: learns actions by predicting one shadow video from the other — whatever the pairing resamples (appearance) is discarded by construction, and whatever it preserves (dynamics) becomes the action. This yields a unified dynamics representation that drives a block-causal world model. Any demonstrated clip becomes a reusable action asset, replayable in new environments without labels or fine-tuning.
+- **Compute Scale**: Mid-Large (24-40G+): Video world model with cross-shadow prediction. Shadow pair construction is a data preprocessing cost, not an inference cost.
+- **LeCun Alignment**: MEDIUM — Uses generative video world models (pixel prediction) rather than JEPA-style latent prediction, which places it in the counterpoint category. However, the core insight — learning dynamics representations that are invariant to appearance — aligns deeply with LeCun's emphasis on abstract, reusable world knowledge. The cross-shadow prediction objective is conceptually similar to JEPA: predict one representation (shadow B's video) from another (shadow A's video + context), discarding nuisance factors (appearance). The unified dynamics representation could potentially be learned in latent space (JEPA-style) rather than pixel space. The block-causal architecture also echoes temporal-JEPA designs.
+- **GitHub**: [ShadowDancer-1.github.io](https://ShadowDancer-1.github.io)
+
+### What / Why / Solve
+
+- **Proposal**: ShadowDancer — Build "shadow pairs" (same dynamics, different appearance) and learn actions via cross-shadow prediction that is invariant to appearance by construction. Any demonstration video becomes a reusable action asset for controlling the world model in new environments.
+- **Motivation**: The fundamental challenge in interactive world models is the action interface. Text is too loose, structured signals are too narrow, and demonstrations are too appearance-bound. Shadow pairs solve this by providing a data construction principle that makes dynamics separable from appearance without requiring action labels or motion capture.
+- **Problem Solved**: Improved action transfer and long action rollout over latent-action and interactive world model baselines across diverse dynamics families. Average blinded win rate of 86% in rollout comparisons.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on interactive video world models (Genie, etc.), latent action models, and video-to-video translation. The shadow-pair construction is a novel data-centric approach to the appearance-dynamics disentanglement problem.
+- **Implicit Connection**: The cross-shadow prediction objective has a JEPA-like structure: predict target (shadow B) from context (shadow A), with the prediction target being another representation of the same underlying dynamics. If implemented in latent space rather than pixel space, this would be a JEPA variant. The unified dynamics representation that emerges is exactly the kind of abstract, reusable action representation that LeCun's modular agent architecture needs for the actor module.
+- **Research Line**: Appearance-Invariant World Models — learning dynamics representations that transfer across visual domains.
+- **Future Directions**: JEPA-style latent cross-shadow prediction (replacing pixel-space prediction); integration with real-robot world models; scaling the Shadow Library to internet-scale video.
+- **GitHub**: [ShadowDancer-1.github.io](https://ShadowDancer-1.github.io)
 
 ---
 
