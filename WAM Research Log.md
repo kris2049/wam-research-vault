@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **80 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-01 (3 new papers)
+> **82 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-02 (2 new papers)
 
 ---
 
@@ -10,6 +10,8 @@
 
 | # | Date | Paper | Alignment | Compute |
 |---|------|-------|-----------|--------|
+||| 1 | 2026-07-30 | [CS-JEPA: One Future, Every Robot — Label-Efficient Collective-State Prediction with Decentralized JEPA](https://arxiv.org/abs/2607.28443) | HIGH — Recurrent decentralized JEPA for multi-robot swarms; 45.5% MSE reduction, label-efficient. | Small (8-12G): 16-frame history, 64-float msg per robot. |
+||| 2 | 2026-07-30 | [PhiZero: A World Model Built Around Physical Language](https://arxiv.org/abs/2607.28624) | MEDIUM — Discrete physical language + VLM reasoning + diffusion rendering; critiques pixel prediction. | Large (40G+): VLM reasoner + diffusion decoder. |
 ||| 1 | 2026-07-30 | [QQWorld: Quantile-Quantile Matching for World Model Regularization](https://arxiv.org/abs/2607.28415) | HIGH — Replaces LeWM's Epps-Pulley with quantile-quantile matching; fixes vanishing tail gradients. | Small-Mid (8-24G): Four LeWM control environments. |
 ||| 2 | 2026-07-30 | [QuantWAMs: Calibrating at the Right Granularity for World Action Models](https://arxiv.org/abs/2607.28405) | MEDIUM — PTQ for WAM deployment; 29% memory, 0.2–0.7pp accuracy loss. | Large (40G+): Fast-WAM, LingBot-VA on RoboTwin 2.0/LIBERO. |
 ||| 3 | 2026-07-30 | [ShadowDancer: Teaching Video World Models Any Action by Learning Unified Dynamics Representations](https://arxiv.org/abs/2607.28362) | MEDIUM — Cross-shadow prediction for appearance-invariant action control; 86% blinded win rate. | Mid-Large (24-40G+): Block-causal video world model. |
@@ -93,6 +95,60 @@
 
 ---
 
+
+---
+
+## [2026-07-30] CS-JEPA: One Future, Every Robot — Label-Efficient Collective-State Prediction with Decentralized JEPA
+
+- **arXiv**: [2607.28443](https://arxiv.org/abs/2607.28443)
+- **Authors**: Alan-Barsag Gazzaev, Alexey Garvilov, Sergey Muravyov
+- **TL;DR**: Introduces Collective-State JEPA (CS-JEPA), a recurrent decentralized JEPA where every robot in a swarm predicts the same future collective state from only local observations and bandwidth-limited messages — no global pooling, no target encoder, no episode clock.
+- **Problem**: Multi-robot swarms need to predict future collective states for planning, but existing approaches either require centralized coordination (bottleneck), full future-action knowledge (unrealistic), or global pooling (bandwidth-expensive). Decentralized prediction from local observations alone is an open challenge, especially under topology and swarm-size shifts.
+- **Architecture**: CS-JEPA — A recurrent joint-embedding predictive architecture distributed across robots. Each robot uses a 16-frame local history and exchanges one 64-float recurrent message per directed edge. The predictor at each robot outputs a common future token field representing the collective state. Key JEPA characteristics: (1) No target encoder — the target is the shared future representation itself. (2) No decoder/reconstruction — operates purely in latent space. (3) Pretrained without downstream collective labels; evaluated via ridge probes on as few as 6 globally labeled episodes. (4) Action-conditioned variant receives candidate plans and produces receiver-local predictive representations for planning. Against raw-future reconstruction baselines with matched capacity, CS-JEPA reduces branch-value MSE by 45.5% and improves candidate-score correlation by 0.1291 — all effects favorable in 8/8 outer seeds including unseen N=32.
+- **Compute Scale**: Small (8-12G): Decentralized per-robot deployment. Each robot runs a lightweight recurrent predictor; 16-frame history + 64-float messages. Designed for bandwidth-limited swarm deployment, not datacenter training.
+- **LeCun Alignment**: HIGH — Direct JEPA implementation for embodied multi-agent systems. Three core LeCun-aligned properties: (1) Operates purely in latent predictive space (no pixel reconstruction). (2) Label-efficient via self-supervised pretraining — learns useful representations from unlabeled interaction data and requires only handful of labeled episodes for task transfer. (3) Planning-relevant — the action-conditioned variant produces representations that improve candidate-score correlation, directly supporting model-predictive control in the latent space. The decentralized architecture with no target encoder is a novel twist on JEPA that demonstrates its applicability beyond single-agent settings. The finding that JEPA targets serve as "label-efficient primitives" validates LeCun's claim that predictive architectures extract more useful representations per data point than reconstructive alternatives.
+- **GitHub**: Not found (submitted to IEEE ICRA 2027)
+
+### What / Why / Solve
+
+- **Proposal**: CS-JEPA — Decentralized JEPA where every robot outputs the same future collective representation using only local observations and lightweight edge messages. The common-future target serves as a self-supervised signal that produces representations useful for both state prediction and planning.
+- **Motivation**: Swarm robotics needs decentralized prediction. Centralized approaches don't scale; reconstruction-based approaches waste capacity on irrelevant details; and label-dependent approaches require impossible amounts of human annotation. JEPA's predictive-in-latent-space approach solves all three: decentralized by design, efficient by avoiding reconstruction, and label-efficient through self-supervised pretraining.
+- **Problem Solved**: 45.5% MSE reduction in branch-value estimation. Outperforms reconstruction baselines in prediction error and inter-robot agreement across in-distribution, ring, mutual-kNN, and unseen-size topologies up to 108 robots. All effects favorable across independent seed groups (5/5 outer seeds for prediction, 8/8 for planning).
+
+### Academic Context
+
+- **Inheritance / Response**: Extends JEPA from single-agent (I-JEPA, V-JEPA, MC-JEPA) to multi-agent decentralized settings. The recurrent architecture with edge-based messaging draws from graph neural network literature but adapts it to the JEPA predictive framework. The "common future token field" concept is a novel contribution — it's the JEPA equivalent of a shared world state in multi-agent systems.
+- **Implicit Connection**: The decentralized JEPA architecture mirrors LeCun's configurator module concept at the swarm level — each robot maintains a local predictive model that converges to a shared representation of the collective future. The elimination of the target encoder (a key JEPA design choice) is maintained in the decentralized setting through the common-future target. This paper also connects to the growing literature on JEPA for physical systems (SkyJEPA, Depth-Regularized JEPA) by demonstrating JEPA's value for real-world robotic deployment under communication constraints.
+- **Research Line**: Multi-Agent JEPA — extending predictive architectures from single-agent to distributed, decentralized settings.
+- **Future Directions**: Integration with hierarchical planning (Hi-LeWM style) for swarm-level objectives; heterogeneous robot teams with different sensor modalities; real-world deployment on physical robot swarms; combining with belief-state JEPA (UWM-JEPA) for partial observability in adversarial environments.
+- **GitHub**: To be checked (ICRA 2027 submission)
+
+---
+
+## [2026-07-30] PhiZero: A World Model Built Around Physical Language
+
+- **arXiv**: [2607.28624](https://arxiv.org/abs/2607.28624)
+- **Authors**: Shuyao Shang, Yuqi Wang, Ruopeng Gao, Xu Chen, Tieniu Tan, Lue Fan, Zhaoxiang Zhang
+- **TL;DR**: Proposes PhiZero, a physical world model using "physical language" — compact discrete tokens representing world-state transitions — with a reason-then-render paradigm: first infer future evolution as a physical-language sequence via a VLM, then render into videos via diffusion.
+- **Problem**: Existing physical world models predict future videos directly in pixel space, leaving underlying dynamics implicit within high-dimensional visual representations. This incurs prohibitive generative costs and prioritizes pixel-level realism over physical plausibility. The challenge is to learn explicit, abstract representations of world dynamics that can support reasoning without being entangled with appearance.
+- **Architecture**: PhiZero — Two-stage architecture: (1) **Physical Language Tokenizer**: Encodes video transitions into compact discrete tokens using a transition-level Q-Former encoder. A diffusion-prior decoder reconstructs videos from tokens + first frame (flow-matching objective). Trained self-supervised on 10K hours of in-the-wild videos with curriculum learning. (2) **Physical Language Reasoner**: A pretrained VLM fine-tuned to reason about future world evolution in the physical language token space. Given past physical-language context and first frame, it autoregressively predicts future physical-language sequences. The reason-then-render paradigm separates dynamics reasoning (in discrete token space) from appearance rendering (in pixel space via diffusion). Applications demonstrated: physically realistic video world modeling, fine-grained action-conditioned simulation, zero-shot cross-embodiment motion transfer.
+- **Compute Scale**: Large (40G+): VLM reasoner + diffusion decoder. Training: 10K hours video pretraining + VLM fine-tuning. Inference: autoregressive token generation + diffusion-based rendering.
+- **LeCun Alignment**: MEDIUM — Mixed alignment. STRENGTHS: (1) Explicitly critiques pixel-space prediction as the wrong objective for world models — directly echoes LeCun's core argument. (2) Separates dynamics reasoning from appearance rendering — the physical language is an abstract representation of transitions, conceptually similar to JEPA's latent space. (3) Self-supervised learning from in-the-wild video — no action labels needed. WEAKNESSES: (1) Still renders pixels via diffusion decoder — LeCun argues this is wasteful and the wrong target. (2) Uses a pretrained VLM/LLM for the reasoning component — LeCun's vision treats language as a separate module, not the core reasoning engine. (3) The discrete token representation with autoregressive prediction is closer to LLM-style next-token prediction than JEPA's continuous latent prediction. (4) The physical language is discovered through reconstruction pressure (tokenizer must reconstruct videos), not purely through predictive objectives. Overall, PhiZero shares the critique but takes a different solution path — discrete symbolic reasoning + generative rendering rather than continuous predictive architectures.
+- **GitHub**: Project page: [phi-zero.github.io](https://phi-zero.github.io)
+
+### What / Why / Solve
+
+- **Proposal**: PhiZero — Learn a compact discrete "physical language" from unlabeled videos that captures world-state transitions. Use a VLM to reason about future evolution in this language space, then render the predicted transitions into videos. The key insight: separate the "what happens" (physical language reasoning) from the "what it looks like" (appearance rendering).
+- **Motivation**: Humans don't memorize pixel-level visual outcomes — they abstract patterns into generalizable knowledge and reason symbolically. Current video world models do the opposite: they memorize pixels and hope dynamics emerge implicitly. Physical language provides an explicit symbolic space for dynamics reasoning while the rendering module handles appearance.
+- **Problem Solved**: Demonstrates physically coherent world evolution across generation and understanding benchmarks. Shows applications in realistic world modeling, action-conditioned simulation, and zero-shot motion transfer. The discrete bottleneck forces the tokenizer to capture transition-relevant information while the first-frame conditioning provides static appearance, achieving a form of dynamics-appearance disentanglement.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on video tokenization (VQ-VAE, MAGVIT), video generation (Sora, diffusion models), and latent-action world models. The physical language concept can be seen as a learned action representation — the tokens describe "what changed" between frames, similar to how latent action models (LAMs) learn action representations. The VLM-as-reasoner approach connects to the growing trend of using LLMs as world models, but PhiZero constrains the LLM to operate in a learned physical token space rather than natural language.
+- **Implicit Connection**: PhiZero is an interesting counterpoint to JEPA. Both critique pixel-space prediction and advocate for abstract representations of dynamics. But they diverge on the representation: JEPA uses continuous latent vectors with energy-based regularization; PhiZero uses discrete tokens with autoregressive prediction. This tension — discrete vs. continuous, symbolic vs. subsymbolic — is central to the world model debate. PhiZero's approach is more compatible with the current LLM ecosystem (VLM fine-tuning, token-based interfaces) but may inherit the limitations of autoregressive discrete prediction that LeCun has criticized (error accumulation, lack of continuous planning gradients). The rendering decoder (diffusion) is also fundamentally at odds with JEPA's reconstruction-free philosophy.
+- **Research Line**: Symbolic World Models — representing world dynamics through learned discrete tokens, bridging the gap between neural world models and classical symbolic AI approaches to planning and reasoning.
+- **Future Directions**: Replacing the diffusion decoder with a JEPA-style latent predictor (no rendering); using the physical language tokens directly for planning in token space without rendering; combining with action-conditioned JEPA for a fully latent pipeline; scaling physical language to real robot data.
+- **GitHub**: Project page: [phi-zero.github.io](https://phi-zero.github.io)
 
 ---
 
