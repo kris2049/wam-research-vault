@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **82 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-02 (2 new papers)
+> **84 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-03 (2 new papers)
 
 ---
 
@@ -14,10 +14,12 @@
 ||| 2 | 2026-07-30 | [PhiZero: A World Model Built Around Physical Language](https://arxiv.org/abs/2607.28624) | MEDIUM — Discrete physical language + VLM reasoning + diffusion rendering; critiques pixel prediction. | Large (40G+): VLM reasoner + diffusion decoder. |
 ||| 1 | 2026-07-30 | [QQWorld: Quantile-Quantile Matching for World Model Regularization](https://arxiv.org/abs/2607.28415) | HIGH — Replaces LeWM's Epps-Pulley with quantile-quantile matching; fixes vanishing tail gradients. | Small-Mid (8-24G): Four LeWM control environments. |
 ||| 2 | 2026-07-30 | [QuantWAMs: Calibrating at the Right Granularity for World Action Models](https://arxiv.org/abs/2607.28405) | MEDIUM — PTQ for WAM deployment; 29% memory, 0.2–0.7pp accuracy loss. | Large (40G+): Fast-WAM, LingBot-VA on RoboTwin 2.0/LIBERO. |
-||| 3 | 2026-07-30 | [ShadowDancer: Teaching Video World Models Any Action by Learning Unified Dynamics Representations](https://arxiv.org/abs/2607.28362) | MEDIUM — Cross-shadow prediction for appearance-invariant action control; 86% blinded win rate. | Mid-Large (24-40G+): Block-causal video world model. |
-||| 1 | 2026-07-28 | [INTACT: Isomorphic Intent-to-Action Learning for Search-Free World Models](https://arxiv.org/abs/2607.26056) | HIGH — JEPA-based search-free world model on LeWM; 2.9–5.5ms inference. | Mid (24G): LeWM push/pick/place/navigation benchmarks. |
+|||| 3 | 2026-07-30 | [ShadowDancer: Teaching Video World Models Any Action by Learning Unified Dynamics Representations](https://arxiv.org/abs/2607.28362) | MEDIUM — Cross-shadow prediction for appearance-invariant action control; 86% blinded win rate. | Mid-Large (24-40G+): Block-causal video world model. |
+|||| 4 | 2026-07-29 | [JEPADepth: Masked Predictive Representation Learning for Self-Supervised Monocular Depth Estimation](https://arxiv.org/abs/2607.26600) | MEDIUM — I-JEPA auxiliary objective improves monocular depth estimation; zero-shot transfer, no inference overhead. | Mid (24G): DINOv3 ViT + photometric pipeline on KITTI. |
+|||| 1 | 2026-07-28 | [INTACT: Isomorphic Intent-to-Action Learning for Search-Free World Models](https://arxiv.org/abs/2607.26056) | HIGH — JEPA-based search-free world model on LeWM; 2.9–5.5ms inference. | Mid (24G): LeWM push/pick/place/navigation benchmarks. |
 || 2 | 2026-07-28 | [TD-JEPA: Plan-Aware Representation Learning for Latent World Model MPC](https://arxiv.org/abs/2607.25337) | HIGH — Temporal-distance JEPA closes train-plan gap; 100% Two-Room, +14.2 OGB-Cube. | Mid (24G): LeWM encoder-predictor backbone. |
-|| 3 | 2026-07-27 | [τ: Touch-Augmented VLA Models from Future Visual Supervision](https://arxiv.org/abs/2607.24485) | MEDIUM-HIGH — JEPA-inspired tactile representation for VLA models; no deployment overhead. | Mid (24G): VLA + tactile encoder finetuning. |
+|| 3 | 2026-07-28 | [Rad-JEPA 3D: Radiology Joint-Embedding Predictive Model for 3D Computed Tomography](https://arxiv.org/abs/2607.26196) | MEDIUM — JEPA for volumetric CT with H-Mamba encoder + HSOR; 4B params, SOTA spatial reasoning. | Large (40G+): 4B params on 120K CT scans. |
+|| 4 | 2026-07-27 | [τ: Touch-Augmented VLA Models from Future Visual Supervision](https://arxiv.org/abs/2607.24485) | MEDIUM-HIGH — JEPA-inspired tactile representation for VLA models; no deployment overhead. | Mid (24G): VLA + tactile encoder finetuning. |
 || 4 | 2026-07-24 | [IQ-JEPA: JEPA with Hermitian ViT for Ultrasound Sound Speed Estimation](https://arxiv.org/abs/2607.22351) | MEDIUM — Cross-domain validation: complex-valued JEPA for medical imaging. | Mid (24G): Fullwave 79K simulations; 3–4× label efficiency gain. |
 || 5 | 2026-07-20 | [AV-JEPA: Extending LeJEPA to Audio-Visual Self-Supervised Learning](https://arxiv.org/abs/2607.15295) | HIGH — Multimodal JEPA, LeJEPA-based, no decoder/EMA. | Mid (24G): Audio-visual ViT on VGGSound/AudioSet. |
 | 2 | 2026-07-15 | [The SIGReg Objective as Variational Free Energy: A Theoretical Active-Inference Account of JEPA World Models](https://arxiv.org/abs/2607.13612) | HIGH — Foundational theory connecting JEPA to Active Inference. | Small (8-12G): Theoretical with Lean 4 verification. |
@@ -95,6 +97,60 @@
 
 ---
 
+
+---
+
+## [2026-07-29] JEPADepth: Masked Predictive Representation Learning for Self-Supervised Monocular Depth Estimation
+
+- **arXiv**: [2607.26600](https://arxiv.org/abs/2607.26600)
+- **Authors**: Ionuţ Grigore, Călin-Adrian Popa
+- **TL;DR**: Augments standard photometric monocular depth estimation with an I-JEPA-style masked predictive objective in DINOv3 representation space — consistent improvement with zero inference cost.
+- **Problem**: Self-supervised monocular depth estimation relies on photometric reconstruction losses that couple depth, pose, and appearance assumptions — a fragile, multi-variable optimization. The challenge is to incorporate a complementary training signal that captures geometric structure without adding inference overhead.
+- **Architecture**: JEPADepth — A standard photometric depth pipeline (target image + source image → pose network + depth network → warped reconstruction → photometric loss) augmented with an I-JEPA side objective. A frozen pretrained DINOv3 ViT serves as the target encoder (produces embeddings for masked target regions) and a lightweight predictor (a small transformer) infers these target-region embeddings from visible context-region embeddings under structured block masking. The JEPA loss is computed in DINOv3 representation space. At inference time, both the target encoder branch and the predictor are discarded — only the depth network runs, adding zero deployment cost. Key JEPA characteristics: (1) Predicts in latent representation space, not pixels. (2) Target encoder is frozen (EMA-like behavior). (3) Predictor is lightweight and discarded after training. (4) Structured masking forces the model to learn non-local geometric relationships. On KITTI, the JEPA objective consistently improves over the DINOv3-based photometric baseline. Zero-shot transfer to Make3D and Cityscapes achieves best or near-best performance.
+- **Compute Scale**: Mid (24G): DINOv3 ViT backbone. Training on KITTI (standard benchmark). Inference uses only the depth network (no predictor/target encoder), so deployable on smaller hardware.
+- **LeCun Alignment**: MEDIUM — Cross-domain JEPA application. STRENGTHS: (1) Directly uses I-JEPA's core mechanism (masked prediction in latent space with discarded predictor) as an auxiliary objective. (2) Proves JEPA representations encode useful geometric information — the masked prediction objective captures spatial relationships beneficial for depth estimation. (3) Zero inference overhead — the JEPA components are discarded, aligning with JEPA's philosophy of learning transferable representations rather than generative decoders. (4) Consistent improvement across benchmarks and zero-shot transfer demonstrates the representation's quality. WEAKNESSES: (1) Not a world model — applies JEPA to a perception task rather than predictive dynamics for planning/control. (2) The primary pipeline is still photometric reconstruction-based; JEPA is auxiliary, not the core learning objective. (3) No action conditioning — purely a static perception task. Overall, JEPADepth is valuable cross-domain validation of JEPA's representational power but does not advance the world model/autonomous intelligence agenda directly.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: JEPADepth — Incorporate an I-JEPA masked predictive objective as a complementary training signal for monocular depth estimation. The JEPA loss operates in DINOv3 representation space, encouraging the depth network to learn features that support geometric prediction.
+- **Motivation**: Photometric losses alone couple too many variables (depth, pose, appearance, lighting). A representation-space predictive objective provides a complementary signal focused on structural understanding, disentangled from pixel-level appearance matching.
+- **Problem Solved**: Consistent depth estimation improvement on KITTI over photometric-only baselines. Competitive with SOTA transformer-based methods. Strong zero-shot transfer to Make3D and Cityscapes, suggesting the learned representations generalize beyond training distribution.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends I-JEPA (Assran et al., 2023) from pure self-supervised representation learning to task-specific depth estimation. Uses DINOv3 as the representation backbone (following the trend of using DINO-family features for dense prediction tasks). The photometric pipeline follows standard monocular depth estimation work (Monodepth2, etc.).
+- **Implicit Connection**: Demonstrates that JEPA-pretrained or JEPA-style objectives capture spatial-geometric structure — a property that would be essential for world models that need to understand 3D scene geometry. The finding that JEPA representations transfer well to depth estimation supports the broader claim that predictive architectures learn structurally meaningful representations. Also validates the "discard the predictor" design pattern — the JEPA component improves training but costs nothing at inference, a key efficiency argument for JEPA over generative approaches.
+- **Research Line**: JEPA for Dense Prediction — applying joint-embedding predictive objectives to pixel-level tasks beyond self-supervised pretraining.
+- **Future Directions**: Full JEPA-based depth estimation (replace photometric loss entirely); extension to video depth estimation with temporal JEPA objectives; integration with 3D world models for embodied agents.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-28] Rad-JEPA 3D: Radiology Joint-Embedding Predictive Model for 3D Computed Tomography
+
+- **arXiv**: [2607.26196](https://arxiv.org/abs/2607.26196)
+- **Authors**: Quoc-Huy Trinh, Minh-Van Nguyen, Ulas Bagci
+- **TL;DR**: A JEPA framework for 3D CT volumes using a hybrid H-Mamba encoder (Mamba + grouped-query attention) with Hidden States Orthogonal Regularization (HSOR); 4B params pretrained on 120K scans, achieving SOTA spatial reasoning on Spatial-Med benchmark.
+- **Problem**: Existing volumetric medical image encoders (CNNs, ViTs, SSMs) fail to preserve the coarse spatial and geometric structure that downstream reasoning tasks (organ disentanglement, abnormality detection, spatial understanding) depend on. Standard SSL objectives like MAE or contrastive learning don't explicitly enforce spatial-geometric consistency in the learned representations.
+- **Architecture**: Rad-JEPA 3D — A joint-embedding predictive framework for 3D CT volumes. The context encoder processes a masked view of a CT volume; the target encoder processes the full volume (or differently masked view). The predictor infers target-region latent features from context-region features. Core architectural innovations: (1) **H-Mamba Encoder**: A hybrid block that fuses a Mamba state-space branch (modeling inter-slice continuity through sequential scanning) with a grouped-query attention (GQA) branch (capturing cross-plane spatial context), combined via a lightweight per-token router. This design captures both the sequential nature of CT slices and the 3D spatial relationships. (2) **Hidden States Orthogonal Regularization (HSOR)**: Aligns student-teacher hidden states throughout the encoder layers, reducing feature redundancy and promoting orthogonal (non-redundant) intermediate representations. This produces more consistent and discriminative volumetric features. Pretrained on ~120,000 CT scans (self-supervised, no labels). At 4.0B total parameters, achieves competitive VQA results and best average spatial-reasoning score on Spatial-Med. Ablations show H-Mamba + HSOR contribute complementary gains; the induced spatial structure can substitute for raw LM scale on volumetric reasoning.
+- **Compute Scale**: Large (40G+): 4.0B total parameters. Pretraining on ~120,000 CT scans requires substantial compute. Inference is more efficient due to the Mamba component's linear complexity.
+- **LeCun Alignment**: MEDIUM — Cross-domain JEPA for medical imaging. STRENGTHS: (1) Pure JEPA architecture — predicts in latent space from masked context, no pixel reconstruction. (2) The H-Mamba encoder design is an architectural contribution to the JEPA family — exploring state-space models as alternatives to pure transformer encoders for JEPA. (3) HSOR regularization aligns with JEPA's emphasis on preventing representation collapse (like SIGReg, variance regularization) — it's a new regularization technique for the JEPA training dynamics. (4) Demonstrates JEPA scale to 3D volumetric data. WEAKNESSES: (1) Not a world model for planning/control — medical imaging application, not embodied AI. (2) No action conditioning — static volume understanding, not dynamics prediction. (3) The spatial reasoning evaluation is about answering questions about anatomy, not about predicting future states or planning interventions. (4) The 4B parameter scale is large but for a domain-specific application, not a general-purpose world model. Overall, Rad-JEPA 3D is valuable cross-domain validation of JEPA's scalability to 3D data and introduces architectural innovations (H-Mamba, HSOR) that could inform future JEPA designs for embodied world models, but the application domain (diagnostic radiology) is peripheral to the autonomous intelligence agenda.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Rad-JEPA 3D — A JEPA framework for learning volumetric CT representations that preserve spatial-geometric structure. Key contributions: H-Mamba hybrid encoder (Mamba for slice continuity + GQA for cross-plane context) and HSOR (Hidden States Orthogonal Regularization) for reducing feature redundancy.
+- **Motivation**: Medical image analysis needs representations that understand 3D spatial relationships (organ positions, abnormalities). Existing encoders lose this structure. JEPA's predictive-in-latent-space approach forces the encoder to capture structural information that supports predicting the full volume from partial views — a natural fit for volumetric understanding.
+- **Problem Solved**: Achieves SOTA spatial reasoning on Spatial-Med benchmark despite "compact" 4B parameter size. Demonstrates that JEPA-induced spatial structure can substitute for raw LM scale on volumetric reasoning tasks. H-Mamba + HSOR provide complementary improvements validated through ablation studies.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on I-JEPA and V-JEPA (masked prediction in latent space) and adapts to 3D CT volumes. The Mamba component draws from the state-space model literature (Mamba, Mamba-2) as efficient alternatives to attention for long sequences. HSOR is a novel regularization technique for JEPA training. Evaluated against medical VLM benchmarks (Spatial-Med, closed-ended VQA).
+- **Implicit Connection**: The H-Mamba architecture is interesting for embodied world models — Mamba's linear complexity could enable efficient processing of long video sequences, and the hybrid attention+Mamba design could balance local continuity (Mamba on temporal dimension) with global spatial context (attention on spatial dimensions). HSOR (layer-wise orthogonal regularization) addresses a key JEPA training challenge — preventing feature collapse and ensuring the encoder learns diverse, non-redundant representations. This connects to broader JEPA research on regularization (SIGReg, variance regularization, Gaussian embeddings). The finding that JEPA representations can substitute for LLM scale on spatial reasoning suggests JEPA captures structure that LLMs miss — relevant to the debate about LLMs as world models.
+- **Research Line**: 3D JEPA — extending joint-embedding predictive architectures from 2D images and videos to volumetric data with specialized encoder architectures for spatial-geometric reasoning.
+- **Future Directions**: Temporal extension for 4D CT (3D + time); application to surgical planning (action-conditioned prediction); integration with robotic surgery world models; HSOR adapted for video JEPA training.
+- **GitHub**: To be checked
 
 ---
 
