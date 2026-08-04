@@ -2,14 +2,16 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **84 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-03 (2 new papers)
+> **86 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-04 (2 new papers — July 31 backlog)
 
 ---
 
 ## 📊 Paper Index
 
 | # | Date | Paper | Alignment | Compute |
-|---|------|-------|-----------|--------|
+||---|------|-------|-----------|--------|
+||| 1 | 2026-07-31 | [WCM: A World Critic Model for Vision-Language-Action Reinforcement Learning](https://arxiv.org/abs/2607.29613) | HIGH — LeJEPA-based world critic for VLA RL; joint latent prediction + value estimation; 149 tasks + 7 real-world. | Mid (24G): Lightweight LeJEPA + Pi0/Pi0.5/OpenVLA-OFT backbones. |
+||| 2 | 2026-07-31 | [AquaJEPA: Action-Conditioned Multimodal Predictive Representations for Underwater Robot Dynamics](https://arxiv.org/abs/2607.29393) | HIGH — JEPA for underwater robots; RGB+sonar+proprioception fusion; preregistered 120-env replication. | Small-Mid (8-24G): Stonefish simulator, 120 environments. |
 ||| 1 | 2026-07-30 | [CS-JEPA: One Future, Every Robot — Label-Efficient Collective-State Prediction with Decentralized JEPA](https://arxiv.org/abs/2607.28443) | HIGH — Recurrent decentralized JEPA for multi-robot swarms; 45.5% MSE reduction, label-efficient. | Small (8-12G): 16-frame history, 64-float msg per robot. |
 ||| 2 | 2026-07-30 | [PhiZero: A World Model Built Around Physical Language](https://arxiv.org/abs/2607.28624) | MEDIUM — Discrete physical language + VLM reasoning + diffusion rendering; critiques pixel prediction. | Large (40G+): VLM reasoner + diffusion decoder. |
 ||| 1 | 2026-07-30 | [QQWorld: Quantile-Quantile Matching for World Model Regularization](https://arxiv.org/abs/2607.28415) | HIGH — Replaces LeWM's Epps-Pulley with quantile-quantile matching; fixes vanishing tail gradients. | Small-Mid (8-24G): Four LeWM control environments. |
@@ -97,6 +99,60 @@
 
 ---
 
+
+---
+
+## [2026-07-31] WCM: A World Critic Model for Vision-Language-Action Reinforcement Learning
+
+- **arXiv**: [2607.29613](https://arxiv.org/abs/2607.29613)
+- **Authors**: Senyu Fei, Xiaopeng Yu, Siyin Wang, Xianzhong Zhao, Jingjing Gong, Xipeng Qiu
+- **TL;DR**: Equips VLA RL critics with a lightweight LeJEPA world model that jointly predicts future latent states and estimates values — explicitly training the critic's representation to capture temporal dynamics rather than merely regressing scalar returns.
+- **Problem**: RL post-training of VLA models relies on critics that operate on single-frame observations or single-frame VLM latents — a fundamental mismatch with the partially observable nature of robot control. Incorporating observation history naively incurs exponential complexity, and pure scalar-return regression provides insufficient supervision for learning cross-temporal dynamics.
+- **Architecture**: WCM (World Critic Model) — A lightweight LeJEPA architecture integrated into the critic. The context encoder processes observation history; the target encoder produces latent targets for future states; the predictor jointly estimates values AND predicts future latent states from the context. This dual objective explicitly trains the critic's representation to capture temporal structure. WCM integrates seamlessly into both on-policy and off-policy training pipelines and is compatible with SOTA VLA backbones (Pi0, Pi0.5, OpenVLA-OFT). Evaluated on 149 tasks across 4 benchmarks + 7 real-world manipulation tasks.
+- **Compute Scale**: Mid (24G): Lightweight LeJEPA architecture. Training on standard VLA benchmarks + real-world robot fine-tuning. Compatible with existing VLA pipelines without major overhead.
+- **LeCun Alignment**: HIGH — Directly implements LeCun's JEPA vision for embodied RL. STRENGTHS: (1) Uses LeJEPA as the core architecture — predicting in latent space with a lightweight predictor, not pixel generation. (2) Addresses a key limitation identified in LeCun's roadmap: the need for world models that support planning/control, not just perception. (3) The joint prediction + value estimation objective demonstrates how JEPA representations can serve dual purposes (world understanding + decision-making). (4) Seamless integration with existing VLA pipelines shows practical viability. (5) Explicitly frames the problem as "state approximation" requiring world modeling — aligning with LeCun's argument that pure pattern matching is insufficient. WEAKNESSES: (1) The JEPA component is auxiliary to the VLA — not a standalone world model for open-ended planning. (2) Limited to critic enhancement within RL framework, not a full hierarchical planning architecture. Overall, WCM is a strong practical demonstration of LeJEPA's value for embodied AI, showing that even a lightweight JEPA can significantly improve temporal reasoning in RL critics.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: WCM — Augment VLA RL critics with a LeJEPA world model that jointly predicts future latents and estimates values. The dual objective forces the critic to learn temporal dynamics, addressing the fundamental mismatch between single-frame critics and partially observable robot control.
+- **Motivation**: Current VLA RL critics operate on single frames, missing the temporal structure essential for accurate value estimation in partially observable environments. Naively adding history is exponentially expensive. A world-modeling objective provides the necessary inductive bias for learning temporal dynamics.
+- **Problem Solved**: State-of-the-art performance across 149 tasks (4 benchmarks) and 7 real-world tasks. Particularly strong out-of-distribution generalization. Demonstrates that LeJEPA-based world modeling directly improves RL critic quality.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on LeJEPA (LeCun's joint-embedding predictive architecture) and applies it to the RL critic setting. Extends prior work on VLA post-training (RT-2, OpenVLA, Pi0) and model-based RL. The key insight is that world modeling and value estimation are complementary objectives that can share a representation.
+- **Implicit Connection**: Validates LeCun's claim that world models are necessary for decision-making, not just perception. Shows that even a lightweight JEPA can capture the temporal structure that pure value regression misses. The architecture follows LeCun's modular design principle: separate world model from policy, but share representations.
+- **Research Line**: JEPA for Embodied RL — applying joint-embedding predictive architectures to improve decision-making in physical agents.
+- **Future Directions**: Standalone JEPA world model for model-based RL; hierarchical planning with JEPA-predicted latents; integration with the full LeCun autonomous agent architecture (World Model → Cost → Actor → Configurator).
+- **GitHub**: Not found
+
+---
+
+## [2026-07-31] AquaJEPA: Action-Conditioned Multimodal Predictive Representations for Underwater Robot Dynamics
+
+- **arXiv**: [2607.29393](https://arxiv.org/abs/2607.29393)
+- **Authors**: Alan-Barsag Gazzaev, Alexey Gavrilov, Sergey Muravyov
+- **TL;DR**: An action-conditioned JEPA that fuses RGB camera, forward-looking sonar, and proprioception with explicit sensor validity for underwater robot dynamics — preregistered 120-environment replication shows significant improvement over recurrent and supervised baselines.
+- **Problem**: Underwater robots combine complementary sensors whose reliability changes abruptly with water visibility, viewpoint, and vehicle motion. Existing predictive models struggle when sensors become unreliable, and standard fusion approaches don't account for dynamic sensor validity.
+- **Architecture**: AquaJEPA — An action-conditioned joint-embedding predictive model with explicit sensor validity handling. Fuses three modalities: (1) RGB camera, (2) forward-looking sonar, (3) proprioception (with DVL velocity). Each modality has its own encoder; an explicit validity mechanism weights modalities based on reliability. Conditioned on eight-thruster commands, the predictor infers future latent targets in a shared embedding space. The predicted latents supply velocity and sonar-profile predictions to a shared receding-horizon planner. Key design: EMA target encoder, action margin masking, and modality dropout during training to handle sensor degradation. Evaluated in Stonefish simulator with preregistered 120-environment replication (5 independent replicates × grid crossing, 3 unseen obstacle maps, 4 water-visibility coefficients, nominal vs. shifted dynamics, intermittent DVL loss).
+- **Compute Scale**: Small-Mid (8-24G): Three modality encoders + lightweight predictor. Stonefish simulator (not real hardware). 120 environments × 5 replicates = 600 total runs, but each run is simulated (moderate compute).
+- **LeCun Alignment**: HIGH — Direct JEPA variant for physical robot dynamics. STRENGTHS: (1) Pure JEPA architecture — predicts in latent space from action-conditioned context, no pixel reconstruction. (2) Multimodal sensor fusion with explicit validity aligns with LeCun's vision of world models that handle diverse, unreliable sensory inputs. (3) Action-conditioned prediction is the core mechanism in LeCun's world model module. (4) Preregistered replication with rigorous statistics (95% CIs, paired tests) demonstrates scientific rigor. (5) Modality dropout during training mirrors JEPA's robustness to partial observability. WEAKNESSES: (1) Underwater domain is niche — doesn't directly validate JEPA for general manipulation or navigation. (2) Stonefish simulator, not real robots (though designed for eventual transfer). (3) The planner is a separate receding-horizon controller, not an end-to-end learned policy — the JEPA provides predictions to an external planner rather than being the complete world model for planning. Overall, AquaJEPA is excellent cross-domain validation of JEPA for physical dynamics with rigorous experimental methodology, demonstrating that JEPA's multimodal prediction approach handles sensor degradation better than alternatives.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: AquaJEPA — Apply action-conditioned JEPA to underwater robot dynamics with multimodal sensor fusion and explicit sensor validity. The model predicts future latent states conditioned on thruster commands, fusing RGB, sonar, and proprioception.
+- **Motivation**: Underwater environments create extreme sensor degradation (turbidity, viewpoint changes, DVL dropout). Standard predictive models fail when key sensors become unreliable. JEPA's latent-space prediction with modality dropout provides inherent robustness.
+- **Problem Solved**: AquaJEPA achieves 74 goals (vs. 68 for state-only and recurrent baselines) in 120 paired environments with scheduled DVL loss. Lowest mean final error (0.906 m). Significant paired final-error reductions vs. ordinary multimodal prediction (−0.273 m, 95% CI: 0.190–0.356), supervised dynamics (−0.364 m, 0.260–0.468), and recurrent world model (−0.106 m, 0.025–0.187). Advantage over state-only remains statistically unresolved but directionally positive.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends the JEPA family (I-JEPA, V-JEPA, MC-JEPA) to the underwater domain with multimodal sensor fusion. Builds on prior work in underwater robot dynamics modeling and sensor fusion. The preregistered methodology follows best practices in experimental robotics and psychology.
+- **Implicit Connection**: Demonstrates JEPA's core strength — robust latent-space prediction under sensor degradation. The action-conditioned design directly mirrors LeCun's world model module. The finding that JEPA outperforms recurrent world models and supervised dynamics baselines supports the argument that predictive architectures in latent space are more robust than reconstructive approaches.
+- **Research Line**: JEPA for Extreme Domains — applying joint-embedding predictive architectures to challenging physical environments where sensor reliability is inherently variable.
+- **Future Directions**: Real underwater robot deployment; integration with end-to-end learned planners; extension to multi-robot underwater operations; cross-domain transfer (underwater → terrestrial/aerial).
+- **GitHub**: Not found
 
 ---
 
