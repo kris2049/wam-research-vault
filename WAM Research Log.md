@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **89 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-05 (3 new papers — Aug 1–3 batch)
+> **94 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-06 (5 new papers — Jul 31–Aug 4 batch)
 
 ---
 
@@ -12,8 +12,14 @@
 ||---|------|-------|-----------|--------|
 ||| 1 | 2026-08-01 | [HP-JEPA: Hierarchical Partitioning for Multi-Resolution Graph Joint-Embedding Predictive Learning](https://arxiv.org/abs/2608.00491) | HIGH — LeCun co-author; hierarchical multi-resolution JEPA for graph SSL; coarse-to-fine partition bank with online/target encoder + predictor; 6/8 benchmark wins over Graph-JEPA. | Mid (24G): Graph classification/regression benchmarks, multi-resolution encoders. |
 ||| 2 | 2026-08-03 | [CoWAM: Coordination Contracts for Selective Policy Intervention with WAMs](https://arxiv.org/abs/2608.02578) | MEDIUM-HIGH — Selective WAM intervention via typed coordination contracts; preserves nominal policy unless alternative clears all gates; 9.6pp closed-loop improvement, <1% harmful interventions. | Mid (24G): 8 simulated bimanual manipulation tasks. |
-||| 3 | 2026-08-03 | [WorldExam: Benchmarking World Models from Apparent Appearance to Inherent Reactivity](https://arxiv.org/abs/2608.02603) | MEDIUM — 4-level diagnostic benchmark (Visual Quality → World Reactivity); evaluates whether video-gen world models understand inherent dynamics vs. just appearance; 1,474 cases, 20 models evaluated; exposes capability split across camera/action/language paradigms. | N/A (benchmark): 20 representative models evaluated. |
-|||| 1 | 2026-07-31 | [WCM: A World Critic Model for Vision-Language-Action Reinforcement Learning](https://arxiv.org/abs/2607.29613) | HIGH — LeJEPA-based world critic for VLA RL; joint latent prediction + value estimation; 149 tasks + 7 real-world. | Mid (24G): Lightweight LeJEPA + Pi0/Pi0.5/OpenVLA-OFT backbones. |
+|||| 3 | 2026-08-03 | [WorldExam: Benchmarking World Models from Apparent Appearance to Inherent Reactivity](https://arxiv.org/abs/2608.02603) | MEDIUM — 4-level diagnostic benchmark (Visual Quality → World Reactivity); evaluates whether video-gen world models understand inherent dynamics vs. just appearance; 1,474 cases, 20 models evaluated; exposes capability split across camera/action/language paradigms. | N/A (benchmark): 20 representative models evaluated. |
+|||| 4 | 2026-08-02 | [Asleep at the Wheel: JEPA's Limitations in Evaluating Novel Driving Data](https://arxiv.org/abs/2608.01336) | MEDIUM — Reveals JEPA-based novelty detection for driving fails on fair single-dataset benchmarks; success on cross-dataset protocols is domain-shift artifact, not genuine novelty recognition. | Small-Mid (8-24G): Frozen V-JEPA encoder + lightweight predictor head. |
+|||| 5 | 2026-08-03 | [Faster-WAM: Do World Action Models Need Deep Action Modules?](https://arxiv.org/abs/2608.02365) | MEDIUM-HIGH — Dock of Transformer (DoT) design; docks single-layer action head onto 30-layer video backbone; 3.2× speedup over Fast-WAM with competitive performance. | Mid (24G): Pretrained video backbone + single-layer action head. |
+|||| 6 | 2026-08-04 | [LiLa-WAM: Lightweight Latent Reasoning World-Action Model for Robotic Manipulation](https://arxiv.org/abs/2608.03701) | HIGH — Compact latent reasoning space jointly shaped by future-state prediction + action generation; single 24GB GPU end-to-end training; 90.48% RoboTwin success. | Mid (24G): Single GPU training, lightweight encoder + latent reasoning. |
+||||| 1 | 2026-07-31 | [WCM: A World Critic Model for Vision-Language-Action Reinforcement Learning](https://arxiv.org/abs/2607.29613) | HIGH — LeJEPA-based world critic for VLA RL; joint latent prediction + value estimation; 149 tasks + 7 real-world. | Mid (24G): Lightweight LeJEPA + Pi0/Pi0.5/OpenVLA-OFT backbones. |
+|||| 2 | 2026-07-31 | [AquaJEPA: Action-Conditioned Multimodal Predictive Representations for Underwater Robot Dynamics](https://arxiv.org/abs/2607.29393) | HIGH — JEPA for underwater robots; RGB+sonar+proprioception fusion; preregistered 120-env replication. | Small-Mid (8-24G): Stonefish simulator, 120 environments. |
+|||| 3 | 2026-07-31 | [Auto-JEPA: A Latent World Model of Continuous Intent for End-to-End Autonomous Driving](https://arxiv.org/abs/2607.29031) | HIGH — Action-oriented JEPA world model; predicts future driving intent instead of full dense world; 91.3 PDMS on NAVSIM v1; 2.97× intent change from agent occlusion. | Mid (24G): Frozen visual encoder + intent predictor + trajectory memory. |
+|||| 4 | 2026-07-31 | [EEG-JEPA: Structured Latent Prediction for EEG Foundation Models](https://arxiv.org/abs/2608.00114) | MEDIUM — Cross-domain JEPA: structured latent prediction for EEG; Neurotopology-Aware Multi-scale Masking (N-MET); 50.42% frozen 14-task accuracy vs 40.49% waveform reconstruction. | Mid (24G): EEG foundation model pretraining. |
 ||| 2 | 2026-07-31 | [AquaJEPA: Action-Conditioned Multimodal Predictive Representations for Underwater Robot Dynamics](https://arxiv.org/abs/2607.29393) | HIGH — JEPA for underwater robots; RGB+sonar+proprioception fusion; preregistered 120-env replication. | Small-Mid (8-24G): Stonefish simulator, 120 environments. |
 ||| 1 | 2026-07-30 | [CS-JEPA: One Future, Every Robot — Label-Efficient Collective-State Prediction with Decentralized JEPA](https://arxiv.org/abs/2607.28443) | HIGH — Recurrent decentralized JEPA for multi-robot swarms; 45.5% MSE reduction, label-efficient. | Small (8-12G): 16-frame history, 64-float msg per robot. |
 ||| 2 | 2026-07-30 | [PhiZero: A World Model Built Around Physical Language](https://arxiv.org/abs/2607.28624) | MEDIUM — Discrete physical language + VLM reasoning + diffusion rendering; critiques pixel prediction. | Large (40G+): VLM reasoner + diffusion decoder. |
@@ -183,6 +189,141 @@
 - **Research Line**: World Model Evaluation — developing rigorous benchmarks that test whether models understand dynamics, not just generate appearances.
 - **Future Directions**: Adding JEPA-specific evaluation protocols (probing latent representations for reactivity without pixel generation); extending to physical robot interaction scenarios; incorporating multi-step planning evaluation; developing "reactivity scores" that correlate with downstream planning success.
 - **GitHub**: Project website: [WorldExam.github.io](https://WorldExam.github.io)
+
+---
+
+## [2026-08-04] LiLa-WAM: Lightweight Latent Reasoning World-Action Model for Robotic Manipulation
+
+- **arXiv**: [2608.03701](https://arxiv.org/abs/2608.03701)
+- **Authors**: Fan Yang, Yuting Su, Xiaobo Wang, Yuncheng You, Fugui Fan, Yuting Wu, Minghui Wu, Chenxu Zhao, JiaHong Ning, Peiguang Jing
+- **TL;DR**: A lightweight world-action model that reasons about the future in a compact latent space jointly shaped by future-state prediction and action generation — trainable end-to-end on a single 24GB GPU and achieving 90.48% success across 50 RoboTwin tasks.
+- **Problem**: Existing WAMs incur substantial computational overhead. Pixel-space methods waste capacity on visual details irrelevant to control; latent-space methods require multi-stage training to construct the reasoning space. Both make WAMs hard to train under modest computational budgets, limiting accessibility for the broader research community.
+- **Architecture**: LiLa-WAM — End-to-end trainable on a single 24GB GPU. Core design: (1) **Compact latent reasoning space**: jointly shaped by future-state prediction (what will the world look like?) and action generation (what action should I take?). These two objectives share a common latent space that remains lightweight while well-aligned with control. (2) **Visual Transition Token (VTT)**: a language-free task representation that encodes each task as a direction in visual feature space — eliminating the need for language descriptions while maintaining task specificity. (3) **Single-stage training**: unlike multi-stage WAMs that require separate pretraining and alignment phases, LiLa-WAM is trained end-to-end. Evaluated on RoboTwin 2.0 (90.48% across 50 tasks), LIBERO, and real-robot tasks.
+- **Compute Scale**: Mid (24G): Single GPU end-to-end training. Lightweight encoder + compact latent reasoning space. Designed for accessibility.
+- **LeCun Alignment**: HIGH — Embodies core LeCun principles: (1) Predicts in latent space, not pixels — the joint future-state/action latent space is a JEPA-aligned design choice. (2) Modular, efficient architecture that decouples perception from reasoning — the visual encoder provides features while the latent reasoning space handles dynamics. (3) Single-GPU training democratizes WAM research, aligning with the vision of practical, deployable autonomous systems rather than datacenter-only approaches. (4) The VTT (visual transition token) as a language-free task specifier mirrors LeCun's emphasis on learning from observation rather than language grounding. WEAKNESSES: (1) The joint prediction space still includes reconstruction-like elements (future-state prediction), not purely JEPA-style latent prediction. (2) VTT is limited to tasks within the visual feature space distribution — abstract reasoning tasks may not be well-represented. Overall, LiLa-WAM demonstrates that efficient, accessible WAMs are achievable, validating the guess that world-action models don't need massive compute to be useful.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: LiLa-WAM — A lightweight WAM with a compact latent reasoning space shared between future-state prediction and action generation, trained end-to-end on a single GPU with a language-free visual task representation (VTT).
+- **Motivation**: Current WAMs are too computationally expensive for broad research adoption. Pixel-generation WAMs waste capacity; multi-stage latent WAMs have complex training pipelines. A single-GPU, end-to-end WAM would dramatically expand who can contribute to world model research.
+- **Problem Solved**: 90.48% success across 50 RoboTwin 2.0 tasks with single-GPU training. Competitive performance on LIBERO and real-robot tasks. Demonstrates that lightweight latent reasoning can match or exceed heavier approaches.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on WAM literature (Fast-WAM, LeapBot-WA, Faster-WAM) and latent world model work. The VTT approach draws from visual feature direction work. Responds to the accessibility gap in WAM research — most WAMs require multi-GPU setups, excluding many researchers.
+- **Implicit Connection**: LiLa-WAM represents the "democratization" direction within WAM research. LeCun's vision of autonomous intelligence requires practical, deployable systems — a world model that needs a datacenter GPU per robot defeats the purpose. LiLa-WAM shows that the efficiency frontier is farther than assumed: with careful design, WAMs can be both capable and accessible. The joint latent space design also prefigures the kind of unified representation LeCun envisions for world models that simultaneously support prediction and planning.
+- **Research Line**: Efficient WAM — making world-action models practical and accessible.
+- **Future Directions**: Extension to longer-horizon tasks; integration with VTT-based task libraries; combining with JEPA-style purely predictive objectives (eliminating reconstruction); multi-embodiment transfer via the VTT abstraction.
+- **GitHub**: To be checked
+
+---
+
+## [2026-08-03] Faster-WAM: Do World Action Models Need Deep Action Modules?
+
+- **arXiv**: [2608.02365](https://arxiv.org/abs/2608.02365)
+- **Authors**: Liheng Ma, Rui Heng Yang, Zhanguang Zhang, Mateo Clemente, Ziwen Hu, Tongtong Cao, Yingxue Zhang
+- **TL;DR**: Introduces Dock of Transformer (DoT), a video-centric design principle that docks lightweight output-heads onto a pretrained video backbone — showing that a single-layer action head can match deep action modules, achieving 3.2× inference speedup.
+- **Problem**: Existing WAMs with shared-backbone or Mixture-of-Transformers designs tie the depth of the action module to the video backbone, resulting in substantial computational overhead and high inference latency. The assumption that action prediction needs deep processing alongside video understanding has not been empirically tested.
+- **Architecture**: Faster-WAM — (1) **Dock of Transformer (DoT)** design principle: treats a pretrained video Transformer as a representation hub. Output heads (action, video, etc.) connect through "docking interfaces" that provide direct access to representations from ALL layers of the backbone, not just the final layer. This enables flexible head design independent of backbone depth. (2) **Faster-WAM instantiation**: docks a single-layer action head onto a 30-layer video backbone. The docking interface fuses keys and values from all video layers and applies RoPE realignment to maintain temporal consistency. (3) **No additional embodied pretraining** — uses the frozen video backbone as-is. Evaluated on LIBERO, RoboTwin 2.0, and LIBERO-Plus (out-of-distribution). Achieves 66.5ms per inference — 3.2× faster than Fast-WAM — with competitive action prediction and strong OOD generalization.
+- **Compute Scale**: Mid (24G): Pretrained video backbone + single-layer action head. Inference latency 66.5ms (vs. 212ms for Fast-WAM).
+- **LeCun Alignment**: MEDIUM-HIGH — Addresses a critical efficiency question for WAM deployment. STRENGTHS: (1) Empirical demonstration that deep action modules are unnecessary — the video backbone already captures sufficient dynamics for action prediction, supporting the argument that world models should be efficient. (2) The DoT design principle (backbone as hub, lightweight heads) mirrors LeCun's modular architecture where the world model provides representations consumed by the actor with minimal additional processing. (3) Strong out-of-distribution generalization suggests the video backbone's representations are robust, not overfit. WEAKNESSES: (1) Still uses generative video backbone (not JEPA-based), so the underlying representations come from a generative objective. (2) The action head is single-layer but still operates on deterministic representations — doesn't address uncertainty. Overall, Faster-WAM provides strong evidence that WAM action modules can be dramatically simplified, closing the gap between WAMs and deployable systems.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Faster-WAM — Test the hypothesis that WAM action modules don't need to be deep. The DoT design allows output heads to access all backbone layers, and experiments show a single-layer action head suffices.
+- **Motivation**: WAMs are slow because action modules are unnecessarily deep. If action prediction can be done with a shallow head, WAMs become much more practical for real-time control. The key insight: the video backbone already captures rich dynamics — the action head just needs to read it out, not recompute it.
+- **Problem Solved**: 3.2× inference speedup over Fast-WAM (66.5ms vs 212ms) with competitive performance. Strong OOD generalization on LIBERO-Plus. Demonstrates that action module depth is not the bottleneck in WAM performance.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on Fast-WAM and the Mixture-of-Transformers WAM design. The DoT principle generalizes beyond WAMs to any video-centric architecture. The finding that deep action modules are unnecessary challenges the prevailing WAM design philosophy.
+- **Implicit Connection**: Faster-WAM and LiLa-WAM together establish a clear message: WAMs can be much more efficient than current practice assumes. Faster-WAM attacks the action module depth assumption; LiLa-WAM attacks the latent space complexity assumption. Both align with LeCun's emphasis on efficiency and modularity. The DoT design (backbone as hub) mirrors the world model module in LeCun's architecture: the world model is the central representation from which other modules (actor, cost) read.
+- **Research Line**: Efficient WAM Architecture — questioning design assumptions to reduce computational overhead.
+- **Future Directions**: DoT with JEPA-based backbones (rather than generative video backbones); multi-task heads docked on shared backbone; learned docking interfaces that adapt per task.
+- **GitHub**: To be checked
+
+---
+
+## [2026-08-02] Asleep at the Wheel: JEPA's Limitations in Evaluating Novel Driving Data
+
+- **arXiv**: [2608.01336](https://arxiv.org/abs/2608.01336)
+- **Authors**: Advait Pavuluri, Shamik Karkhanis, Uzma Mushtaque
+- **TL;DR**: Reveals that JEPA-based novelty detection for autonomous driving clips succeeds on cross-dataset protocols due to domain-shift artifacts, not genuine novelty recognition — collapsing to chance-level on fair single-dataset benchmarks.
+- **Problem**: Autonomous driving fleets record far more video than humans can review. An automatic, label-free clip triage mechanism is needed to surface rare and review-worthy clips. JEPA-based prediction error seems like a natural solution — clips that are hard to predict should be novel/interesting. But does this actually work, or is it a domain-shift artifact?
+- **Architecture**: A frozen V-JEPA video encoder is paired with a lightweight predictor head. The predictor reconstructs masked clip embeddings from context, and clips with high prediction error are flagged as "interesting/novel." Evaluated under two protocols: (1) Cross-dataset: train predictor on dataset A, test on dataset B — appears highly effective. (2) Single-dataset (fair benchmark): train and test on the same dataset — collapses to chance level, on par with simple no-training baselines. A lightly supervised probe on the same frozen embeddings achieves almost double the average precision, indicating the bottleneck is the self-supervised objective, not the representation quality.
+- **Compute Scale**: Small-Mid (8-24G): Frozen V-JEPA encoder + lightweight predictor head. Inference only (no training of V-JEPA).
+- **LeCun Alignment**: MEDIUM — Important cautionary finding for the JEPA research program. STRENGTHS: (1) Identifies a genuine limitation of JEPA representations: prediction error in latent space does not necessarily correspond to meaningful novelty — it can simply reflect domain shift. (2) The finding that a supervised probe dramatically outperforms JEPA prediction error suggests JEPA representations are good but the self-supervised objective is insufficient for certain downstream tasks. (3) Methodologically rigorous: demonstrates the danger of cross-dataset evaluation protocols that silently reward domain separation. WEAKNESSES: (1) Only tests one specific use case (clip triage/novelty detection) — doesn't evaluate JEPA for the core world model tasks (dynamics prediction, planning). (2) Uses frozen V-JEPA; fine-tuning might recover the gap. Overall, this is a valuable methodological contribution to the JEPA evaluation literature, highlighting the need for careful benchmark design and the limitations of self-supervised prediction error as a universal signal.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Asleep at the Wheel — Critically evaluate JEPA-based novelty detection for autonomous driving. Show that apparent success on cross-dataset benchmarks is an artifact of domain shift, not genuine novelty detection.
+- **Motivation**: Self-supervised methods are increasingly proposed for safety-critical applications like autonomous driving. But evaluation protocols matter: cross-dataset evaluations can make methods look effective when they're just detecting domain differences, not meaningful anomalies.
+- **Problem Solved**: Demonstrates that JEPA prediction error is not a reliable novelty signal on fair benchmarks. Provides a methodological template for evaluating self-supervised methods in safety-critical domains: always include a fair single-dataset baseline.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on V-JEPA and self-supervised anomaly detection literature. The core insight — cross-dataset evaluation can silently reward domain separation — is relevant to the broader SSL evaluation community, not just JEPA.
+- **Implicit Connection**: This paper serves as a methodological check on the JEPA research program. The finding that JEPA representations are rich (supervised probe works well) but the self-supervised prediction error signal is unreliable is consistent with other JEPA critiques: JEPA learns good representations, but what you DO with those representations matters. The prediction error ≠ novelty finding parallels the prediction error ≠ control success finding (2607.10362) — in both cases, the raw self-supervised signal is insufficient for the downstream task without additional structure.
+- **Research Line**: JEPA Evaluation & Limitations — understanding where and why JEPA-based approaches succeed or fail.
+- **Future Directions**: Multi-objective JEPA for safety-critical tasks; combining JEPA prediction error with uncertainty quantification; developing JEPA-specific evaluation protocols that avoid domain-shift confounds.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-31] Auto-JEPA: A Latent World Model of Continuous Intent for End-to-End Autonomous Driving
+
+- **arXiv**: [2607.29031](https://arxiv.org/abs/2607.29031)
+- **Authors**: Jiwei Yang, Zhengxian Chen, Chaosheng Huang, Jun Li
+- **TL;DR**: An action-oriented JEPA world model for autonomous driving that predicts future driving "intent" (a latent aligned with future ego trajectory) instead of dense future-world reconstruction — achieving 91.3 PDMS on NAVSIM v1 with a frozen visual encoder and no explicit perception annotations.
+- **Problem**: Existing autonomous-driving world models perform dense prediction of future videos, occupancy states, BEV representations, or agent motion. Planning doesn't need to reconstruct the complete future world — it only needs to focus on scene features that affect future ego action. Dense prediction wastes capacity on planning-irrelevant details.
+- **Architecture**: Auto-JEPA — (1) **Frozen visual encoder** processes visual observations (no fine-tuning needed). (2) **Intent predictor** takes visual features, egomotion history, and navigation commands to predict an "intent embedding" — a latent representation aligned with the future ego trajectory's latent representation. This is pure JEPA-style latent prediction: the target is the EMA encoder's representation of the actual future trajectory. (3) **Trajectory memory**: a fixed bank of executable trajectories. The predicted intent retrieves the closest trajectory from this memory (no learned trajectory generator). (4) **Candidate selection module**: scene-conditioned ranking of retrieved trajectories. Key findings: 91.3 PDMS on NAVSIM v1, 89.1 EPDMS on NAVSIM v2. Semantic occlusion experiments: masking dynamic-agent regions induces an average intent change 2.97× that of equal-area random masking. Crucially, occluding vehicles that affect future driving substantially changes predicted intent+trajectory, while occluding non-influential vehicles leaves both unchanged — demonstrating that intent prediction forces the model to focus on planning-relevant visual features.
+- **Compute Scale**: Mid (24G): Frozen visual encoder + lightweight intent predictor + fixed trajectory memory. No perception annotations, no learned trajectory generator.
+- **LeCun Alignment**: HIGH — This is one of the cleanest instantiations of LeCun's world model vision for a specific domain. STRENGTHS: (1) Pure JEPA: predicts in latent space (intent embedding) rather than pixels/BEV/occupancy — directly instantiates the core JEPA principle. (2) Action-oriented: the prediction target (future ego trajectory) is what matters for planning, not what the whole world looks like — aligning with LeCun's argument that world models should predict abstractions relevant to action. (3) Frozen encoder + lightweight predictor: follows the JEPA pattern of learning the predictor while the encoder provides stable targets. (4) The semantic occlusion experiments are a beautiful demonstration that the model learns to attend to causally relevant features — exactly the kind of "understanding" LeCun argues is missing from generative approaches. (5) No explicit perception annotations (no object detection, lane detection, etc.) — the model discovers planning-relevant structure from the predictive objective alone. WEAKNESSES: (1) The trajectory memory is fixed — doesn't learn or adapt. (2) Limited to short-horizon prediction (trajectory retrieval), not open-ended planning. (3) Evaluated only in simulation (NAVSIM), not real-world driving. Overall, Auto-JEPA is a compelling demonstration that JEPA principles can be applied to autonomous driving, producing a model that focuses on causally relevant features without needing dense world reconstruction.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Auto-JEPA — Replace dense future-world prediction in autonomous driving world models with intent prediction: learn to predict a latent embedding aligned with future ego trajectory, and use it to retrieve executable trajectories. The model learns to attend to planning-relevant scene features without explicit supervision.
+- **Motivation**: Dense prediction (video, BEV, occupancy) is the wrong objective for driving world models — most predicted information is irrelevant to the driving decision. Intent prediction in latent space is cheaper, more focused, and yields better planning by construction.
+- **Problem Solved**: 91.3 PDMS on NAVSIM v1 (competitive with dense-prediction approaches at lower cost). Semantic occlusion experiments prove the model attends to causally relevant agents — a qualitative property that dense prediction approaches don't guarantee.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on JEPA (I-JEPA, V-JEPA) and applies it to autonomous driving. Responds to the dense-prediction world model paradigm (UniAD, VAD, GAIA-1) by proposing a leaner alternative. The intent embedding approach connects to trajectory prediction and motion forecasting literature.
+- **Implicit Connection**: Auto-JEPA provides a concrete domain-specific validation of LeCun's core argument: predicting the right abstraction (intent) is more efficient and more causally grounded than predicting everything (pixels/occupancy). The semantic occlusion experiments are exactly the kind of causal probing that LeCun advocates for evaluating whether world models truly "understand" their domain. This paper could serve as a template for JEPA-based world models in other domains: identify the action-relevant abstraction, predict it in latent space, and validate with causal interventions.
+- **Research Line**: JEPA for Autonomous Driving — applying predictive architectures to replace dense world reconstruction for ego-motion planning.
+- **Future Directions**: Learned trajectory generation (beyond fixed memory); multi-modal intent prediction (multiple plausible futures); real-world deployment; hierarchical intent prediction (short-term trajectory + long-term route); combining with JEPA-based prediction of other agents' intents.
+- **GitHub**: To be checked
+
+---
+
+## [2026-07-31] EEG-JEPA: Structured Latent Prediction for EEG Foundation Models
+
+- **arXiv**: [2608.00114](https://arxiv.org/abs/2608.00114)
+- **Authors**: Jinhao Li, Zhiyuan Ma, Xueqiao Han, Zhongye Xia, Xinche Zhang, Shanghong Xie, Yixuan Liu, Yongjian Li, Runmin Gan, Tianlin Huo, Sen Song
+- **TL;DR**: Applies JEPA to EEG foundation modeling with structured latent prediction — replacing waveform reconstruction with Neurotopology-Aware Multi-scale Electrode-Temporal Masking (N-MET) — improving 14-task frozen accuracy from 40.49% to 50.42%.
+- **Problem**: EEG foundation models are typically pretrained via masked waveform reconstruction, but applying supervision directly to noisy EEG encourages models to recover predictable background activity, acquisition effects, and artifacts rather than neural structure that transfers across tasks. What should an EEG model predict to learn transferable representations?
+- **Architecture**: EEG-JEPA — A structured latent-prediction framework with three design dimensions: (1) **Target content**: what representation is predicted (contextual latent states from an EMA target encoder observing the complete input, rather than raw voltages). (2) **Target support**: where prediction occurs, defined by Neurotopology-Aware Multi-scale Electrode-Temporal Masking (N-MET) — structured electrode–time region masks informed by known neurophysiological topology rather than random patches. (3) **Target depth**: at which encoder layers supervision is applied (multi-layer rather than only final-layer). Trained with the standard JEPA pipeline: context encoder (masked input) → predictor → target encoder (full input, EMA). Evaluated via controlled objective comparisons, frozen multitask transfer (14 tasks), and full fine-tuning (9 tasks). Under protocol-matched full fine-tuning, improves 9-task average balanced accuracy from 68.98% to 70.65%.
+- **Compute Scale**: Mid (24G): EEG foundation model pretraining. Standard EEG datasets (TUH EEG, etc.).
+- **LeCun Alignment**: MEDIUM — Cross-domain JEPA validation with domain-specific structural innovations. STRENGTHS: (1) Pure JEPA architecture applied to a novel modality — demonstrates JEPA's generality beyond vision/audio. (2) The three-dimensional target design (content, support, depth) is a principled framework for adapting JEPA to structured sensor data — the N-MET masking strategy in particular incorporates domain knowledge (neurophysiological topology) into the masking pattern, a practice LeCun advocates (build in known structure rather than learning it from data). (3) Strong frozen transfer results suggest JEPA representations are more task-agnostic than reconstruction-based representations. WEAKNESSES: (1) EEG is a clinical/scientific modality, far from embodied AI — doesn't directly advance the autonomous intelligence agenda. (2) No action conditioning — purely representation learning. (3) The N-MET masking strategy is domain-specific and doesn't generalize to other sensor modalities. Overall, EEG-JEPA is valuable cross-domain validation showing that JEPA's structured latent prediction beats raw reconstruction for scientific sensor data, continuing the pattern of Crys-JEPA, Rad-JEPA 3D, and IQ-JEPA.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: EEG-JEPA — Apply JEPA to EEG with structured latent prediction guided by neurophysiological topology (N-MET masking). Shift the pretraining objective from "reconstruct missing voltages" to "infer latent neural states from structured electrode-time context."
+- **Motivation**: EEG is noisy. Reconstruction-based pretraining learns to recover noise and artifacts rather than neural structure. JEPA's latent prediction in a structured target space forces the model to learn the underlying neural dynamics that generalize across tasks.
+- **Problem Solved**: EEG-JEPA improves 14-task frozen macro balanced accuracy from 40.49% (waveform reconstruction baseline) to 50.42%. Multi-source continuation further raises this to 52.94% — the highest among EEG foundation models on EEG-FM-Bench. Full fine-tuning also improves (68.98% → 70.65%).
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on I-JEPA, the EEG foundation model literature (CBraMod, etc.), and masked pretraining for time-series data. The three-dimensional target design framework (content, support, depth) generalizes the JEPA masking strategy beyond vision.
+- **Implicit Connection**: EEG-JEPA continues the pattern of cross-domain JEPA validation (Crys-JEPA for materials, Rad-JEPA 3D for CT, IQ-JEPA for ultrasound, JEPA-CFM for wireless). The common thread: reconstruction is a bad objective for scientific sensor data because it learns noise and artifacts; JEPA's latent prediction focuses on the underlying structure. This validates LeCun's claim that predicting in representation space is superior to reconstructing in input space, across a remarkably diverse set of domains. The N-MET masking strategy also demonstrates how domain knowledge can be incorporated into JEPA through structured masking — a design pattern applicable to other sensor modalities with known spatial/topological structure.
+- **Research Line**: Scientific JEPA — adapting JEPA to scientific sensor modalities where reconstruction-based pretraining fails.
+- **Future Directions**: Multi-modal EEG+fMRI JEPA; real-time clinical deployment; extension to other biosignals (ECG, EMG); learned (rather than predefined) neurophysiological topologies for N-MET.
+- **GitHub**: To be checked
 
 ---
 
