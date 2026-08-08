@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **101 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-07 (7 new papers — Aug 2–5 batch)
+> **105 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-08 (4 new papers — Aug 3–6 batch)
 
 ---
 
@@ -10,7 +10,11 @@
 
 | # | Date | Paper | Alignment | Compute |
 ||---|------|-------|-----------|--------|
-||| 1 | 2026-08-01 | [HP-JEPA: Hierarchical Partitioning for Multi-Resolution Graph Joint-Embedding Predictive Learning](https://arxiv.org/abs/2608.00491) | HIGH — LeCun co-author; hierarchical multi-resolution JEPA for graph SSL; coarse-to-fine partition bank with online/target encoder + predictor; 6/8 benchmark wins over Graph-JEPA. | Mid (24G): Graph classification/regression benchmarks, multi-resolution encoders. |
+||| 1 | 2026-08-06 | [PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models](https://arxiv.org/abs/2608.05720) | HIGH — Identifies three JEPA world model failure modes (physical invariance/identifiability/counterfactual collapse); three training pathways to fix them; MPC success 70→78.1% on OGBench-Cube, 81→98% on TwoRooms. | Mid (24G): Standard JEPA backbone + physics-aware training objectives. |
+||| 2 | 2026-08-06 | [ω-0: A Latent Predictive World Action Model for Concurrent Humanoid Loco-Manipulation](https://arxiv.org/abs/2608.06375) | HIGH — Latent predictive WAM for real-world humanoid whole-body control; avoids pixel reconstruction, uses compact future observation embeddings + diffusion action head; 40+ hr real-world dataset (ω-HOME). | Mid-Large (24-40G+): Multi-view encoder + latent predictor + diffusion action head. |
+||| 3 | 2026-08-06 | [DyPES-VLA: Learning Shared Dynamics Priors and Embodiment-Specific Control for Cross-Embodiment Manipulation](https://arxiv.org/abs/2608.06374) | MEDIUM — Cross-embodiment VLA with future-prediction objective for shared dynamics priors; MoE action head for native-space control; no manual action realignment needed. | Large (40G+): VLM backbone + dynamics prediction + MoE action heads. |
+||| 4 | 2026-08-03 | [LeDXA: Self-supervised DXA representations encode multi-system disease risk, biological aging and heritability](https://arxiv.org/abs/2608.02208) | MEDIUM — LeCun co-author; JEPA-based SSL for medical imaging (DXA scans); learns latent health representations without pixel reconstruction; 150K× fewer training images than DINOv3, better disease prediction. | Small-Mid (8-24G): JEPA from scratch on 11,540 unlabeled scans; evaluated on 47,400 UKBB scans. |
+|||| 1 | 2026-08-01 | [HP-JEPA: Hierarchical Partitioning for Multi-Resolution Graph Joint-Embedding Predictive Learning](https://arxiv.org/abs/2608.00491) | HIGH — LeCun co-author; hierarchical multi-resolution JEPA for graph SSL; coarse-to-fine partition bank with online/target encoder + predictor; 6/8 benchmark wins over Graph-JEPA. | Mid (24G): Graph classification/regression benchmarks, multi-resolution encoders. |
 ||| 2 | 2026-08-03 | [CoWAM: Coordination Contracts for Selective Policy Intervention with WAMs](https://arxiv.org/abs/2608.02578) | MEDIUM-HIGH — Selective WAM intervention via typed coordination contracts; preserves nominal policy unless alternative clears all gates; 9.6pp closed-loop improvement, <1% harmful interventions. | Mid (24G): 8 simulated bimanual manipulation tasks. |
 |||| 3 | 2026-08-03 | [WorldExam: Benchmarking World Models from Apparent Appearance to Inherent Reactivity](https://arxiv.org/abs/2608.02603) | MEDIUM — 4-level diagnostic benchmark (Visual Quality → World Reactivity); evaluates whether video-gen world models understand inherent dynamics vs. just appearance; 1,474 cases, 20 models evaluated; exposes capability split across camera/action/language paradigms. | N/A (benchmark): 20 representative models evaluated. |
 |||| 4 | 2026-08-02 | [Asleep at the Wheel: JEPA's Limitations in Evaluating Novel Driving Data](https://arxiv.org/abs/2608.01336) | MEDIUM — Reveals JEPA-based novelty detection for driving fails on fair single-dataset benchmarks; success on cross-dataset protocols is domain-shift artifact, not genuine novelty recognition. | Small-Mid (8-24G): Frozen V-JEPA encoder + lightweight predictor head. |
@@ -115,6 +119,114 @@
 
 
 
+
+---
+
+## [2026-08-06] PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models
+
+- **arXiv**: [2608.05720](https://arxiv.org/abs/2608.05720)
+- **Authors**: Xi Zeng, Haojie Ren, Ziying Song
+- **TL;DR**: Identifies three specific failure modes in JEPA world models (physical invariance collapse, physical identifiability collapse, counterfactual dynamics collapse) and proposes three targeted training pathways to fix them — demonstrating that preventing global latent collapse is not enough for reliable JEPA world models.
+- **Problem**: JEPA world models prevent representational collapse through objectives like SIGReg or variance regularization, but a non-collapsed latent space does NOT guarantee that the representation preserves physically meaningful states and action consequences. The model may learn a latent space that is varied but physically incoherent — where different physical states map to nearby latents, or where action consequences are not properly encoded. This means downstream planning/MPC fails even when the representation "looks" good by standard metrics.
+- **Architecture**: PhyLatent — (1) **Three failure mode taxonomy**: Physical Invariance Collapse (PIC: different physical states map to indistinguishable latents), Physical Identifiability Collapse (PIDC: action consequences are ambiguous/entangled), Counterfactual Dynamics Collapse (CDC: model cannot represent "what if" scenarios). (2) **Three training pathways**: Physical Invariance (physical state grounding + static visual invariance), Physical Identifiability (future representation alignment across action sequences), Counterfactual Dynamics (separated counterfactual branches + latent denoising). (3) **Implementation**: augmentations on a standard JEPA encoder-predictor backbone with additional regularization objectives and auxiliary heads. (4) **Results**: OGBench-Cube: PIC 15.60→7.53%, PIDC 6.71→0.95%, CDC 8.41→4.62%; MPC success 70.0→78.1%. TwoRooms: 81.0→98.0%. Competitive on Reacher and PushT.
+- **Compute Scale**: Mid (24G): Standard JEPA backbone (comparable to LeWM) + physics-aware training objectives with marginal overhead.
+- **LeCun Alignment**: HIGH — Directly addresses a critical reliability gap in JEPA world models. STRENGTHS: (1) The taxonomy of failure modes provides a diagnostic framework for evaluating whether JEPA world models actually learn useful representations — going beyond "no collapse" to "physically coherent." (2) The counterfactual dynamics pathway is essential for planning — LeCun's vision explicitly requires world models that can answer "what if" questions, not just predict the most likely future. (3) The massive TwoRooms improvement (81→98%) demonstrates that physical coherence directly translates to planning success — validating the core premise of JEPA-based planning. (4) Operates purely in latent space, consistent with JEPA's reconstruction-free philosophy. WEAKNESSES: (1) Only tested on state-based environments (not visual/pixel-space) — scaling to image/video JEPA remains open. (2) The three failure modes are defined manually — ideally they would be discovered automatically. (3) Not from LeCun's group directly — independent validation of the JEPA paradigm. Overall, PhyLatent is essential reading for anyone building JEPA world models: it shows that preventing collapse is necessary but far from sufficient, and provides concrete remedies.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: PhyLatent — Three training objectives (physical invariance, physical identifiability, counterfactual dynamics) that ensure JEPA world model representations are not just non-collapsed but physically meaningful.
+- **Motivation**: Standard JEPA regularization prevents collapsed representations but doesn't guarantee that the latent space encodes physical state transitions and action consequences. The result: great-looking representations that fail at planning. PhyLatent bridges this gap by directly optimizing for physical coherence.
+- **Problem Solved**: 47-86% reduction in physical failure modes on OGBench-Cube; 8.1pp MPC improvement; 17pp improvement on TwoRooms. All with the same backbone architecture and planner — the gains come purely from better representation learning objectives.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on JEPA world model literature (LeWM, JEPA-WMs paper, V-JEPA-2-AC). Extends the theoretical understanding of JEPA collapse beyond global variance collapse to specific physical-semantic failure modes.
+- **Implicit Connection**: This paper provides the diagnostic toolkit that the JEPA community has been missing. When a JEPA world model fails at planning, PhyLatent tells you WHY (which of the three collapse modes is the culprit) and HOW to fix it. This is directly useful for LeCun's long-term vision of reliable autonomous systems built on JEPA world models.
+- **Research Line**: JEPA Reliability — ensuring JEPA representations are not just diverse but physically faithful.
+- **Future Directions**: Scaling to visual/image domains; automatic discovery of failure modes rather than manual specification; integration with symbolic dynamics (SJEPA-style) for physics-grounded latent spaces.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-06] ω-0: A Latent Predictive World Action Model for Concurrent Humanoid Loco-Manipulation
+
+- **arXiv**: [2608.06375](https://arxiv.org/abs/2608.06375)
+- **Authors**: Zhe Li, Zhenzhe Zhang, Yangyang Wei, Wenjie Zhang, Xichen Yuan, Peiyuan Zhi, Gen Li, Xinying Guo, Fengjie Gao, Jianfei Yang, Shanghang Zhang
+- **TL;DR**: A latent predictive whole-body world-action model for real-world humanoid robots performing concurrent locomotion + manipulation — learns compact future observation embeddings instead of reconstructing pixels, coupling latent visual foresight with diffusion-based action generation.
+- **Problem**: Humanoid household tasks require simultaneous locomotion and manipulation (loco-manipulation) — e.g., walking to a table while carrying an object, then placing it. Existing approaches either decompose the problem (separate walking + arm policies, leading to coordination failures) or use WAMs limited to tabletop manipulation (arm-centric) or video generation (computationally wasteful). No existing WAM handles whole-body humanoid control with real-world deployment.
+- **Architecture**: ω-0 — (1) **Latent predictive objective**: rather than generating future video frames, predicts compact future observation embeddings — a lightweight alternative that captures task-relevant state changes without pixel-level reconstruction. (2) **Diffusion-based whole-body action generation**: action latents are decoded into controller-compatible joint commands via a diffusion process conditioned on the predicted latent future + language instruction + current proprioception. (3) **Multi-view input**: supports egocentric RGB, exocentric RGB, and exocentric depth inputs for robust state estimation. (4) **Controller-based simulation replay**: bridges sim-to-real gap by grounding publicly available visual-motion priors into robot-executable action latents through controller replay in simulation. (5) **ω-HOME dataset**: 40+ hours of real-world household humanoid data with synchronized multi-view observations — a significant contribution to the data-scarce humanoid domain.
+- **Compute Scale**: Mid-Large (24-40G+): Multi-view encoder + latent predictor + diffusion action head. Training on humanoid-scale data with multi-view input requires substantial GPU memory but inference can be optimized.
+- **LeCun Alignment**: HIGH — This is the closest realization of LeCun's WAM vision for full-body humanoid control seen to date. STRENGTHS: (1) Explicitly avoids pixel reconstruction — the core JEPA principle — using compact future observation embeddings as the predictive target. (2) Handles the full perception→prediction→action pipeline: multi-view sensing → latent world prediction → whole-body action. This is exactly the modular architecture LeCun describes. (3) Real-world deployment on humanoid hardware demonstrates that latent predictive WAMs work beyond simulation — a critical proof point. (4) The ω-HOME dataset advances the field by providing real humanoid data, addressing a major bottleneck. WEAKNESSES: (1) The action head uses diffusion, which while effective is computationally intensive — future work could use more efficient action generation. (2) The latent predictor is relatively simple — doesn't incorporate hierarchical or multi-scale prediction that LeCun's full architecture envisions. (3) Not from LeCun's group — independent validation of the WAM paradigm. Overall, ω-0 is a landmark paper showing that latent predictive WAMs can control real humanoid robots performing complex whole-body tasks — a compelling validation of the JEPA/WAM approach.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: ω-0 — Instead of generating video or decomposing locomotion/manipulation, predict latent future observation embeddings and decode them into whole-body actions via diffusion. Train on real humanoid data (ω-HOME) and deploy on real hardware.
+- **Motivation**: Humanoid robots need coordinated whole-body control for household tasks. Pixel-level video generation wastes capacity on irrelevant details. Decomposed policies fail at coordination. Latent prediction + whole-body action generation solves both problems.
+- **Problem Solved**: First latent predictive WAM for real-world humanoid loco-manipulation. Demonstrates that JEPA-style future-embedding prediction (not pixel generation) is sufficient for complex whole-body control on real hardware.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the WAM paradigm (Fast-WAM, LeapBot-WA, LiLa-WAM) and extends it to humanoid whole-body control. The latent predictive objective is directly inspired by JEPA. The diffusion action head follows recent work on diffusion policies for robotics.
+- **Implicit Connection**: ω-0 validates the central claim of LeCun's WAM vision: that effective action can be generated from latent predictions without requiring pixel-level reconstruction. The real-world deployment is the strongest evidence yet that JEPA-style world models scale to complex embodied tasks.
+- **Research Line**: Embodied WAM — deploying world-action models on complex physical robots.
+- **Future Directions**: Hierarchical prediction (coarse body plan → fine joint control); more efficient action generation (consistency models, flow matching); multi-robot coordination; longer-horizon household task chains.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-06] DyPES-VLA: Learning Shared Dynamics Priors and Embodiment-Specific Control for Cross-Embodiment Manipulation
+
+- **arXiv**: [2608.06374](https://arxiv.org/abs/2608.06374)
+- **Authors**: Junfeng Li, Junjie He, Zhide Zhong, Yangyang Zheng, Pingyue Sheng, Jiayu Dong, Ruixin Li, Haodong Yan, Jiaguan Zhu, Tianran Zhang, Runze Yu, Wen Chen, Liuqing Yang, Yuxiang Gao, Haoang Li
+- **TL;DR**: Cross-embodiment VLA that learns shared dynamics priors via a future-prediction objective on the VLM backbone, with embodiment-specific Mixture-of-Experts action heads — enabling a single model to control diverse robot embodiments without manual action space realignment.
+- **Problem**: Training one VLA policy for multiple robot embodiments is hard because (1) shared dynamics (object motion, contact, scene changes) are underexploited across embodiments, and (2) different robots have incompatible action spaces requiring expensive manual preprocessing to unify. Existing cross-embodiment methods either ignore shared dynamics or rely on hand-crafted action space alignments.
+- **Architecture**: DyPES-VLA — (1) **Shared Dynamics Priors**: the VLM backbone is trained with a future-prediction objective on cross-embodiment interaction data. This forces the shared query representation to capture embodiment-agnostic dynamics: object motion, contact events, and interaction-induced scene changes. The future-prediction objective is JEPA-aligned: predict what changes in the scene, not reconstruct pixels. (2) **Embodiment-Specific Mixture-of-Experts (MoE)**: each robot embodiment gets its own MoE action head that translates shared dynamics priors into native-space control commands. Shared attention layers capture common temporal patterns across embodiments while expert-specific layers handle embodiment-unique kinematics. (3) **No manual realignment**: the MoE heads learn to map from shared dynamics to embodiment actions directly — no need to pre-align different action spaces into a common format.
+- **Compute Scale**: Large (40G+): Full VLM backbone with future-prediction training + multiple MoE action heads. Scaling to many embodiments increases expert count and memory.
+- **LeCun Alignment**: MEDIUM — Interesting predictive dynamics approach within the VLA paradigm. STRENGTHS: (1) The future-prediction objective for learning shared dynamics is JEPA-aligned: predict what changes (dynamics) rather than reconstruct everything. (2) The decoupling of shared dynamics from embodiment-specific action is consistent with LeCun's modular architecture — world model (shared) vs. action module (embodiment-specific). (3) The cross-embodiment generalization addresses a key scalability requirement for autonomous intelligence. WEAKNESSES: (1) Still fundamentally a VLA/policy model, not a world model — doesn't support planning or counterfactual reasoning. (2) The future-prediction is on the VLM representation, not a dedicated world model latent space. (3) The architecture is complex (VLM + MoE) and compute-heavy. Overall, DyPES-VLA demonstrates that JEPA-style predictive objectives are useful even within the VLA paradigm — a bridge between policy learning and world modeling.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: DyPES-VLA — Learn shared dynamics priors through future prediction on cross-embodiment data, then use embodiment-specific MoE heads to translate these priors into native actions without manual realignment.
+- **Motivation**: Different robots share underlying physics (objects fall, contacts cause motion) but have different ways of acting. A good cross-embodiment model should learn the shared dynamics once and specialize only the action interface — exactly what DyPES-VLA does.
+- **Problem Solved**: Enables a single VLA model to control multiple robot embodiments by learning shared dynamics priors and embodiment-specific action heads. The future-prediction objective forces the model to understand what changes during interaction, improving cross-embodiment transfer.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on cross-embodiment VLA literature and the observation that JEPA-style predictive objectives improve representation learning for embodied tasks.
+- **Implicit Connection**: The explicit separation of shared dynamics (world) from embodiment-specific action (actor) mirrors LeCun's modular agent architecture. While not a full world model, DyPES-VLA validates that predictive objectives help learn better dynamics representations even in policy-focused models.
+- **Research Line**: Predictive VLAs — incorporating world-model-style objectives into policy learning.
+- **Future Directions**: Extending from future-prediction to full planning; supporting novel embodiments not seen during training; reducing compute requirements for multi-embodiment training.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-03] LeDXA: Self-supervised DXA representations encode multi-system disease risk, biological aging and heritability
+
+- **arXiv**: [2608.02208](https://arxiv.org/abs/2608.02208)
+- **Authors**: Gil Sasson, Zachary Levine, Smadar Shilo, Sarah Kohn, Guy Lutsker, Anastasia Godneva, Adam Gabet, David Krongauz, Adina Weinberger, Yann LeCun, Randall Balestriero, Eran Segal
+- **TL;DR**: LeCun & Balestriero co-authored JEPA-based SSL model for medical imaging (DXA body scans) — learns latent health representations without pixel reconstruction, outperforming DINOv3 with 150,000× fewer training images and 40× fewer parameters.
+- **Problem**: DXA scans are routinely collected for bone density and body composition but their rich spatial structure is discarded — only a handful of tabular measurements are used clinically. Meanwhile, general-purpose vision models (DINOv3) require massive datasets and compute to learn useful representations. Can JEPA efficiently extract medical knowledge from limited unlabeled scan data?
+- **Architecture**: LeDXA — (1) **JEPA backbone**: a vision model based on joint-embedding predictive architecture trained from scratch on only 11,540 unlabeled DXA scans. Learns by predicting latent representations of masked regions rather than reconstructing pixels — consistent with JEPA principles. (2) **Evaluation**: tested on 47,400 external UK Biobank scans for cross-cohort disease prediction, biomarker estimation, incident disease prediction over 4.3-year follow-up, and heritability analysis. (3) **Key result**: Outperforms DINOv3 (a SOTA general-purpose vision model) despite ~150,000× fewer training images and ~40× fewer parameters.
+- **Compute Scale**: Small-Mid (8-24G): JEPA trained from scratch on ~11K medical images. Significantly more efficient than large-scale SSL approaches.
+- **LeCun Alignment**: MEDIUM — LeCun co-author, uses JEPA architecture, but medical domain application rather than autonomous intelligence. STRENGTHS: (1) Direct validation of JEPA's data efficiency: 150K× fewer images than DINOv3 yet better performance — exactly the kind of efficient learning LeCun advocates. (2) LeCun co-author with Balestriero (Meta FAIR) — carries institutional weight. (3) Demonstrates JEPA's generality beyond robotics/video. WEAKNESSES: (1) Not about world models for planning or action — purely a representation learning application. (2) Medical imaging is a static domain — doesn't address temporal prediction or action-conditioned futures. Overall, valuable as a JEPA validation study showing data efficiency, but peripheral to the core world-model-for-autonomous-intelligence agenda.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: LeDXA — Apply JEPA-based SSL to DXA medical imaging to learn health-relevant representations that outperform general-purpose models with dramatically less data and compute.
+- **Motivation**: Medical imaging data is expensive and privacy-constrained. JEPA's data efficiency (learning from prediction rather than reconstruction) makes it ideal for medical domains where massive unlabeled datasets aren't available.
+- **Problem Solved**: 150K× data efficiency over DINOv3; better disease prediction and biomarker estimation; demonstrates JEPA's practical value in resource-constrained domains.
+
+### Academic Context
+
+- **Inheritance / Response**: Applies I-JEPA/V-JEPA principles to medical imaging. The LeCun & Balestriero co-authorship signals Meta FAIR's interest in JEPA for healthcare. 
+- **Implicit Connection**: While not directly advancing world models for autonomous intelligence, LeDXA demonstrates JEPA's core value proposition — efficient learning from prediction without reconstruction — in a high-impact domain. The data efficiency result (150K× fewer images) is a powerful argument for JEPA over generative approaches.
+- **Research Line**: JEPA Applications — extending JEPA beyond core world model research to domain-specific applications.
+- **Future Directions**: Temporal JEPA for longitudinal medical imaging (disease progression prediction); action-conditioned JEPA for treatment planning; multi-modal JEPA combining imaging + genomics + clinical data.
+- **GitHub**: Not found
 
 ---
 
