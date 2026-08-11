@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **110 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-10 (4 new papers — Aug 6 batch, missed in prior scans)
+> **116 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-11 (6 new papers — Aug 6-7 batch)
 
 ---
 
@@ -120,7 +120,13 @@
 ||||| 81 | 2026-08-06 | [XEWorld: Can Action-Conditioned World Models Generalize to Unseen Robot Embodiments?](https://arxiv.org/abs/2608.05799) | HIGH — Cross-embodiment world model testbed; exposes that current models are 2D visual pattern matchers governed by visual similarity, not physical kinematics; zero-shot cross-embodiment requires pixel-space actions + spatial-temporal alignment. | Mid (24G): Controlled cross-embodiment evaluation framework. |
 ||||| 82 | 2026-08-06 | [GAUGE: A Measurement-Grounded Benchmark for Physical Fidelity in Simulation Engines and Video World Models](https://arxiv.org/abs/2608.05948) | HIGH — Real-world-grounded diagnostic benchmark; 22 task families across rigid bodies/flexibles/textiles/deformables; finds video world models produce correct equation form but wrong physics parameters; directly validates LeCun's generative world model critique. | N/A (benchmark): 6 image-to-video models + 3 physics engines evaluated. |
 ||||| 83 | 2026-08-06 | [LAWM-3D: Learning 3D-Aware Latent Actions from Human Videos for Generalizable Robot World Models](https://arxiv.org/abs/2608.05706) | MEDIUM-HIGH — Multi-view invariant latent action tokenization; geometric alignment to 3D foundation model; non-injective RGB-D reconstruction prevents future-frame appearance leakage; JEPA-aligned latent action pretraining principle. | Mid (24G): Two-stage human video pretraining + robot finetuning. |
-||||| 84 | 2026-08-06 | [MASS: Multiplayer World Models with Authoritative Shared State](https://arxiv.org/abs/2608.06257) | MEDIUM — Disentangles world dynamics (learned Logic Engine) from view rendering (learned Rendering Engine); authoritative typed state as sole recurrent memory; 1,024 concurrent players × 10,000 steps; disentanglement principle aligns with JEPA's state-vs-rendering separation. | Large (40G+): 1,024-player multi-agent simulation. |
+|||||| 84 | 2026-08-06 | [MASS: Multiplayer World Models with Authoritative Shared State](https://arxiv.org/abs/2608.06257) | MEDIUM — Disentangles world dynamics (learned Logic Engine) from view rendering (learned Rendering Engine); authoritative typed state as sole recurrent memory; 1,024 concurrent players × 10,000 steps; disentanglement principle aligns with JEPA's state-vs-rendering separation. | Large (40G+): 1,024-player multi-agent simulation. |
+|||||| 85 | 2026-08-06 | [TaskSense: Focusing on What Matters in World Models](https://arxiv.org/abs/2608.06544) | MEDIUM — Task-centric world model with differentiable stochastic spatial attention + inverse-dynamics objective; reconstructs ONLY attended regions (JEPA-aligned principle); outperforms DreamerV3 on Distracting Control Suite. | Mid (24G): DreamerV3 backbone + attention mechanism. |
+|||||| 86 | 2026-08-07 | [PSG-JEPA: Is Forward Prediction Enough? Physical State Grounding for JEPA World Models](https://arxiv.org/abs/2608.06799) | HIGH — Direct JEPA extension: two complementary physical grounding objectives (proprioceptive state + multi-horizon joint-angle changes) beyond forward prediction; improves latent identifiability, planning, and real-robot policy learning with zero inference overhead. | Mid (24G): Standard JEPA backbone + grounding heads (training-only). |
+|||||| 87 | 2026-08-07 | [Dueling World Models: Advantage-Style Action Channels for Common-Mode Distractor Rejection](https://arxiv.org/abs/2608.06706) | MEDIUM-HIGH — Borrows dueling decomposition from RL to isolate action-controllable latent channels; subtracts action-mean prediction to cancel distractor motion; zero auxiliary loss, works post hoc on frozen pretrained models; proven exact in finite samples. | Mid (24G): Works with any action-conditioned world model. |
+|||||| 88 | 2026-08-07 | [PILOT: Decoupling Intention from Trajectory — A Representational Deduction Framework for World Action Models](https://arxiv.org/abs/2608.06994) | MEDIUM-HIGH — Decouples high-level physical condition evolution from low-level action trajectory in WAMs via motion chain-of-thought tokens; representational deduction bridges visual prediction and action generation; improves WAM success rate and physical interpretability. | Large (40G+): Mainstream WAM architectures + RD module. |
+|||||| 89 | 2026-08-07 | [DPWM: Beyond Myopic World Models — Long-Horizon End-to-End Training for Direct Future Prediction](https://arxiv.org/abs/2608.07420) | MEDIUM-HIGH — Non-recursive Direct Prediction World Model; compresses arbitrary-length action sequences into a single embedding and predicts endpoint in one forward pass; avoids recursive rollout error amplification; objective (not architecture) drives long-horizon accuracy. | Mid (24G): Single-pass predictor, no recurrent unrolling. |
+|||||| 90 | 2026-08-07 | [Transformers Struggle to Use Their Emergent World Models: Revisiting the Tower of Hanoi, and the Illusion of Thinking](https://arxiv.org/abs/2608.07077) | MEDIUM — Shows Transformers DO develop linearly decodable emergent world models (Sierpinski triangle geometry) but FAIL to use them for planning; validates LeCun's claim that having a world model ≠ being able to use it — architecture determines planning capability. | Small (8-12G): Small Transformers trained from scratch on Hanoi traces. |
 
 
 
@@ -2989,5 +2995,165 @@
 
 ---
 
+## [2026-08-07] PSG-JEPA: Is Forward Prediction Enough? Physical State Grounding for JEPA World Models
 
-*Generated: 2026-07-31 | Papers: 77 | Daily scan: 5 new (Physical Parameter Identifiability, DLAM, Action from Adjacent Set, WCM, Mental World Modeling)*
+- **arXiv**: [2608.06799](https://arxiv.org/abs/2608.06799)
+- **Authors**: Haodong Yan, Jiaguan Zhu, Mingyuan Jia, Ruiqing Yin, Junjie He, Zhide Zhong, Junfeng Li, Jinxuan Lu, Hengtao Li, Tianran Zhang, Jiayi Chen, Wenxuan Song, Wen Chen, Yuxiang Gao, Haoang Li
+- **TL;DR**: Extends JEPA world models with two training-only physical grounding objectives — proprioceptive state regression and multi-horizon joint-angle change prediction — to enforce reliable identifiability of robot-centric physical state without adding inference overhead.
+- **Problem**: JEPA-based world models learn action-conditioned latent dynamics from observations, but their forward-prediction objectives do not explicitly enforce that individual latents encode robot proprioceptive state or that latent pairs encode joint-angle changes. This limits identifiability and degrades downstream planning/policy performance.
+- **Architecture**: PSG-JEPA — (1) Standard JEPA encoder-predictor backbone for action-conditioned latent dynamics. (2) Two complementary grounding heads applied ONLY during training: **Proprioceptive grounding**: predicts robot's physical state (joint positions, velocities) from individual latent vectors — ensures each latent carries robot-relevant physical information. **Motion grounding**: predicts multi-horizon joint-angle changes from latent pairs — ensures latent transitions encode physically meaningful motion. (3) Both heads are removed at inference — zero computational overhead. (4) Evaluated at three levels: latent identifiability (probing), goal-conditioned planning on frozen latents, and policy learning in simulation + real robot.
+- **Compute Scale**: Mid (24G): Standard JEPA backbone with lightweight grounding heads added during training only.
+- **LeCun Alignment**: HIGH — Directly addresses a core challenge in JEPA world models. STRENGTHS: (1) Explicitly grounded in LeCun's architectural philosophy — the question "Is forward prediction enough?" mirrors LeCun's argument that predictive objectives alone don't guarantee structured representations. (2) The training-only heads with zero inference overhead align with JEPA's efficiency principle: learn better during training, keep inference simple. (3) Multi-level evaluation (identifiability → planning → real robot) provides comprehensive validation. (4) The proprioceptive grounding directly connects latent space to physical reality — addressing the "grounding problem" that LeCun identifies as critical for world models. WEAKNESSES: (1) Relies on access to proprioceptive state during training — assumes robot-specific sensors. (2) Large author list suggests industry involvement. Overall, PSG-JEPA is a natural next step for the JEPA world model research program.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Two complementary physical grounding objectives (proprioceptive + motion) that supplement JEPA's forward-prediction loss during training, with zero inference overhead.
+- **Motivation**: Forward prediction alone produces latents that may not be identifiable or control-relevant. Physical grounding ensures latent space structure aligns with robot physics.
+- **Problem Solved**: Improved latent identifiability, better planning from frozen latents, and superior real-robot policy learning — all without architectural changes at inference time.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds directly on JEPA world models (LeWM, MC-JEPA, V-JEPA) and addresses a documented weakness: the gap between predictive accuracy and control utility.
+- **Implicit Connection**: The "training-only heads" pattern mirrors JEPA's own design philosophy (target encoder exists only during training). PSG-JEPA shows this pattern generalizes to physical grounding.
+- **Research Line**: JEPA World Model Grounding — ensuring JEPA latents encode physically meaningful information.
+- **Future Directions**: Extending to other modalities (force/torque, tactile); multi-embodiment grounding; theoretical analysis of when grounding objectives are necessary vs. when forward prediction suffices.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-07] Dueling World Models: Advantage-Style Action Channels for Common-Mode Distractor Rejection
+
+- **arXiv**: [2608.06706](https://arxiv.org/abs/2608.06706)
+- **Authors**: Jiazhuo Li, Yiming Fei, Zhiruo Zhou, Heikichi Hayashi
+- **TL;DR**: Borrows the dueling network decomposition from DRL — subtracting the action-mean from latent predictions cancels action-independent distractors, isolating a clean controllable channel with zero auxiliary loss and working post hoc on frozen models.
+- **Problem**: Latent world models go "action-blind" when scenes contain motion the agent doesn't control — predictions for different actions become indistinguishable even as training loss improves. Existing remedies add reconstruction, task reward, or auxiliary objectives.
+- **Architecture**: Dueling World Models — (1) **Core insight**: In latent dynamics, subtracting the mean effect over actions cancels whatever the actions share (action-independent variation where distractors live), leaving a clean controllable channel. (2) **Zero-overhead design**: This is only a subtraction at readout time — no auxiliary losses, no reward signal, no distractor-specific machinery. (3) **Post hoc applicability**: Works on ANY action-conditioned world model, including frozen pretrained ones. (4) **Theoretical guarantee**: Proves exact cancellation in finite samples for both discrete and sampled action sets. (5) **Validated across**: Gridworld, synthetic generators with known factors, distracting continuous control, and natural-pixel Atari.
+- **Compute Scale**: Mid (24G): Works with any existing action-conditioned world model at readout time — negligible overhead.
+- **LeCun Alignment**: MEDIUM-HIGH — Elegant and principled approach to a practical problem. STRENGTHS: (1) The minimal-intervention philosophy (subtraction at readout, no auxiliary objectives) aligns with JEPA's emphasis on architectural simplicity. (2) Post hoc applicability to frozen models is powerful — you can retrofit existing world models with distractor robustness. (3) The theoretical guarantee (exact cancellation) provides rigor rare in world model research. (4) Directly addresses the "action-blindness" problem that undermines world model planning. WEAKNESSES: (1) Mathematical limitation: distractors whose motion tracks the action cannot be cancelled (acknowledged in appendix). (2) Evaluated on relatively simple domains — real-world validation pending. (3) Does not propose a new architecture — it's a technique that can be applied to existing models. Overall, a clever, principled contribution that deserves attention from the WAM community.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Dueling decomposition for latent dynamics — subtract action-mean to isolate controllable channels, no training changes needed.
+- **Motivation**: World models fail silently under distractors, with training loss improving while discriminability collapses. A minimal readout-time fix is preferable to adding complex auxiliary objectives.
+- **Problem Solved**: Distractor rejection in action-conditioned world models with zero additional training cost, working even on frozen pretrained models.
+
+### Academic Context
+
+- **Inheritance / Response**: Borrows from the dueling network architecture (Wang et al., 2016) in DRL and applies the decomposition to latent world model dynamics rather than value functions.
+- **Implicit Connection**: The action-mean subtraction is conceptually similar to JEPA's latent prediction — both avoid modeling the full observation distribution and instead focus on what changes with the action.
+- **Research Line**: Robust World Models — making latent dynamics robust to uncontrolled scene variation.
+- **Future Directions**: Real-robot validation; combining with JEPA architectures; extending to multi-agent scenarios with multiple controllable agents.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-07] PILOT: Decoupling Intention from Trajectory — A Representational Deduction Framework for World Action Models
+
+- **arXiv**: [2608.06994](https://arxiv.org/abs/2608.06994)
+- **Authors**: Xiangkai Ma, Yue Ma, Junjie Wang, Sheng Xu, Mingyang Li, Han Zhang, Yuzheng Zhuang, Wenzhong Li, Zhihao Yuan
+- **TL;DR**: Introduces Representational Deduction (RD) for WAMs — motion chain-of-thought tokens that decouple high-level physical condition evolution from low-level action trajectory, bridging the gap between visual prediction and action generation.
+- **Problem**: Existing WAM visual branches predict static future observations rather than reflecting state transition information. This entangles high-level physical condition evolution with low-level action trajectory generation in the Action Model, creating a structural bottleneck.
+- **Architecture**: PILOT — (1) **Representational Deduction (RD)**: Encourages the action branch to explicitly model potential state transition tokens, which are retained as chain-of-thought (CoT) in the reasoning space to guide fine-grained motion trajectory. (2) **Decoupling principle**: RD separates "what the world will look like" (visual prediction) from "how we should move" (action generation) — the visual branch handles prediction, RD in the action branch handles motion semantics. (3) **State transition supervision**: RD introduces abundant state transition signals that alleviate sparse supervision in action generation, enabling efficient few-shot real-robot finetuning. (4) **Scalability**: Demonstrates superior scalability for migration to mainstream WAM architectures.
+- **Compute Scale**: Large (40G+): Mainstream WAM architectures (video backbone + action diffusion) with additional RD module.
+- **LeCun Alignment**: MEDIUM-HIGH — Addresses the representation entanglement problem that LeCun identifies as critical. STRENGTHS: (1) The explicit decoupling of "world state evolution" from "action trajectory" mirrors LeCun's modular agent architecture where the world model and the actor are separate modules with different objectives. (2) Motion chain-of-thought as a native model capability aligns with the idea that planning should emerge from the architecture, not be bolted on. (3) The few-shot real-robot finetuning capability demonstrates practical value. WEAKNESSES: (1) Operates in pixel space (video generation) rather than latent space — not fully JEPA-aligned. (2) Adds complexity to already-large WAM architectures. (3) Large author list. Overall, PILOT moves WAMs toward better representation structure — the RD concept could be adapted to JEPA-based WAMs.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Representational Deduction — explicit state transition tokens as chain-of-thought in the action branch, decoupling physical condition evolution from trajectory generation.
+- **Motivation**: Current WAMs conflate "predicting what happens" with "deciding what to do" — these are fundamentally different computations that should be architecturally separated.
+- **Problem Solved**: Improved WAM success rate, generalization, and physical interpretability; efficient few-shot real-robot finetuning via abundant state transition supervision.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the WAM literature (Fast-WAM, Joint-WAM) and identifies a structural bottleneck in their unified visual-action architecture.
+- **Implicit Connection**: The decoupling principle aligns with LeCun's modular agent architecture where the world model predicts state transitions and the actor/policy uses those predictions for planning.
+- **Research Line**: WAM Architecture Design — improving the interface between visual prediction and action generation.
+- **Future Directions**: Adapting RD to JEPA-based WAMs (latent prediction instead of pixel prediction); theoretical analysis of the decoupling guarantee.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-07] DPWM: Beyond Myopic World Models — Long-Horizon End-to-End Training for Direct Future Prediction
+
+- **arXiv**: [2608.07420](https://arxiv.org/abs/2608.07420)
+- **Authors**: Xinyi Li, Zaishuo Xia, Chenjie Hao, Yubei Chen
+- **TL;DR**: Proposes Direct Prediction World Model (DPWM) — a non-recursive architecture that compresses arbitrary-length action sequences into a single embedding and predicts the endpoint in one forward pass, avoiding the recursive error amplification that plagues autoregressive world models.
+- **Problem**: World models are trained with local few-step prediction objectives but deployed via recursive rollout — creating a fundamental mismatch where small local errors amplify through the trajectory and transitions with different downstream influence are treated uniformly during training.
+- **Architecture**: DPWM — (1) **Non-recursive design**: Compresses an action sequence of arbitrary length into a single embedding via a sequence encoder, then predicts the endpoint observation in a single forward pass. No recurrent rollout in either prediction or gradient propagation. (2) **Key insight**: The training objective (long-horizon endpoint prediction), not the backbone architecture, is the main driver of long-horizon accuracy. Recurrent baselines benefit similarly when retrained with the same endpoint objective. (3) **Empirical results**: DPWM substantially improves long-horizon endpoint prediction over recursive world-model baselines on continuous-control and pixel-based benchmarks, with larger gains as prediction horizon increases.
+- **Compute Scale**: Mid (24G): Single-pass predictor, no recurrent unrolling — actually more efficient at long horizons than recursive alternatives.
+- **LeCun Alignment**: MEDIUM-HIGH — The philosophy of "predict what matters, not the intermediate steps" aligns with JEPA's emphasis on abstract prediction. STRENGTHS: (1) The direct prediction paradigm avoids the compounding error problem that LeCun identifies as a weakness of autoregressive generation. (2) The finding that the objective (not architecture) drives accuracy is important — it supports the JEPA argument that what you predict matters more than how you generate. (3) Non-recursive design is inherently more efficient at long horizons — consistent with JEPA's emphasis on computational efficiency. (4) The paper shifts focus from "local transition modeling" to "long-horizon predictive accuracy" — exactly the shift LeCun advocates. WEAKNESSES: (1) Still operates in observation space (pixel prediction) rather than latent space — endpoint prediction could be even more effective in JEPA's latent space. (2) The action sequence compression may lose fine-grained control information. (3) Short author list from a single institution — limited external validation. Overall, DPWM provides strong empirical evidence for a key JEPA principle: how you train matters more than what architecture you use.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Direct Prediction World Model — compress action sequence into embedding, predict endpoint in one pass, no recursive rollout.
+- **Motivation**: Recursive rollout amplifies errors; long-horizon prediction needs direct optimization of the endpoint, not local transition fidelity.
+- **Problem Solved**: Substantially improved long-horizon endpoint prediction; demonstrated that training objective (not architecture) is the key driver.
+
+### Academic Context
+
+- **Inheritance / Response**: Challenges the dominant recursive world model paradigm (Dreamer, RSSM-based models) by showing that direct endpoint prediction outperforms recursive approaches at long horizons.
+- **Implicit Connection**: The non-recursive, single-pass design echoes JEPA's philosophy of predicting the abstract future state directly rather than iteratively generating intermediate states. Combining DPWM's endpoint objective with JEPA's latent prediction could be powerful.
+- **Research Line**: Training Objectives for World Models — rethinking how we train world models for the timescales where they're actually used.
+- **Future Directions**: Latent-space DPWM (JEPA + direct prediction); multi-horizon endpoint prediction; integration with planning algorithms that only need endpoint states.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-06] TaskSense: Focusing on What Matters in World Models
+
+- **arXiv**: [2608.06544](https://arxiv.org/abs/2608.06544)
+- **Authors**: SM Mazharul Islam, Manfred Huber
+- **TL;DR**: Task-centric world model with stochastic spatial attention + inverse-dynamics objective — reconstructs ONLY task-relevant attended regions (not full observations), improving robustness to visual distractors over DreamerV3.
+- **Problem**: World models for visual control reconstruct full observations, encouraging latent representations to preserve all visual information — but task-relevant content occupies a small fraction of the observation. This biases latents toward task-irrelevant content and degrades performance under visual distractions.
+- **Architecture**: TaskSense — (1) **Differentiable stochastic spatial attention**: Conditioned on the previous latent state, attends to task-relevant regions BEFORE latent encoding. (2) **Inverse-dynamics auxiliary objective**: Steers attention toward control-relevant regions by predicting actions from latent pairs. (3) **Partial reconstruction**: Reconstructs ONLY the attended regions, encouraging latents to discard irrelevant visual content. Decoder conditioned on attention map for consistent reconstruction despite stochastic sampling. (4) **Results**: Competitive with DreamerV3 on standard DMC, consistently outperforms on Distracting Control Suite.
+- **Compute Scale**: Mid (24G): DreamerV3 backbone + attention mechanism + inverse dynamics head.
+- **LeCun Alignment**: MEDIUM — The partial reconstruction principle is JEPA-aligned. STRENGTHS: (1) "Reconstruct what matters, not everything" is philosophically aligned with JEPA's "predict in latent space, not pixel space." (2) Inverse-dynamics for attention steering is a clean, unsupervised way to identify task-relevant regions. (3) Outperforms DreamerV3 on distractors — practical validation of the principle. WEAKNESSES: (1) Still uses pixel reconstruction (partial) rather than pure latent prediction. (2) Built on DreamerV3, not JEPA. (3) Short author list. Overall, TaskSense provides additional evidence that reconstruction-free or partial-reconstruction approaches outperform full-reconstruction world models under distraction.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Task-centric world model with attention + inverse dynamics that only reconstructs task-relevant regions.
+- **Motivation**: Full observation reconstruction wastes capacity on distractors. Task-relevant attention before encoding + partial reconstruction solves this.
+- **Problem Solved**: Improved robustness to visual distractions over DreamerV3, while maintaining competitive clean-scene performance.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on DreamerV3 and addresses its known weakness with visual distractors. The partial-reconstruction approach is a step toward JEPA's no-reconstruction paradigm.
+- **Implicit Connection**: TaskSense validates a key JEPA motivation: reconstructing full observations hurts world model quality. As a "halfway" approach (partial reconstruction), it provides a bridge between Dreamer-style world models and JEPA.
+- **Research Line**: Distractor-Robust World Models — making world models focus on what matters for control.
+- **Future Directions**: Full latent prediction (JEPA-style) with task-centric attention; combining with dueling world models for complementary distractor robustness.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-07] Transformers Struggle to Use Their Emergent World Models: Revisiting the Tower of Hanoi, and the Illusion of Thinking
+
+- **arXiv**: [2608.07077](https://arxiv.org/abs/2608.07077)
+- **Authors**: Devin Pereira, Willem Zuidema
+- **TL;DR**: Mechanistic interpretability study showing Transformers DO develop linearly decodable emergent world models (geometrically faithful Sierpinski triangle representations of the Tower of Hanoi state space) but FAIL to use them effectively for planning — the architecture limits planning even when the world model is present.
+- **Problem**: Large reasoning models struggle with the Tower of Hanoi puzzle. Using mechanistic interpretability, the authors investigate whether this is because they lack world models or because they can't use them.
+- **Architecture**: N/A (interpretability study) — (1) **Small Transformers trained from scratch** on precomputed Hanoi solution traces. (2) **Interpretability techniques** reveal a linearly decodable, geometrically faithful representation of the puzzle's state space (the Sierpinski triangle). (3) **Key finding**: The world model IS present and IS accurate — but the Transformer architecture cannot effectively USE it for multi-step planning. (4) **Large reasoning models** (GPT-4, Claude, etc.) show the same pattern: they have the knowledge but can't execute the plan.
+- **Compute Scale**: Small (8-12G): Small Transformers trained from scratch on synthetic puzzle data.
+- **LeCun Alignment**: MEDIUM — Indirect but important validation of LeCun's architectural argument. STRENGTHS: (1) The core finding — "having a world model ≠ being able to use it for planning" — directly supports LeCun's claim that architecture determines planning capability, not just knowledge. (2) The mechanistic evidence (linearly decodable world model that the model fails to use) is compelling. (3) Extends to large models (GPT-4, Claude), showing this is not just a small-model phenomenon. WEAKNESSES: (1) About Transformers/LLMs, not JEPA or WAMs directly. (2) The Tower of Hanoi is a discrete puzzle — may not generalize to continuous control. (3) No proposed solution. Overall, this paper provides ammunition for the argument that world models need dedicated planning architectures — exactly what JEPA-based MPC and hierarchical planning aim to provide. Worth citing as evidence that "emergence" is not enough.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Mechanistic interpretability study demonstrating the gap between having a world model and using it for planning.
+- **Motivation**: Understanding WHY large models fail at planning tasks requires looking inside — are they missing world knowledge or missing planning capability?
+- **Problem Solved**: Provides clear evidence that planning failure is architectural, not knowledge-based: the world model is there but the architecture can't leverage it.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on mechanistic interpretability literature and the "world models in LLMs" debate. Provides empirical grounding for the theoretical argument that world models need appropriate planning architectures.
+- **Implicit Connection**: Directly supports LeCun's architectural position: you can't just train a big model and expect planning to emerge — you need architectures designed for planning (like JEPA + MPC). The paper's title "The Illusion of Thinking" echoes LeCun's skepticism about LLM reasoning.
+- **Research Line**: World Model Utilization — understanding when and why learned world models succeed or fail at supporting planning.
+- **Future Directions**: Testing whether JEPA-based architectures + MPC planning can solve the Tower of Hanoi variants that Transformers fail on; extending the interpretability framework to continuous-control world models.
+- **GitHub**: Not found
+
+
+*Generated: 2026-08-11 | Papers: 116 | Daily scan: 6 new (PSG-JEPA, Dueling World Models, PILOT, DPWM, TaskSense, Transformers Struggle)*
