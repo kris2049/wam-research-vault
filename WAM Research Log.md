@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **128 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-12 (12 new papers — Aug 11 batch)
+> **135 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-13 (7 new papers — Aug 12 wave: Surgical WAM, VIScore, Flex-π, FACT, Racing WM Agent, Dreamer-SAC, Soccer Motion SSL)
 
 ---
 
@@ -138,10 +138,206 @@
 ||||||| 99 | 2026-08-11 | [GWM-VLA: Geometry-Aware Latent World Modeling for Vision-Language-Action Learning](https://arxiv.org/abs/2608.07619) | MEDIUM — Geometry-aware multi-view latent world model for VLA; global context-conditioned target-view prediction; improves VLA robustness under visual/environmental shifts. | Mid (24G): Multi-view geometry encoding + VLA backbone. |
 ||||||| 100 | 2026-08-11 | [SpikeWorld: Fast-State Adaptation for Frozen Spiking World Models](https://arxiv.org/abs/2608.07712) | MEDIUM — 1.45M-parameter sparse spiking world model; frozen pretrained weights + fast external adaptation states; neuromorphic approach to continual world model adaptation; JEPA-like separation of dynamics and semantics. | Small (8-12G): 1.45M spiking parameters. |
 ||||||| 101 | 2026-08-11 | [Twin Rollouts: Noise-Coupled Counterfactual Branching in Interactive Video World Models](https://arxiv.org/abs/2608.08982) | LOW-MEDIUM — Counterfactual generation in video world models via noise-coupled twin rollouts; critiques factual-only evaluation; uses pixel generation (not JEPA-aligned). | Mid (24G): Interactive video world models. |
-||||||| 102 | 2026-08-11 | [Vid2WAM: Distilling Video Diffusion Priors into World Action Models](https://arxiv.org/abs/2608.08558) | MEDIUM — Offline distillation transfers video diffusion priors into compact WAM student; reduces reliance on expert demonstrations; counterpoint: uses generative video priors rather than JEPA. | Mid (24G): Teacher video diffusion + student WAM. |
+|||||||| 102 | 2026-08-11 | [Vid2WAM: Distilling Video Diffusion Priors into World Action Models](https://arxiv.org/abs/2608.08558) | MEDIUM — Offline distillation transfers video diffusion priors into compact WAM student; reduces reliance on expert demonstrations; counterpoint: uses generative video priors rather than JEPA. | Mid (24G): Teacher video diffusion + student WAM. |
+|||||||| 103 | 2026-08-11 | [Surgical WAM: A World-Action Model for Data-Efficient Surgical Robot Learning](https://arxiv.org/abs/2608.11204) | MEDIUM — Action-free surgical video pretraining → closed-loop control under fixed action-label budget; Cosmos Policy generative backbone (pixel prediction counterpoint); 63.5%→77.8% avg success, +20pp PegTransfer. | Large (40G+): Cosmos Policy video backbone + surgical fine-tuning. |
+|||||||| 104 | 2026-08-11 | [Capturing Uncertainty in Human Motion for Representation Learning in Soccer](https://arxiv.org/abs/2608.11203) | LOW — Cross-domain predictive SSL: multimodal future-motion prediction objective with uncertainty conditioning; no planning/control; JEPA-philosophy data point (prediction as objective, not reconstruction). | Small-Mid (8-24G): Skeleton-based models on player tracking data. |
+|||||||| 105 | 2026-08-11 | [VIScore: Diagnosing Planning-Relevant Quality in Latent World Models](https://arxiv.org/abs/2608.11174) | HIGH — Balestriero co-author; Veracity-Influence-Sobriety metric spans encoder+predictor+planner; shows SIGReg (JEPA-standard) doesn't transfer to planning while VISReg does; Spearman >0.75 with success rate, only metric calibrated across all scenarios. | Small-Mid (8-24G): Latent WM training + metric evaluation. |
+|||||||| 106 | 2026-08-11 | [Flex-π: A Multi-Stream World-Action Model with Compute Flexibility](https://arxiv.org/abs/2608.10860) | MEDIUM-HIGH — 6B WAM supervising RGB + 3D pointmaps + DINO semantics in one shared VAE latent (pointmaps encode losslessly in RGB VAE — "free lunch"); per-stream dropout → one checkpoint, any stream subset at inference; 2-7× over baselines on real bimanual tasks. | Large (40G+): 6B MoT backbone; inference faster than π0.5. |
+|||||||| 107 | 2026-08-11 | [Toward the Cognitive–Physical Limits of Embodied Intelligence through a World-Model-Centric Autonomous Racing Agent](https://arxiv.org/abs/2608.10618) | MEDIUM — Learns predictive world models from near-limit successes AND failures (real-vehicle data at 256.3 km/h); closed-loop world-state → future-aware reasoning → near-limit control refinement; 88.3% interaction success in full-scale simulated racing. | Mid-Large (24-40G+): Real-vehicle data + full-scale racing simulation. |
+|||||||| 108 | 2026-08-11 | [Dreamer-SAC: Off-Policy Learning in Latent World Models for Sample-Efficient Autonomous Driving](https://arxiv.org/abs/2608.10386) | LOW-MEDIUM — Dreamer-family RSSM + latent-space off-policy SAC for driving; inverted-U rollout-horizon vs performance (model bias); n-step targets beat one-step TD; reconstruction-based counterpoint to JEPA. | Small-Mid (8-24G): DreamerV3-scale RSSM + SAC. |
+|||||||| 109 | 2026-08-10 | [FACT: Failure-Aware Causal Training for World-Action Models](https://arxiv.org/abs/2608.10232) | MEDIUM-HIGH — Xiaolong Wang / Nicklas Hansen group; action-conditioned future-video + task-progress prediction lets failure rollouts supervise action consequences; kills success-biased future hallucination; optional action-candidate scoring at inference. | Mid-Large (24-40G+): Video prediction + progress predictor, sim + real bimanual. |
 
 
 
+
+---
+
+## [2026-08-11] Surgical WAM: A World-Action Model for Data-Efficient Surgical Robot Learning
+
+- **arXiv**: [2608.11204](https://arxiv.org/abs/2608.11204)
+- **Authors**: Wenrui Bao, Tianyun Jiang, Zhiben Chen, Ser-Nam Lim, Peter D. Peng, Yuzhang Shang
+- **TL;DR**: Surgical WAM — a unified generative world-action model on Cosmos Policy that jointly predicts future endoscopic observations and executable action chunks, pretrained on cheap action-free surgical video then fine-tuned on a fixed action-labeled budget, lifting closed-loop surgical manipulation success from 63.5% to 77.8%.
+- **Problem**: Surgical robot learning is bottlenecked by scarce action-labeled teleop demonstrations (synchronized video+kinematics on dVRK are costly), while surgical tasks demand precise contact handling, long-horizon reasoning, and bimanual coordination. Endoscopic video is abundant but is used almost entirely for simulation or policy evaluation — its dynamics knowledge is rarely translated into closed-loop control. Central question: under a FIXED budget of action-labeled demonstrations, does action-free video pretraining improve closed-loop surgical manipulation?
+- **Architecture**: Surgical WAM — (1) **Unified generative backbone** built on Cosmos Policy that jointly predicts future endoscopic frames AND executable surgical action chunks. (2) **Two-stage training**: action-free video pretraining learns surgical visual dynamics (tissue deformation, tool interaction); fine-tuning on the fixed action-labeled budget grounds those dynamics into action generation. (3) **Deployment**: closed-loop receding-horizon controller — execute a short prefix of each predicted action chunk, then replan from the resulting observation. (4) **Results**: on four simulated surgical manipulation tasks, video pretraining improves average success from 63.5% → 77.8%, including +20pp on PegTransfer, with the largest gains on contact-rich and bimanual tasks.
+- **Compute Scale**: Large (40G+): Cosmos Policy video backbone + surgical fine-tuning. Deployment runs receding-horizon closed-loop control (no rollout beyond a chunk prefix).
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) The core thesis — self-supervised dynamics learning from action-free observation, then minimal action-label grounding — is exactly the data-efficiency agenda of LeCun's self-supervised world model program. (2) The closed-loop receding-horizon controller treats the learned model as a predictive world model for control, not just a simulator. (3) Directly answers a falsifiable scientific question about whether video pretraining transfers to control. WEAKNESSES: (1) Predicts future video in pixel space (generative paradigm) rather than latent JEPA-style prediction — a counterpoint to reconstruction-free world models. (2) Surgical simulation evaluation, no real dVRK deployment yet. (3) No hierarchical/long-horizon abstraction — chunk-level autoregression. Overall, a clean demonstration that world-model pretraining on observation-only data is the practical path to scaling surgical robot learning, even if the architecture remains generative.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Surgical WAM — pretrain a joint video+action world-action model on abundant action-free endoscopic video, then fine-tune on a fixed action-labeled budget; deploy as a closed-loop receding-horizon controller.
+- **Motivation**: Action-labeled surgical demonstrations are the scarce resource; endoscopic video is cheap and encodes rich manipulation dynamics. Translate video-learned dynamics into control.
+- **Problem Solved**: Shows that under a fixed action-label budget, action-free video pretraining yields large, task-dependent gains (+20pp on PegTransfer; biggest wins on contact-rich and bimanual tasks) — video provides transferable visual dynamics priors for surgical control.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on Cosmos Policy (NVIDIA world-action foundation model) and the WAM literature; responds to the surgical-robotics status quo where world models serve simulation/evaluation rather than control.
+- **Implicit Connection**: Implements the "learning from observation" premise of LeCun's self-supervised agenda in a high-stakes domain; the fixed-budget ablation is a clean test of whether world-model pretraining pays for itself in action efficiency.
+- **Research Line**: Domain-Specialized World-Action Models — WAMs applied to surgical manipulation with observation-only pretraining.
+- **Future Directions**: Real dVRK deployment; latent (JEPA-style) surgical dynamics to avoid pixel prediction; scaling video pretraining across procedures/embodiments.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-11] Capturing Uncertainty in Human Motion for Representation Learning in Soccer
+
+- **arXiv**: [2608.11203](https://arxiv.org/abs/2608.11203)
+- **Authors**: Yizhou Xu, Lars Bretzner, Tiesheng Wang, Atsuto Maki
+- **TL;DR**: Self-supervised 3D skeleton representation learning for soccer via future motion prediction, adding a conditioning module that models a probabilistic distribution over discretized plausible futures so multimodality in human motion is explicitly captured.
+- **Problem**: Using future motion prediction as the SSL objective for human motion is compromised by the inherent uncertainty/multimodality of motion — a single predicted future collapses the distribution and yields representations that capture only average dynamics, losing the contingency structure a world model needs.
+- **Architecture**: (1) **3D skeleton encoder** for soccer player motion. (2) **Conditioning module for motion prediction** that models a probabilistic distribution over discretized future motions in 3D Euclidean space, with explicit supervision from future trajectories to learn multimodality. (3) **SSL objective = future prediction** (predictive-representation paradigm, no reconstruction of inputs). (4) **Evaluation**: substantially improved motion prediction accuracy on large-scale soccer tracking data; representations transfer to multiple downstream soccer tasks with strong cross-task generalization.
+- **Compute Scale**: Small-Mid (8-24G): Skeleton-based transformer/encoder on large-scale player tracking data.
+- **LeCun Alignment**: LOW — Cross-domain predictive SSL. STRENGTHS: (1) Shares JEPA's core philosophy — prediction of future states (not reconstruction) as the learning objective. (2) Explicit multimodality modeling of futures is precisely the uncertainty handling that latent world models need for planning over contingencies. WEAKNESSES: (1) No planning, control, or latent world-model abstraction downstream. (2) Predicts discretized motion bins rather than latent embeddings (closer to token prediction than JEPA embedding prediction). (3) No connection to the autonomous intelligence architecture. Logged as a data point on uncertainty-aware predictive representation learning outside the usual JEPA modalities.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Uncertainty-aware self-supervised representation learning for 3D human motion, where the prediction objective explicitly models a distribution over multiple plausible futures.
+- **Motivation**: Human motion is inherently uncertain; single-future prediction objectives destroy the multimodal contingency structure that makes motion dynamics informative.
+- **Problem Solved**: Multimodal future modeling substantially improves motion prediction accuracy, and the learned representations transfer broadly across downstream soccer tasks.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on self-supervised human motion representation learning (skeleton-based SSL); responds to the known failure of deterministic future-prediction objectives under uncertainty.
+- **Implicit Connection**: Evidence that prediction-based SSL must handle multimodality explicitly — the same lesson JEPA world models face (e.g., UWM-JEPA's belief-space prediction) in a different modality.
+- **Research Line**: Uncertainty-Aware Predictive SSL — multimodality modeling in prediction objectives across modalities.
+- **Future Directions**: Latent-space (embedding) prediction instead of discretized motion bins; using the multimodal predictive model as a world model for game/tactical planning.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-11] VIScore: Diagnosing Planning-Relevant Quality in Latent World Models
+
+- **arXiv**: [2608.11174](https://arxiv.org/abs/2608.11174)
+- **Authors**: Haiyu Wu, Randall Balestriero, Morgan Levine
+- **TL;DR**: VIScore — a Veracity-Influence-Sobriety metric spanning encoder, predictor, and planner that quantifies planning-relevant quality of latent world models, explaining planning success (Spearman > 0.75) far better than straightness, physical-state probing, or empowerment, and showing that the JEPA-standard SIGReg regularization does NOT transfer to planning while VISReg does.
+- **Problem**: Regulating the latent space to an isotropic Gaussian gives a stable, information-maximized landscape — but latent geometry and planning success remain disconnected. Existing diagnostics focus only on the encoded latent and fail to predict planning performance, especially out-of-domain. The paper asks: what actually makes a latent world model plan well?
+- **Architecture**: (1) **SIGReg vs VISReg comparison**: two regularization losses with the same isotropic-Gaussian target but different properties (VISReg gives finer control over center/scale/shape weighting; larger batches → finer distribution approximation). Finding: SIGReg — beneficial in SSL — does NOT help planning; VISReg improves planning success on OOD datasets. (2) **VIScore** decomposes planning success into three measurable components: **Veracity** (encoder's representation faithfulness), **Influence** (reachability/capacity of the predictor given the encoded features), and **Sobriety** (hallucination of the search-based planner). (3) **Validation**: on cross-task success rate pools over seen and unseen models/datasets, VIScore achieves Spearman > 0.75 with planning success — the only metric with calibration error below the constant fit across ALL test scenarios.
+- **Compute Scale**: Small-Mid (8-24G): Latent world model training runs (SIGReg/VISReg variants) + metric computation; no large-scale pretraining.
+- **LeCun Alignment**: HIGH — STRENGTHS: (1) **Balestriero co-authorship** places this directly in the LeCun/Meta FAIR research lineage. (2) Operates on the exact JEPA regularization toolkit — SIGReg is the I-JEPA/V-JEPA standard — and demonstrates that SSL-grade latent geometry does not by itself produce a usable world model for planning. (3) The metric's structure (encoder + predictor + planner) mirrors LeCun's modular architecture: perception, world model, and actor/configurator must be diagnosed jointly, not just the embedding. (4) Provides the missing evaluation instrument for the JEPA planning agenda — a way to tell whether a latent world model will actually support MPC/search before deployment. WEAKNESSES: (1) A diagnostic, not a new architecture. (2) Search-based planners only — not evaluated against JEPA+MPC specifically. Overall, this is the evaluation paper the latent world model community has needed: it disconnects representation quality from planning quality and gives a calibrated instrument for the latter.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: VIScore — a three-component metric (Veracity, Influence, Sobriety) covering encoder, predictor, and planner to quantify planning-relevant quality of latent world models.
+- **Motivation**: Latent regularization (isotropic Gaussian) is treated as a proxy for planning quality, but the connection is unproven; planning success needs its own diagnostic.
+- **Problem Solved**: Shows SIGReg's SSL benefits don't transfer to planning while VISReg's do, and VIScore explains planning success (Spearman > 0.75) and calibrates across all scenarios better than straightness, physical-state probing, and empowerment.
+
+### Academic Context
+
+- **Inheritance / Response**: Directly extends the JEPA regularization line (I-JEPA/V-JEPA SIGReg) and the world-model evaluation literature (straightness, probing); a corrective to latent-geometry-as-proxy thinking.
+- **Implicit Connection**: Answers a question central to LeCun's program: when does a JEPA-style latent space become a *usable* world model? The answer involves the predictor's influence and the planner's sobriety — not the embedding alone.
+- **Research Line**: World Model Evaluation & Diagnosis — planning-relevant metrics spanning the full encoder→predictor→planner stack.
+- **Future Directions**: Using VIScore to guide world model training objectives; extending to JEPA+MPC pipelines; metric-driven architecture search.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-11] Flex-π: A Multi-Stream World-Action Model with Compute Flexibility
+
+- **arXiv**: [2608.10860](https://arxiv.org/abs/2608.10860)
+- **Authors**: Ge Yan, Jinghao Liu, Yuzhi Fan, Lei Cai, Minwen Liao, Jesse Zhang, Dieter Fox
+- **TL;DR**: Flex-π — a 6B multi-stream world-action model that supervises RGB, 3D pointmaps, and DINO object semantics in ONE shared video-VAE latent space (pointmaps encode almost losslessly in the RGB VAE with zero pointmap-specific training), with per-stream dropout enabling a single checkpoint to run any stream subset — from fast action-only to full joint generation; beats strongest baselines 2-7× on real bimanual manipulation.
+- **Problem**: WAMs predict only RGB latents trained purely for pixel reconstruction, with no explicit signal for the 3D geometry or object semantics that manipulation actually needs — a gap between what world models predict and what control requires.
+- **Architecture**: (1) **Free lunch discovery**: the same frozen video-generation VAE that encodes RGB also encodes 3D pointmaps almost losslessly — no pointmap-specific training, no new sensors, no new pretraining. (2) **Multi-stream supervision**: 6B-parameter WAM supervised on 3D geometry + object-centric DINO semantics alongside RGB, all projected into the shared VAE latent space and denoised jointly with actions inside a Mixture-of-Transformers backbone. (3) **Per-stream dropout with cross-modality forcing**: a single trained checkpoint runs on ANY subset of streams at inference — action-only fast mode up to full joint generation — giving explicit compute/quality trade-offs. (4) **Results**: exceptionally demonstration-efficient, generalizes in and out of distribution on dexterous, precise, real-world bimanual manipulation tasks; faster than π0.5 at inference.
+- **Compute Scale**: Large (40G+): 6B-parameter MoT backbone; inference faster than π0.5 despite the multi-stream supervision (streams can be dropped at runtime).
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) Moving beyond RGB pixel reconstruction toward multi-stream abstract state (geometry + semantics) is precisely the "learning abstract representations" priority of LeCun's agenda. (2) The single-checkpoint, compute-flexible stream gating aligns with the efficiency demands of embodied autonomous systems (configurator-like allocation of compute). (3) Frozen VAE + shared latent space is an elegant step toward reconstruction-free operation — signals live in one space without per-modality decoders. WEAKNESSES: (1) Still a generative denoising WAM — actions and future states are jointly diffused, not latent-predictive in the JEPA sense. (2) Relies on a pretrained video VAE (borrowed inductive bias). (3) NVIDIA-affiliated (Dieter Fox senior author) — an industrial counterpoint to FAIR's JEPA line. Overall: the strongest evidence yet that WAMs benefit from explicit multi-stream abstract supervision, and a model for compute-adaptive deployment.
+- **GitHub**: Project site: https://flex-pi.github.io/
+
+### What / Why / Solve
+
+- **Proposal**: Flex-π — supervise a 6B WAM on 3D pointmaps and DINO semantics alongside RGB in a shared VAE latent space, with per-stream dropout for compute-flexible inference from a single checkpoint.
+- **Motivation**: RGB-latent WAMs lack the geometric and semantic signals manipulation needs; those signals turn out to be nearly free inside the existing VAE.
+- **Problem Solved**: 2-7× improvement over strongest baselines on dexterous real-world bimanual tasks, in and out of distribution, with run-time selectable stream subsets (compute flexibility) and no added sensors, pretraining, or inference latency.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the π-family (π0.5) and Mixture-of-Transformers WAM designs; responds to the RGB-only latent bottleneck identified across the WAM literature.
+- **Implicit Connection**: Operationally moves WAMs toward richer abstract state spaces — the representational direction LeCun argues generative models must take to become world models, though via multi-signal supervision rather than latent prediction.
+- **Research Line**: Multi-Stream World-Action Models — abstract state supervision + compute-flexible WAM deployment.
+- **Future Directions**: Latent prediction (JEPA-style) over the multi-stream space instead of joint denoising; stream-conditional planning; scaling to full 3D scene graphs.
+- **GitHub**: Project site: https://flex-pi.github.io/
+
+---
+
+## [2026-08-11] Toward the Cognitive–Physical Limits of Embodied Intelligence through a World-Model-Centric Autonomous Racing Agent
+
+- **arXiv**: [2608.10618](https://arxiv.org/abs/2608.10618)
+- **Authors**: Zitong Shan, Baichuan Lou, Yanxin Zhou, Shuge Wu, Xianqi He, Bolin Zhao, Sheng Zhao, Zhouheng Li, Chee Kiong Ong, King Ho Holden Li, Chen Lv
+- **TL;DR**: A world-model-centric autonomous racing agent that learns predictive world models from near-limit successes AND failures using real-vehicle data at up to 256.3 km/h, coupling world-state construction, future-aware reasoning, and near-limit control in a closed-loop refinement process; 88.3% interaction success in full-scale simulated racing.
+- **Problem**: Embodied systems are evaluated within conservative safety margins, so their capability boundaries under extreme conditions are unknown; existing racing systems push speed but rarely model and refine cognitive and physical limits jointly.
+- **Architecture**: (1) **Predictive world models learned from near-limit successes and failures** capturing interaction evolution, ego dynamics, and feasible-motion boundaries. (2) **Closed-loop pipeline**: world-state construction → future-aware reasoning → near-limit control, with joint refinement of world model and policy from outcomes. (3) **Data**: real-vehicle autonomous racing with robust localization/perception at 256.3 km/h and 26.8 m/s² peak lateral acceleration. (4) **Results**: 88.3% interaction success across challenging full-scale simulated racing scenarios; closed-loop refinement improves limit utilization, failure recovery, and generalization to unseen circuits.
+- **Compute Scale**: Mid-Large (24-40G+): Real-vehicle data collection + full-scale racing simulation training with closed-loop refinement.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) Learning world models from failures (near-limit outcomes) — the model must represent what is NOT feasible, not just what works — a key requirement for safe planning. (2) World model used for future-aware reasoning in a real high-speed control loop — an extreme testbed for the "predict then act" paradigm. (3) Closed-loop joint refinement of model and policy resembles the world model + actor interplay in LeCun's architecture. WEAKNESSES: (1) Model class unspecified in the abstract (not JEPA; likely learned dynamics on state data). (2) System-oriented — evaluation in simulation with real-vehicle data rather than fully real deployment. (3) Racing is a narrow domain. Overall, valuable as a boundary-aware world-model deployment study demonstrating that modeling near-limit failures is what buys generalization.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: World-model-centric racing agent that jointly models cognitive-physical limits by learning predictive world models from near-limit successes and failures, refined in closed loop.
+- **Motivation**: Extreme-condition capability boundaries are understudied; racing offers a testbed where dynamics saturate and prediction errors are catastrophic.
+- **Problem Solved**: 88.3% interaction success in full-scale simulated racing; closed-loop refinement improves utilization of limits, failure recovery, and generalization across unseen circuits.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on model-based racing/planning and world-model control literature; responds to the gap between high-speed performance systems and joint cognitive-physical limit modeling.
+- **Implicit Connection**: Failure-inclusive world model training (cf. FACT in this scan) — world models must encode infeasible futures to support planning; validated at extreme physical regimes.
+- **Research Line**: Boundary-Aware World Models — representing capability envelopes for safe embodied deployment.
+- **Future Directions**: Fully real deployment at speed; JEPA-style latent dynamics for racing; explicit infeasibility prediction for safety certification.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-11] Dreamer-SAC: Off-Policy Learning in Latent World Models for Sample-Efficient Autonomous Driving
+
+- **arXiv**: [2608.10386](https://arxiv.org/abs/2608.10386)
+- **Authors**: Jiazhuo Li, Linjiang Cao, Qi Liu, Xi Xiong
+- **TL;DR**: Dreamer-SAC — integrates a recurrent state-space world model with off-policy soft actor-critic trained directly in latent space for autonomous driving; short-horizon latent rollouts + n-step targets outperform DreamerV3, SAC, and PPO with substantially fewer real environment interactions, revealing an inverted-U relationship between rollout horizon and performance.
+- **Problem**: World models reduce costly environment interactions, but policy optimization over learned dynamics is sensitive to prediction errors — the classic data-efficiency vs model-bias trade-off in model-based RL for driving.
+- **Architecture**: (1) **Recurrent state-space world model** (Dreamer-family RSSM). (2) **Off-policy SAC trained in latent space** combining real interactions with short-horizon generated trajectories; n-step target estimation; multi-objective supervision (driving efficiency + safety). (3) **Key finding**: inverted-U relationship between rollout horizon and policy performance — short-horizon latent rollouts give the best trade-off between added training signal and accumulated model bias; n-step targets exploit predicted experience better than one-step TD.
+- **Compute Scale**: Small-Mid (8-24G): DreamerV3-scale RSSM + SAC on autonomous driving scenarios.
+- **LeCun Alignment**: LOW-MEDIUM — STRENGTHS: (1) A rigorous analysis of model bias in world-model RL — the inverted-U rollout-horizon finding is directly useful to anyone planning with learned dynamics. (2) Sample efficiency in a safety-critical continuous domain. WEAKNESSES: (1) Dreamer-family: reconstruction-based latent dynamics, a counterpoint to reconstruction-free JEPA world models. (2) No latent-prediction or energy-based objectives. (3) Driving simulation only. Logged as the Dreamer-line data point on off-policy latent-space learning.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Dreamer-SAC — off-policy SAC in the latent space of a recurrent world model, using short-horizon generated rollouts with n-step targets for sample-efficient autonomous driving.
+- **Motivation**: Policy optimization over learned dynamics is error-sensitive; the right mixture of real and imagined data (short-horizon, n-step) minimizes model bias while maximizing sample efficiency.
+- **Problem Solved**: Outperforms DreamerV3, SAC, and PPO with substantially fewer real interactions; quantifies the inverted-U rollout-horizon relationship and the advantage of n-step over one-step TD targets for value learning from predicted experience.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends the Dreamer lineage with off-policy learning; responds to model-bias sensitivity in world-model policy optimization for driving.
+- **Implicit Connection**: Quantifies precisely the failure mode LeCun cites for generative world models — compounding prediction error — and shows the mitigation (short horizons, n-step bootstrapping) within the Dreamer paradigm.
+- **Research Line**: Off-Policy Model-Based RL — efficient use of imagined rollouts in latent world models.
+- **Future Directions**: JEPA-style latent dynamics for the RSSM to reduce reconstruction bias; uncertainty-weighted rollout lengths; real-world driving deployment.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-10] FACT: Failure-Aware Causal Training for World-Action Models
+
+- **arXiv**: [2608.10232](https://arxiv.org/abs/2608.10232)
+- **Authors**: Quanquan Peng, Yutong Liang, Rui Yan, Nicklas Hansen, Xiaolong Wang
+- **TL;DR**: FACT — a causal World-Action Model that conditions future-video and task-progress prediction on the executed action, so failure rollouts supervise action consequences; bad actions become valid future targets instead of being discarded, reducing success-biased future hallucination and optionally scoring action candidates at inference.
+- **Problem**: WAMs co-train policies with future prediction, but the world model is trained mostly on successful demonstrations — it has little reason to predict the consequences of bad actions. This success bias causes future hallucination under bad actions and undermines using predicted futures for planning or candidate scoring.
+- **Architecture**: (1) **Causal WAM**: future video + task progress predicted conditioned on the executed action (action-conditioned interface). (2) **Failure-aware training**: failure rollouts supervise action consequences — bad actions become valid future targets rather than discarded data. (3) **Inference option**: the progress predictor scores sampled action candidates (model-based action selection). (4) **Results**: outperforms many baselines on simulation and real-world bimanual manipulation; performance improves as failure data are incorporated; success-biased future hallucination under bad actions is reduced.
+- **Compute Scale**: Mid-Large (24-40G+): Video prediction + task-progress predictor on simulation and real-world bimanual manipulation.
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) From the Xiaolong Wang / Nicklas Hansen group — a leading world-model lab — lending ecosystem credibility. (2) Addresses a core gap in LeCun's vision: a world model must predict the consequences of ANY action, including bad ones, or planning over it is systematically biased. Failure-inclusive prediction is exactly what a planner needs to avoid infeasible branches. (3) The optional progress-scored action selection is a concrete world-model-driven planning mechanism. WEAKNESSES: (1) Still video-generative (pixel-level future prediction) rather than latent JEPA prediction. (2) Requires failure rollouts — relies on a source of failure data. (3) Progress prediction is scalar — limited abstraction. Overall, a principled fix for success-biased world models that pushes WAMs toward causal, action-conditional prediction of outcomes.
+- **GitHub**: Project site: https://fact-wam.github.io/
+
+### What / Why / Solve
+
+- **Proposal**: FACT — make WAM future prediction action-conditional so failure rollouts supervise the consequences of bad actions, with task-progress prediction that can score action candidates at inference.
+- **Motivation**: World models trained on successes hallucinate success under bad actions; failures are the informative cases for control.
+- **Problem Solved**: Outperforms existing WAM baselines on sim and real bimanual manipulation, improves with failure data, and reduces success-biased future hallucination under bad actions.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the video-model WAM line (co-training prediction + policies); responds to the unexamined success bias in demonstration-trained world models.
+- **Implicit Connection**: Complements the racing agent (2608.10618, same scan) — both show failure-inclusive world model training improves generalization; implements the "consequences of actions, good and bad" requirement of LeCun's world model definition.
+- **Research Line**: Causal World-Action Models — action-conditional outcome prediction including failure modes.
+- **Future Directions**: Latent (JEPA-style) failure-aware prediction; failure data from on-policy exploration; progress-conditioned hierarchical planning.
+- **GitHub**: Project site: https://fact-wam.github.io/
 
 ---
 
@@ -3357,4 +3553,4 @@
 - **GitHub**: Not found
 
 
-*Generated: 2026-08-11 | Papers: 116 | Daily scan: 6 new (PSG-JEPA, Dueling World Models, PILOT, DPWM, TaskSense, Transformers Struggle)*
+*Generated: 2026-08-13 | Papers: 135 | Daily scan: 7 new (Surgical WAM, Soccer Motion SSL, VIScore, Flex-π, Racing WM Agent, Dreamer-SAC, FACT)*
