@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **135 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-13 (7 new papers — Aug 12 wave: Surgical WAM, VIScore, Flex-π, FACT, Racing WM Agent, Dreamer-SAC, Soccer Motion SSL)
+> **144 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-14 (9 new papers — Aug 12 batch: StateFlow, Better Slots, SMPC Loco-Manip, FS-JEPA, Counterfactual Driving WMs, RIFT + 3 backfills: JEPA-WAM Stage-Level, World Tokens, VANE)
 
 ---
 
@@ -146,9 +146,269 @@
 |||||||| 107 | 2026-08-11 | [Toward the Cognitive–Physical Limits of Embodied Intelligence through a World-Model-Centric Autonomous Racing Agent](https://arxiv.org/abs/2608.10618) | MEDIUM — Learns predictive world models from near-limit successes AND failures (real-vehicle data at 256.3 km/h); closed-loop world-state → future-aware reasoning → near-limit control refinement; 88.3% interaction success in full-scale simulated racing. | Mid-Large (24-40G+): Real-vehicle data + full-scale racing simulation. |
 |||||||| 108 | 2026-08-11 | [Dreamer-SAC: Off-Policy Learning in Latent World Models for Sample-Efficient Autonomous Driving](https://arxiv.org/abs/2608.10386) | LOW-MEDIUM — Dreamer-family RSSM + latent-space off-policy SAC for driving; inverted-U rollout-horizon vs performance (model bias); n-step targets beat one-step TD; reconstruction-based counterpoint to JEPA. | Small-Mid (8-24G): DreamerV3-scale RSSM + SAC. |
 |||||||| 109 | 2026-08-10 | [FACT: Failure-Aware Causal Training for World-Action Models](https://arxiv.org/abs/2608.10232) | MEDIUM-HIGH — Xiaolong Wang / Nicklas Hansen group; action-conditioned future-video + task-progress prediction lets failure rollouts supervise action consequences; kills success-biased future hallucination; optional action-candidate scoring at inference. | Mid-Large (24-40G+): Video prediction + progress predictor, sim + real bimanual. |
+|||||||| 110 | 2026-08-12 | [StateFlow: Building, Evolving, and Accessing 3D World States for Previsualization](https://arxiv.org/abs/2608.12314) | LOW-MEDIUM — Explicit persistent 3D world state (elements + cameras) as the core working representation; state construction/evolution/access replaces one-shot generation; philosophically aligned with the world-state critique of generative video, but no dynamics prediction or control. | Mid-Large (24-40G+): 3D world construction + off-the-shelf video enhancement. |
+|||||||| 111 | 2026-08-12 | [Better Slots, Better Worlds: Representation Quality & Robustness in Object-Centric World Models](https://arxiv.org/abs/2608.12078) | HIGH — Controlled OCWM study for visual MPC: planning success tracks slot quality (FG-ARI/mBO) until saturation; well-bound slots obviate proprioception + masking; under distribution shift OCWMs beat end-to-end LeWM, but DINO-WM stays competitive → pretrained features drive robustness. | Mid (24G): OCWM training comparable to LeWM. |
+|||||||| 112 | 2026-08-12 | [Learning Loco-Manipulation From SMPC Demonstrations With Sparse Offline-to-Online RL](https://arxiv.org/abs/2608.12063) | MEDIUM — Sample-based MPC as automated simulation expert generates massive offline datasets; off-policy RL with purely sparse rewards (no reward shaping); sim-to-real on arm-equipped Spot + G1 humanoid, surpassing the MPC teacher. | Mid-Large (24-40G+): Simulation-scale SMPC data + off-policy RL. |
+|||||||| 113 | 2026-08-12 | [Predicting Functions, Not Features: KANs with Function-Space Joint-Embedding Predictive Learning for Medical Image Segmentation](https://arxiv.org/abs/2608.12050) | MEDIUM-HIGH — FS-JEPA: masked online branch predicts multi-radius signatures of KAN edge functions vs EMA full-context target; moves JEPA into pre-aggregation function space; +2.25pp Dice over strongest KAN competitor; predictive branch removed at inference. | Small-Mid (8-24G): KAN segmentation on 5 medical benchmarks. |
+|||||||| 114 | 2026-08-12 | [How Can Driving World Models Do Counterfactual Prediction?](https://arxiv.org/abs/2608.11601) | HIGH — Formalizes the abduction-action-prediction gap: direct action-conditioned prediction ignores factual continuations, so it fails counterfactual matching on a new matched-counterfactual benchmark; a training-free evidence-injection pipeline substantially closes the gap. | Mid (24G): Controlled simulation benchmark + 2 representative driving WMs. |
+|||||||| 115 | 2026-08-12 | [Keep the Future, Drop the Rollout: RIFT for World Action Models](https://arxiv.org/abs/2608.11521) | HIGH — Causal interventions show WAMs consume future K/V cache values but not the iterative rollout process; RIFT learns anticipation tokens that build the full future cache in ONE pass — 98.8% LIBERO with 68-89% latency cut; best RoboTwin 2.0 (92.9/92.6%). | Mid-Large (24-40G+): Trains on pretrained video WAMs (Joint, Cosmos-2). |
+|||||||| 116 | 2026-08-11 | [JEPA-WAM: Stage-Level Joint-Embedding Prediction for World-Action Models in Robot Manipulation](https://arxiv.org/abs/2608.10780) | HIGH — BACKFILL (missed by Aug 12-13 scans). Stage-JEPA (goal-conditioned JEPA on frozen V-JEPA2) adds stage-level semantic future to a Motus WAM; 90.25% over 50 RoboTwin 2.0 tasks, 5.97% fewer execution steps. | Mid-Large (24-40G+): Motus WAM + V-JEPA2 + Stage-JEPA. |
+|||||||| 117 | 2026-08-10 | [World Tokens: Enhancing Embodied Policies with Training-Time World Modeling](https://arxiv.org/abs/2608.09730) | MEDIUM-HIGH — BACKFILL. World Adapter turns VLM features into world tokens conditioning a future-video denoiser (training-time world model) AND the action expert; world branch removed at deployment → VLA latency with world-model-shaped representations. | Mid (24G): 2B VLM + World Adapter + training-time denoiser. |
+|||||||| 118 | 2026-08-10 | [VANE: Reliable Test-Time Training for Vision-Language-Action Models via Future Visual Representation Prediction](https://arxiv.org/abs/2608.09448) | MEDIUM — BACKFILL. TTT for VLAs learns from future visual consequences; candidate updates isolated, evidence-gated, reversible; +3.2pp SimplerEnv WidowX over TTT baseline. | Small-Mid (8-24G): TTT on SimplerEnv + Google Robot. |
 
 
 
+
+---
+
+## [2026-08-12] StateFlow: Building, Evolving, and Accessing 3D World States for Previsualization
+
+- **arXiv**: [2608.12314](https://arxiv.org/abs/2608.12314)
+- **Authors**: Yuyang Yin, Zixiang Li, Longxuan Deng, Hongkai Li, Shifang Zhao, Junnan Liu, Weirong Huang, Mengyu Wang, Tianxiao Fu, Yikai Wang, Peng-Shuai Wang, Xiaojie Jin, Yao Zhao, Yunchao Wei
+- **TL;DR**: StateFlow — a state-centric previsualization framework arguing that the missing ingredient in generative video is an explicit, persistent 3D world state; it constructs, evolves, and accesses an editable 3D world (scene elements + camera configurations), using off-the-shelf video models only to enhance visual fidelity when needed.
+- **Problem**: Prompt-to-video synthesis jointly controls scene, action, and camera factors through one-shot generation, giving weak controllability and no support for iterative editing. In reality, different frames are produced by local modifications of a shared, persistent world state — the explicit state itself is the missing component.
+- **Architecture**: (1) **Persistent structured 3D state** of scene elements and camera configurations as the core working representation. (2) **State construction**: prior-guided, conflict-aware dual-view initialization lifts generated 2D content into a coherent 3D world. (3) **State evolution**: user intent is translated into structured state transitions while preserving world memory — no full-scene regeneration per edit. (4) **State access**: render-feedback reflection refines camera plans into visually feasible trajectories, avoiding reliance on VLM semantics alone. (5) Off-the-shelf video models enhance quality only where higher fidelity is desired.
+- **Compute Scale**: Mid-Large (24-40G+): 3D world construction pipeline + off-the-shelf video enhancement models.
+- **LeCun Alignment**: LOW-MEDIUM — STRENGTHS: (1) The central argument — explicit persistent world state beats one-shot generation — is philosophically the same critique LeCun levels at generative video: a world is a state you modify, not a video you resample. (2) Factorized state (elements + cameras + transitions) superficially resembles a structured world model. WEAKNESSES: (1) No dynamics prediction, no planning, no control — the world state is edited by the user, not predicted by a model. (2) Creative-domain application (film/games/architecture). Overall, a counterpoint from the generative side that independently reaches the "explicit world state" conclusion; conceptually adjacent to world models but without predictive dynamics.
+- **GitHub**: Project page: https://yuyangyin.github.io/StateFlow
+
+### What / Why / Solve
+
+- **Proposal**: A state-centric framework for generative previsualization: an explicit, editable 3D world state (scene structure, evolution, cameras) is the primary working representation, with video models as optional quality enhancers.
+- **Motivation**: One-shot video synthesis conflates all scene/action/camera factors and cannot support iterative refinement; a persistent state that is locally modified and re-rendered matches how real production workflows operate.
+- **Problem Solved**: Enables iterative editing and recombination of a shared world state, producing high-quality 3D worlds for video creation and game-like prototyping without full-scene regeneration.
+
+### Academic Context
+
+- **Inheritance / Response**: Responds to prompt-driven one-shot video generation methods; independently reaches the "persistent world state" position that world-model researchers argue for in embodied AI.
+- **Implicit Connection**: Mirrors the JEPA critique of generative approaches (don't resample the world, model its state) in a creative domain — evidence that the explicit-state argument generalizes beyond robotics.
+- **Research Line**: State-Centric Generative Frameworks — explicit world state as the interface for creation and editing.
+- **Future Directions**: Predictive state transitions (learned dynamics over the 3D state); cross-domain transfer of the explicit-state interface to embodied world models.
+- **GitHub**: Project page: https://yuyangyin.github.io/StateFlow
+
+---
+
+
+## [2026-08-12] Better Slots, Better Worlds: Representation Quality & Robustness in Object-Centric World Models
+
+- **arXiv**: [2608.12078](https://arxiv.org/abs/2608.12078)
+- **Authors**: Shukrullo Nazirjonov, Sai Prasanna, Anna Manasyan, Georg Martius
+- **TL;DR**: A controlled study of object-centric world models (OCWMs) for visual MPC: planning success tracks unsupervised slot-quality metrics (FG-ARI, mBO) until saturation; well-bound slots make proprioception and masking inductive biases unnecessary; under distribution shift, well-bound OCWMs beat end-to-end scene-centric LeWM — but DINO-WM stays competitive, pointing to pretrained features as the true robustness source.
+- **Problem**: Prior OCWMs take the slot encoder as given and evaluate only in-distribution, leaving open whether the object-centric bias actually delivers for planning, and which component of the OCWM drives any benefit.
+- **Architecture**: (1) **Controlled study axes**: object-centric representation quality and generalization under distribution shift, relative to scene-centric models. (2) **Finding (i)**: planning success correlates positively with unsupervised slot-quality metrics, saturating at high slot quality. (3) **Finding (ii)**: with well-bound slots, the auxiliary proprioception inputs and masking inductive bias that prior methods relied on become unnecessary. (4) **Finding (iii)**: under unseen distribution shifts, the well-bound OCWM is more robust than end-to-end trained scene-centric LeWM, while DINO-WM (frozen pretrained features) remains competitive — attributing robustness largely to pretrained features.
+- **Compute Scale**: Mid (24G): OCWM training at LeWM-comparable scale; no massive pretraining of its own.
+- **LeCun Alignment**: HIGH — STRENGTHS: (1) Directly interrogates the representation-inductive-bias question at the heart of JEPA — what structure should the encoder impose for the latent to support planning? (2) Evaluates under distribution shift, the regime world models must actually serve in deployment. (3) The honest negative result about pretrained features is a caution against over-crediting object-centric binding — directly relevant to JEPA design choices. (4) Martius group (MPI-IS), a core world-model community. WEAKNESSES: (1) Slot encoders remain reconstruction-driven, not JEPA-trained. (2) No real-robot transfer. Overall, a rigorous ablation clarifying when and why structured encoders help planning — evidence LeCun's program can use to argue for structured latent prediction over scene-centric pixel modeling.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: A controlled evaluation of OCWMs along representation quality and distribution-shift robustness, isolating what within an OCWM actually delivers planning benefit.
+- **Motivation**: The object-centric inductive bias is widely claimed to improve sample efficiency and generalization, but no prior work tested the claim beyond in-distribution evaluation.
+- **Problem Solved**: Establishes that slot quality causally improves planning success (with saturation), that good slots replace auxiliary inductive biases, and that pretrained features — not object binding per se — are a key robustness contributor.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the object-centric world model line (slot-based OCWMs) and responds to LeWM/DINO-WM comparisons; corrects over-claims about object-centric inductive biases.
+- **Implicit Connection**: The encoder-structure question is central to LeCun's vision (what representation is most useful for prediction and planning); this paper provides controlled evidence on the object-centric candidate.
+- **Research Line**: Object-Centric World Models — representation quality and robustness under distribution shift.
+- **Future Directions**: JEPA-trained slot encoders (reconstruction-free object binding); evaluation of OCWMs in MPC with hierarchical planners.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-12] Learning Loco-Manipulation From SMPC Demonstrations With Sparse Offline-to-Online RL
+
+- **arXiv**: [2608.12063](https://arxiv.org/abs/2608.12063)
+- **Authors**: Martin Schuck, Maks Sorokin, Simone Manni, Duy Ta, Angela P. Schoellig, Marco Hutter, Simon Le Cleac'H, Jan Brüdigam
+- **TL;DR**: Uses Sample-based Model Predictive Control (SMPC) entirely in simulation as an automated, rapidly tunable expert to generate massive offline datasets; an off-policy RL agent is then trained with purely sparse task rewards — eliminating dense reward shaping — and deployed sim-to-real on an arm-equipped Spot quadruped and a G1 humanoid, surpassing the MPC teacher.
+- **Problem**: Scaling RL to loco-manipulation is bottlenecked by the slow, manual process of dense reward shaping; model-based expertise exists (SMPC) but had not been exploited as an automated dataset generator for sparse-reward RL.
+- **Architecture**: (1) **SMPC expert in simulation** generates massive offline datasets — solving the fundamental exploration problem with optimal-control data. (2) **Off-policy RL agent** trained with purely sparse task rewards on that data. (3) **Hierarchical integration**: high-level RL agent + low-level dynamic stability controller. (4) **Result**: learned policies surpass the original optimal-control teacher; sim-to-real validated across morphologies (arm-equipped Spot, G1 humanoid).
+- **Compute Scale**: Mid-Large (24-40G+): Simulation-scale SMPC data generation + off-policy RL training.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) MPC as the source of optimality and exploration is the model-based planning module LeCun's architecture assumes — here it supervises a reactive policy. (2) "Let the model do the exploration" is the world-model division of labor in miniature. WEAKNESSES: (1) No learned world model — SMPC uses a physics model, and the deployed policy is model-free. (2) A data-generation framing, not a predictive-architecture contribution. Overall, a strong systems result from top-tier labs (TUM/ETH/Utah/Georgia Tech) showing MPC expertise scales RL without reward engineering — adjacent to, not inside, the JEPA program.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Replace dense reward shaping with SMPC-generated offline datasets, enabling sparse-reward off-policy RL for loco-manipulation.
+- **Motivation**: Dense reward design is the dominant bottleneck in scaling RL to complex whole-body tasks; MPC experts in simulation are cheap, tunable, and solve exploration automatically.
+- **Problem Solved**: Learns loco-manipulation skills from sparse rewards that surpass the optimal-control teacher, validated sim-to-real on two morphologies.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on MPC-as-expert and offline-to-online RL lines; responds to the reward-shaping bottleneck in legged-robot RL.
+- **Implicit Connection**: Demonstrates the LeCun-adjacent pattern of model-based planning producing data for reactive policies — a stepping stone toward learned world models replacing the physics-based MPC teacher.
+- **Research Line**: Model-Based Data Generation — MPC experts as automated supervisors for sparse-reward RL.
+- **Future Directions**: Replacing SMPC with a learned latent world model (JEPA-style) as the dataset generator; scaling to full-body mobile manipulation.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-12] Predicting Functions, Not Features: KANs with Function-Space Joint-Embedding Predictive Learning for Medical Image Segmentation
+
+- **arXiv**: [2608.12050](https://arxiv.org/abs/2608.12050)
+- **Authors**: Yungeng Liu, Xuanzi Fang, Yuge Zhang, Shuqi Ren, Haijin Zeng, Yongyong Chen
+- **TL;DR**: FS-JEPA — moves JEPA-style masked predictive learning into the pre-aggregation function space of Kolmogorov-Arnold Networks: an online branch predicts multi-radius signatures of sampled KAN edge functions against an EMA full-context target branch; best average Dice on five medical segmentation benchmarks, +2.25pp over the strongest KAN competitor, with the predictive branch removed at inference.
+- **Problem**: KAN-based segmentation models optimize edge functions only through objectives defined after edge aggregation; individual edge functions lack an explicit pre-aggregation learning target, leaving the function space under-structured.
+- **Architecture**: (1) **Function-Space JEPA**: a masked online branch predicts structured multi-radius signatures (function evaluations around the input anchor) of sampled KAN edge functions, produced by a full-context EMA target branch. (2) **Shared edge indices** preserve correspondence between predictions and targets. (3) Multi-radius signatures capture local functional variation that a single response cannot. (4) The function-space objective is jointly optimized with the segmentation loss; **the predictive branch is removed at inference** (zero deployment overhead).
+- **Compute Scale**: Small-Mid (8-24G): KAN-based segmentation models on 5 medical benchmarks.
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) Genuinely extends the JEPA recipe (online/target encoders, EMA, masked prediction in abstract space) to a new substrate — function space — rather than token or embedding space. (2) "Predict functions, not features" is a clean statement of the JEPA principle: predict structure, not raw inputs. (3) Auxiliary objective removed at inference, matching JEPA's efficiency argument. WEAKNESSES: (1) Medical segmentation domain — no planning/control downstream, so it validates JEPA generality rather than advancing world models. (2) Static images, no temporal dynamics. Overall, a creative cross-domain JEPA variant with an architecturally novel prediction target — logged as evidence of JEPA's expanding generality.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: FS-JEPA — function-space joint-embedding predictive learning that gives KAN edge functions an explicit pre-aggregation predictive target.
+- **Motivation**: Post-aggregation objectives leave individual KAN functions without direct learning signals; the function space is where KANs' expressiveness actually lives.
+- **Problem Solved**: Achieves best average Dice across five segmentation benchmarks, outperforming the strongest KAN-based competitor by +2.25pp, without any inference-time cost.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends the JEPA family (I-JEPA/V-JEPA) and the KAN segmentation line; responds to the lack of pre-aggregation supervision in KANs.
+- **Implicit Connection**: Demonstrates JEPA's flexibility — the online/target predictor structure transfers to function space — supporting the claim that latent prediction is a universal learning principle.
+- **Research Line**: JEPA Variants — function-space predictive learning for structured networks.
+- **Future Directions**: Function-space JEPA in other KAN applications; temporal function-space prediction for world models.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-12] How Can Driving World Models Do Counterfactual Prediction?
+
+- **arXiv**: [2608.11601](https://arxiv.org/abs/2608.11601)
+- **Authors**: Jiaru Zhang, Can Cui, Yi Xu, Xin Ye, Ruqi Zhang, Ziran Wang
+- **TL;DR**: Formalizes the gap between the "counterfactual simulator" ambition of driving world models and direct action-conditioned prediction — which ignores factual continuations — using the causal recipe of abduction, action, and prediction; a new matched-counterfactual benchmark shows two representative world models fail counterfactual matching, while a simple training-free evidence-injection pipeline substantially closes the gap.
+- **Problem**: Driving world models are asked "what would have happened under an alternative ego action?", but direct action-conditioned prediction conditions only on shared history + alternative action — it can generate plausible futures without preserving what actually happened in the episode.
+- **Architecture**: (1) **Causal formalization**: abduction (infer latent state from the factual episode) → action (apply the alternative ego action) → prediction (roll forward). Direct prediction skips abduction. (2) **Controlled simulation benchmark** with factual outcomes and matched counterfactual outcomes (short horizon where the alternative ego action does not alter surrounding agents). (3) **Training-free constructive pipeline**: moves observed evidence into the counterfactual view and lets the frozen model complete the rest — substantially raises recovered fraction and reduces perceptual distance to the matched counterfactual on both models.
+- **Compute Scale**: Mid (24G): Controlled simulation benchmark + two representative driving world models.
+- **LeCun Alignment**: HIGH — STRENGTHS: (1) Counterfactual prediction is LeCun's canonical world-model capability — predict the outcome of alternative actions; this paper shows the standard action-conditioned paradigm systematically fails it. (2) The abduction-action-prediction recipe maps directly onto the world model's role in the JEPA agent loop. (3) Constructive: shows even a training-free evidence-injection fix helps. WEAKNESSES: (1) Short-horizon setting only; interaction effects deferred. (2) The fix is a pipeline hack, not a learned architecture — leaving the door open for a JEPA-style latent solution. Overall, a crisp theoretical + empirical diagnosis of a core failure mode in generative world models — exactly the class of limitation LeCun has long argued generative models carry.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: A causal diagnosis of why driving world models fail counterfactual prediction, plus a measurable benchmark and a training-free mitigation.
+- **Motivation**: Counterfactual simulation is the primary use case for driving world models; if they cannot preserve factual continuations, their safety-critical applications are undermined.
+- **Problem Solved**: Demonstrates the abduction-action-prediction gap empirically, and shows that injecting observed evidence into the counterfactual view substantially improves counterfactual matching.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the counterfactual/causal inference literature and driving world model evaluation; responds to the counterfactual-simulator claims of current driving WMs.
+- **Implicit Connection**: Counterfactual prediction under alternative actions is the defining test of LeCun's world model; this paper provides the first controlled benchmark and identifies abduction as the missing ingredient.
+- **Research Line**: Counterfactual World Models — causal evaluation and correction of predictive simulators.
+- **Future Directions**: Learned abduction modules (JEPA-style latent state inference); long-horizon counterfactual prediction with interacting agents.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-12] Keep the Future, Drop the Rollout: RIFT for World Action Models
+
+- **arXiv**: [2608.11521](https://arxiv.org/abs/2608.11521)
+- **Authors**: Chushan Zhang, Jinguang Tong, Xuesong Li, Yikai Wang, Hongdong Li
+- **TL;DR**: RIFT — causal interventions across four WAMs show action generation needs the future's K/V cache VALUES but not the iterative rollout PROCESS that constructs them; RIFT learns anticipation tokens that build the complete future cache in ONE backbone pass — 98.8% LIBERO success with 68.2–89.1% lower action-chunk latency, and the best observed RoboTwin 2.0 scores (92.9/92.6% clean/randomized).
+- **Problem**: WAMs condition actions on predicted futures, but iterative video rollout inflates deployment latency. Does action generation require the evolving rollout trajectory, or only its future representation?
+- **Architecture**: (1) **Paired closed-loop interventions** over 4 WAMs × 40 LIBERO tasks: masking or reassigning future-cache values changes execution and reduces success → WAMs are sensitive to future values AND their assigned positions. (2) **Key separation**: for Joint and Cosmos-2, replaying a single fixed final-clean K/V cache nearly preserves execution (1.7–1.9 cm ADE, 97.9–98.2% success) → cache consumption ≠ cache production. (3) **RIFT**: learned anticipation tokens construct the complete future K/V cache in one backbone pass, retaining the original future-read interface. (4) Results: 98.8% LIBERO (vs 98.4–98.6% for rollout-based Joint/IDM/LingBot-VA) at 68.2–89.1% latency reduction; 92.9/92.6% RoboTwin 2.0 clean/randomized — highest observed.
+- **Compute Scale**: Mid-Large (24-40G+): Trains on top of pretrained video WAM backbones (Joint, Cosmos-2); deployment drops iterative rollout → large latency savings.
+- **LeCun Alignment**: HIGH — STRENGTHS: (1) Causal evidence that WAMs consume a future REPRESENTATION, not the rollout process itself — the empirical twin of JEPA's premise (predict latent futures; don't generate them). (2) Anticipation tokens are a latent predictive shortcut: one forward pass replaces N rollout steps — the efficiency argument for reconstruction-free prediction, demonstrated inside WAMs. (3) Best RoboTwin 2.0 results among evaluated methods. WEAKNESSES: (1) Built on generative video WAMs; the future cache is still a video-VAE latent, not a JEPA embedding. (2) Anticipation tokens are trained per-backbone. Overall, the strongest practical demonstration to date that rollout-free future conditioning is sufficient — a deployment-side vindication of latent prediction over pixel generation.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: RIFT — replace iterative video rollout in WAMs with one-pass anticipation tokens that construct the complete future K/V cache.
+- **Motivation**: Rollout latency is the deployment bottleneck of WAMs; causal intervention analysis shows the evolving trajectory is not what actions actually consume.
+- **Problem Solved**: Achieves rollout-competitive success (98.8% LIBERO, best RoboTwin 2.0) while cutting action-chunk latency by 68.2–89.1%.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the WAM line (Joint, IDM, Cosmos-2, LingBot-VA); responds to WAM deployment-latency critiques with a mechanistic causal analysis.
+- **Implicit Connection**: The cache-consumption vs cache-production separation is the JEPA argument (predict latent futures efficiently) proven causally inside generative WAMs — a bridge paper toward JEPA-native WAMs.
+- **Research Line**: Efficient World-Action Models — rollout-free future conditioning for deployment.
+- **Future Directions**: Anticipation tokens on JEPA latent caches (no video VAE); transferable future-cache constructors across WAM backbones.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-11] JEPA-WAM: Stage-Level Joint-Embedding Prediction for World-Action Models in Robot Manipulation
+
+- **arXiv**: [2608.10780](https://arxiv.org/abs/2608.10780)
+- **Authors**: Xiao Liu, Yuguang Yang, Xi Wang, Kai Jiang, Cheng Chi, Yong Xu, Wenchao Ding, Yilun Chen, Yan Wang
+- **TL;DR**: JEPA-WAM — augments a Motus-based WAM with Stage-JEPA, a goal-conditioned JEPA predictor on a frozen V-JEPA2 encoder that predicts the latent target of the next inferred task stage; 90.25% success across 50 RoboTwin 2.0 tasks and 5.97% fewer execution steps than the strongest baseline. *(Backfill — missed by the Aug 12–13 scans.)*
+- **Problem**: WAMs represent the future as a fixed short video-action chunk — local scene evolution for action execution — with no explicit stage-level semantic future describing how the task should progress from its current stage to the next.
+- **Architecture**: (1) **Two complementary futures**: a short-term physical future (local scene evolution, the WAM's chunk) and a stage-level semantic future (task progress). (2) **Stage-JEPA**: a goal-conditioned JEPA predictor; a frozen V-JEPA2 encoder extracts the current-state representation and predicts the latent target of the next inferred stage, conditioned on the current observation and task instruction. (3) The Motus-based WAM backbone is augmented, not replaced.
+- **Compute Scale**: Mid-Large (24-40G+): Motus WAM + frozen V-JEPA2 encoder + Stage-JEPA predictor across 50 RoboTwin 2.0 tasks (clean + randomized).
+- **LeCun Alignment**: HIGH — STRENGTHS: (1) Direct JEPA-WAM hybrid using Meta's V-JEPA2 — the flagship LeCun-lineage encoder — for stage-level semantic prediction. (2) The physical/semantic future distinction mirrors the hierarchical abstraction LeCun's architecture demands (prediction at multiple abstraction levels). (3) Goal-conditioned latent prediction; no pixel targets. WEAKNESSES: (1) Frozen V-JEPA2 — no end-to-end adaptation to manipulation. (2) Stage inference mechanics are thin in the abstract. Overall, joins 2608.09381 in building WAMs natively on JEPA latents — among the clearest embodiments of LeCun's WAM blueprint to date.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: JEPA-WAM — a WAM with a Stage-JEPA predictor that represents the stage-level semantic future alongside the short-term physical future.
+- **Motivation**: Task progress across stages is not captured by short video-action chunks; a stage-level latent future is needed for efficient multi-stage manipulation.
+- **Problem Solved**: 90.25% overall success on 50 RoboTwin 2.0 tasks, with 5.97% fewer execution steps than the strongest baseline — stage-level prediction improves both success and efficiency.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on Motus WAM and V-JEPA2; responds to the short-horizon future representation limitation of current WAMs.
+- **Implicit Connection**: Operationally realizes LeCun's hierarchical world model — semantic/stage-level latent prediction (JEPA) layered on physical/short-term prediction (WAM).
+- **Research Line**: JEPA-Augmented World-Action Models — stage-level latent futures for manipulation.
+- **Future Directions**: End-to-end Stage-JEPA adaptation; multi-level semantic futures; cross-embodiment stage prediction.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-10] World Tokens: Enhancing Embodied Policies with Training-Time World Modeling
+
+- **arXiv**: [2608.09730](https://arxiv.org/abs/2608.09730)
+- **Authors**: Qu Tang, Benhui Zhuang, Bo Yuan, Xue Yu, Longteng Guo, Junlan Feng
+- **TL;DR**: World Tokens — a World Adapter converts VLM features into a fixed set of world tokens that condition a jointly fine-tuned future-video denoiser AND serve as the action expert's sole visual-language context; the world-model branch is removed at deployment, yielding VLA-level latency with world-model-shaped representations (competitive LIBERO, best reported SIMPLER averages). *(Backfill — missed by the Aug 12–13 scans.)*
+- **Problem**: VLAs deploy efficiently but don't model physical scene evolution; WAMs model it but drag future generation or large video backbones into the control loop.
+- **Architecture**: (1) **World Adapter**: transforms VLM features into a fixed set of world tokens. (2) **Shared conditioning**: the world tokens condition a jointly fine-tuned future-video denoiser (the training-time world model) and simultaneously serve as the action expert's sole visual-language context — gradients from future-video denoising directly shape the action representation. (3) **Exclusive routing** prevents the policy from bypassing that representation. (4) **Deployment**: the world-model branch is removed — only VLM + World Adapter + action expert remain, with no online video-model inference. (5) With a 2B backbone and no embodied action pretraining: competitive LIBERO, best reported SIMPLER averages, improved real-world R1 Pro success over a matched action-only baseline, at VLA-level latency.
+- **Compute Scale**: Mid (24G): 2B VLM + World Adapter + training-time future-video denoiser.
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) "Train with a world model, deploy without it" — world modeling as representation distillation, the efficiency pattern JEPA advocates. (2) Exclusive routing forces the action policy to live in the world-conditioned representation — architectural honesty about what the policy consumes. WEAKNESSES: (1) The world-model branch is a generative future-video denoiser, not a JEPA predictor — gradients come from denoising, not latent prediction. (2) No explicit planning; world tokens shape one-step action chunks. Overall, strong evidence that world-model supervision improves embodied policies even when the world model never ships — a pattern JEPA-native versions could inherit.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: World Tokens — a World Adapter architecture that uses world modeling during training to enhance the action policy while preserving efficient deployment.
+- **Motivation**: VLAs lack explicit physical-dynamics modeling; WAMs are too expensive to deploy; the middle path is training-time world modeling with a removed-at-deployment world branch.
+- **Problem Solved**: Achieves WAM-grade success on LIBERO/SIMPLER and improved real-world success at VLA-level latency, without online video-model inference.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on VLA and WAM lines; responds to the deployment-cost critique of WAMs.
+- **Implicit Connection**: The train-with-world-model/deploy-without pattern is JEPA's efficiency philosophy transposed to embodied policies — representation shaped by dynamics prediction, inference free of generation.
+- **Research Line**: Training-Time World Modeling — dynamics supervision without deployment cost.
+- **Future Directions**: Replacing the denoiser with a JEPA latent predictor; world-token-based planning heads.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-10] VANE: Reliable Test-Time Training for Vision-Language-Action Models via Future Visual Representation Prediction
+
+- **arXiv**: [2608.09448](https://arxiv.org/abs/2608.09448)
+- **Authors**: Hongjin Ji, Guoyang Xia, Luoyang Sun, Fangxiang Feng, Lei Ren
+- **TL;DR**: VANE — reliable test-time training for VLA policies: candidate prompt adaptations are isolated from the live policy, evaluated against future visual observations, and committed only when supported by future evidence; +3.2pp success on SimplerEnv WidowX over the TTT baseline. *(Backfill — missed by the Aug 12–13 scans.)*
+- **Problem**: Test-time training for VLA policies is unreliable in closed-loop manipulation: a shared adaptation space mixes incompatible task corrections, and online updates can alter subsequent actions before their consequences are known.
+- **Architecture**: (1) **Context-conditioned prompt adaptation** on the current vision-language context. (2) **Learn from the future visual consequences** of executed actions: candidate updates are isolated from the live policy, evaluated on subsequent observations, and committed only when supported by future evidence — making adaptation selective and reversible. (3) Future visual representation prediction serves as the supervision signal. (4) Results: +3.2pp over the TTT baseline on SimplerEnv WidowX; gains on Google Robot are task- and embodiment-dependent.
+- **Compute Scale**: Small-Mid (8-24G): Test-time training on SimplerEnv WidowX + Google Robot.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) "Learn from future visual consequences" is a predictive-SSL stance — the future as supervision, exactly JEPA's signal source, transplanted into deployment-time adaptation. (2) Evidence-gated commitment is a safety pattern for autonomous systems. WEAKNESSES: (1) Adapts existing VLA policies; no latent dynamics model. (2) Gains are task/embodiment-dependent. Overall, a deployment-time predictive-learning data point; the evidence-gating mechanism is worth adopting for world-model online adaptation.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: A constrained, evidence-based test-time training framework that learns from future visual consequences before committing adaptations.
+- **Motivation**: Unreliable TTT corrupts live policies; adaptation must be selective, reversible, and supported by observed future evidence.
+- **Problem Solved**: +3.2pp average success over the TTT baseline on SimplerEnv WidowX, with deployment-time gains remaining task- and embodiment-dependent on Google Robot.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on test-time training for VLAs; responds to closed-loop reliability failures of naive TTT.
+- **Implicit Connection**: Future-prediction-as-supervision and evidence-gated model updates echo the JEPA program's core signals and its demand for safe online adaptation.
+- **Research Line**: Reliable Online Adaptation — evidence-gated predictive learning at deployment.
+- **Future Directions**: Latent future prediction for adaptation supervision; combination with JEPA-style world models for update gating.
+- **GitHub**: Not found
 
 ---
 
@@ -3553,4 +3813,4 @@
 - **GitHub**: Not found
 
 
-*Generated: 2026-08-13 | Papers: 135 | Daily scan: 7 new (Surgical WAM, Soccer Motion SSL, VIScore, Flex-π, Racing WM Agent, Dreamer-SAC, FACT)*
+*Generated: 2026-08-14 | Papers: 144 | Daily scan: 9 new (StateFlow, Better Slots, SMPC Loco-Manip, FS-JEPA, Counterfactual Driving WMs, RIFT, JEPA-WAM Stage-Level, World Tokens, VANE)*
