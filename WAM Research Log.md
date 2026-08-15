@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **144 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-14 (9 new papers — Aug 12 batch: StateFlow, Better Slots, SMPC Loco-Manip, FS-JEPA, Counterfactual Driving WMs, RIFT + 3 backfills: JEPA-WAM Stage-Level, World Tokens, VANE)
+> **154 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-15 (10 new papers — Aug 13 batch: Causal WMs, BrainWAM, ContactGuard, S2-HWM, PlayWorld, H2R-Bench, Task Progress Probe, DreamX-Phi, Clinical WM, AirForesight)
 
 ---
 
@@ -10,7 +10,17 @@
 
 | # | Date | Paper | Alignment | Compute |
 ||---|------|-------|-----------|--------|
-||| 1 | 2026-08-06 | [PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models](https://arxiv.org/abs/2608.05720) | HIGH — Identifies three JEPA world model failure modes (physical invariance/identifiability/counterfactual collapse); three training pathways to fix them; MPC success 70→78.1% on OGBench-Cube, 81→98% on TwoRooms. | Mid (24G): Standard JEPA backbone + physics-aware training objectives. |
+||||||||| 1 | 2026-08-13 | [A Unifying Perspective on Causal World Models: From Observations to Representations to Structure](https://arxiv.org/abs/2608.13456) | HIGH — Formal task-grounded definition of Causal WMs (entity properties + entity-entity + entity-environment interactions); unifies CRL, object-centric learning, causal discovery, SCMs; maps identifiability of each WM component. | N/A (position/theory paper). |
+||||||||| 2 | 2026-08-13 | [ContactGuard: Pre-Contact Execution Monitoring with Action-Conditioned Latent World Models](https://arxiv.org/abs/2608.13438) | MEDIUM-HIGH — Latent world model rolls forward under policy's own actions to predict post-contact failure BEFORE contact; no pixel prediction; abort signal without policy modification. | Small-Mid (8-24G): Latent WM + lightweight failure probe on real robot trajectories. |
+||||||||| 3 | 2026-08-13 | [BrainWAM: Action-Space Coordination of Semantic Priors and Predictive Dynamics for Autonomous Driving](https://arxiv.org/abs/2608.12854) | MEDIUM-HIGH — Two specialized action-oriented pathways (semantic VLA + predictive world modeling) coordinated at compact action-representation level; asynchronous rectified-flow inference; 89.5 PDMS NAVSIM v1 / 89.6 EPDMS v2. | Large (40G+): VLA + WAM pathways with video denoising. |
+||||||||| 4 | 2026-08-13 | [S2-HWM: Sparse Event-Structured Hierarchical World Model for Long-Horizon Surgical Robot Manipulation](https://arxiv.org/abs/2608.13103) | MEDIUM-HIGH — Learned sparse event evidence schedules event-level manager + Event Transition Model predicts variable-duration segment boundaries/durations/rewards; 98.7% PegTransfer (+22.7pp over DreamerV3). | Mid (24G): SurRoL simulation, PegTransfer task. |
+||||||||| 5 | 2026-08-13 | [PlayWorld: Benchmarking World Models with Agent Players over Long-Horizon Objectives](https://arxiv.org/abs/2608.13552) | MEDIUM — 171 long-horizon interactive scenarios pursued by multimodal agent players; 4 core dimensions (geometry consistency, interaction fidelity, out-of-sight evolution, insight evolution); 9 SOTA video WMs found unreliable. | N/A (benchmark): 9 world models evaluated. |
+||||||||| 6 | 2026-08-13 | [H2R-Bench: Benchmarking Human-to-Robot Manipulation Video Generation in World Models](https://arxiv.org/abs/2608.13049) | MEDIUM — Cross-embodiment benchmark: human demos → robot manipulation videos; 5 dimensions incl. functional contact transfer + embodiment correctness; 11 models across 6 manipulation families, 2 embodiments. | N/A (benchmark): 11 video generation models evaluated. |
+||||||||| 7 | 2026-08-13 | [Decoding Task Progress from VLA Representations](https://arxiv.org/abs/2608.13474) | MEDIUM — Task progress linearly readable from π0.5 residual stream; signal present in pretrained PaliGemma backbone before robot data; label-free OOD/stall detector competitive with SOTA. | Small-Mid (8-24G): Linear probes on frozen VLA checkpoints. |
+||||||||| 8 | 2026-08-13 | [DreamX-Phi 1.0: Action-Conditioned Video World Model for Robotic Manipulation](https://arxiv.org/abs/2608.13489) | LOW-MEDIUM — Video WM with per-arm SE(3) PRoPE-style geometric encoding + depth branch + SAM3 masks with frozen V-JEPA teacher for object consistency; top ranks on WorldArena 2.0 (T1 1st, T2 2nd). | Large (40G+): Video world model + few-step distillation. |
+||||||||| 9 | 2026-08-13 | [Intervention-Aware Clinical World Model for Post-Op Outcome Forecasting in Cardiology](https://arxiv.org/abs/2608.13518) | MEDIUM-LOW — Cross-domain world model: latent patient state evolved through time-ordered post-intervention events; training-only follow-up imaging supervision; AUROC 0.756 recurrence prediction on DECAAF-II. | Small-Mid (8-24G): DECAAF-II ablation cohort. |
+||||||||| 10 | 2026-08-13 | [AirForesight: Current-to-Future Spatial Map Imagination with Cross-Space Planning Consistency for UAV-VLN](https://arxiv.org/abs/2608.12835) | MEDIUM — Structured current-map latent jointly supervised by reconstruction + future-trajectory prediction; causal attention propagates to future-map reasoning; cross-space planning consistency loss; SOTA OpenUAV/AerialVLN-S. | Mid (24G): UAV-VLN benchmarks. |
+|||| 1 | 2026-08-06 | [PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models](https://arxiv.org/abs/2608.05720) | HIGH — Identifies three JEPA world model failure modes (physical invariance/identifiability/counterfactual collapse); three training pathways to fix them; MPC success 70→78.1% on OGBench-Cube, 81→98% on TwoRooms. | Mid (24G): Standard JEPA backbone + physics-aware training objectives. |
 ||| 2 | 2026-08-06 | [ω-0: A Latent Predictive World Action Model for Concurrent Humanoid Loco-Manipulation](https://arxiv.org/abs/2608.06375) | HIGH — Latent predictive WAM for real-world humanoid whole-body control; avoids pixel reconstruction, uses compact future observation embeddings + diffusion action head; 40+ hr real-world dataset (ω-HOME). | Mid-Large (24-40G+): Multi-view encoder + latent predictor + diffusion action head. |
 ||| 3 | 2026-08-06 | [DyPES-VLA: Learning Shared Dynamics Priors and Embodiment-Specific Control for Cross-Embodiment Manipulation](https://arxiv.org/abs/2608.06374) | MEDIUM — Cross-embodiment VLA with future-prediction objective for shared dynamics priors; MoE action head for native-space control; no manual action realignment needed. | Large (40G+): VLM backbone + dynamics prediction + MoE action heads. |
 |||| 4 | 2026-08-03 | [LeDXA: Self-supervised DXA representations encode multi-system disease risk, biological aging and heritability](https://arxiv.org/abs/2608.02208) | MEDIUM — LeCun co-author; JEPA-based SSL for medical imaging (DXA scans); learns latent health representations without pixel reconstruction; 150K× fewer training images than DINOv3, better disease prediction. | Small-Mid (8-24G): JEPA from scratch on 11,540 unlabeled scans; evaluated on 47,400 UKBB scans. |
@@ -160,6 +170,286 @@
 
 
 ---
+
+## [2026-08-13] A Unifying Perspective on Causal World Models: From Observations to Representations to Structure
+
+- **arXiv**: [2608.13456](https://arxiv.org/abs/2608.13456)
+- **Authors**: Avinash Kori, Fabrizio Russo
+- **TL;DR**: A position/theory paper that gives Causal World Models (CWMs) a formal, task-grounded definition — a useful WM must capture entity properties, entity-to-entity interactions, and entity-to-environment interactions that explain dynamics — and unifies world modeling with causal representation learning, object-centric learning, causal discovery, structural causal models, and model-based decision-making, while mapping the identifiability landscape for each WM component.
+- **Problem**: "World model" is used loosely across communities with no shared formal account of what structure a WM must acquire to support prediction, planning, and acting beyond the training distribution. Generative capability alone is insufficient: a model can synthesize plausible video without possessing the causal structure needed for intervention reasoning.
+- **Architecture**: Conceptual, across three abstraction levels: (1) **perceptual observations** → (2) **representations** (causal representation learning level) → (3) **structure** (SCM-level entity graph: entity properties + entity-entity + entity-environment interactions). Key moves: a CWM is defined by the tasks it supports (prediction, planning, counterfactual reasoning, informed decision-making), so which components must be identifiable is task-determined. The paper then connects each component to identifiability theory — clarifying when WM components can be recovered from data and up to which equivalence classes (permutation/scaling/affine vs. full isomorphism).
+- **Compute Scale**: N/A (position/theory paper — no model trained).
+- **LeCun Alignment**: HIGH — STRENGTHS: (1) This is the most direct formal articulation of the requirement at the core of the "Path Towards Autonomous Machine Intelligence" position: useful world models must go beyond generative capability and acquire abstract causal structure — entity-level properties and interactions that explain dynamics. (2) Explicitly ties WM adequacy to prediction + planning + OOD action, LeCun's own evaluative criteria. (3) Provides the formal language (identifiability classes) that recent JEPA identifiability work in this log (e.g., "On the Identifiability of Controlled World Models") can build on. WEAKNESSES: (1) No empirical instantiation of the CWM blueprint. (2) Does not prescribe the training objective (JEPA vs. reconstruction) — it specifies the target structure, leaving the how open. Overall: foundational reference point that can anchor evaluation of JEPA variants — what structure should the learned latent actually contain.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: A formal definition and multi-level framework for Causal World Models, grounded in the downstream tasks (prediction, planning, decision-making) they must support, with an explicit mapping of identifiability guarantees for each WM component.
+- **Motivation**: World models are increasingly claimed as the foundation for intelligent agents, yet the term is used inconsistently and most treatments ignore causal structure — leading to models that generate but do not explain or intervene.
+- **Problem Solved**: Provides a unifying conceptual framework connecting world modeling to causal representation learning, object-centric learning, causal discovery, SCMs, and model-based RL, and clarifies what can be recovered from data and under which equivalences.
+
+### Academic Context
+
+- **Inheritance / Response**: Synthesizes the causal representation learning literature (Schölkopf et al. line) and the world-model literature; responds to generative video models being labeled "world models" without causal grounding.
+- **Implicit Connection**: Supplies the structural specification that JEPA's latent prediction objective is supposed to converge to — JEPA is a candidate mechanism for acquiring CWM-grade representations; this paper defines the bar.
+- **Research Line**: Causal World Models / Identifiability — structure of representations that support planning and intervention.
+- **Future Directions**: Empirically instantiating CWM objectives (e.g., JEPA variants whose latents provably recover entity-level structure); benchmark suites that test causal, not just predictive, adequacy of world models.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] ContactGuard: Pre-Contact Execution Monitoring with Action-Conditioned Latent World Models
+
+- **arXiv**: [2608.13438](https://arxiv.org/abs/2608.13438)
+- **Authors**: Gehan Zheng, Matthew Johnson-Roberson, Weiming Zhi
+- **TL;DR**: A pre-contact execution monitor for chunked visuomotor policies: a latent world model trained on unlabeled robot trajectories predicts compact multi-view visual embeddings under the policy's own planned actions, and a lightweight failure probe aborts execution if the predicted post-contact latent signals likely failure — before the robot ever touches the object.
+- **Problem**: Contact-rich manipulation failures are usually detected only after the robot has committed to contact. In wrist-camera setups, close views help observe contact, but by then a poor approach has already pushed, missed, slipped, or disturbed the object — conventional detectors react too late.
+- **Architecture**: (1) **Latent world model**: trained from unlabelled robot trajectories to predict compact multi-view visual embeddings of future observations conditioned on planned actions — explicitly avoiding pixel-level video prediction (JEPA-style latent targets). (2) **Failure probe**: lightweight classifier trained on a small labeled set of pre-contact clips on top of the predicted latent. (3) **Deployment loop**: anchor prediction just before an imminent contact event, roll the world model forward under the policy's own action chunk, verify the predicted post-contact latent, and emit an abort signal if failure is likely — no modification to the underlying policy. Validated against direct and corrupted-action ablations, with live-robot transfer.
+- **Compute Scale**: Small-Mid (8-24G): Latent WM + lightweight failure probe; runs alongside deployed visuomotor policies on real robots.
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) Action-conditioned latent predictive dynamics with no reconstruction is precisely the world-model form LeCun's architecture prescribes — the model predicts in representation space, not pixel space. (2) The WM is put to a concrete real-world control use (pre-contact abort), demonstrating that predictive latents, not pixels, are what execution monitoring needs. (3) Trained from unlabeled trajectories — SSL-friendly supervision story. WEAKNESSES: (1) Short-horizon monitoring only; no planning/MPC over the latent dynamics. (2) Binary failure classification, not general state prediction. Overall, a practical validation of latent world models as cheap, deployable dynamics simulators for real robots.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Pre-contact execution monitoring: roll a latent, action-conditioned world model forward under the policy's own planned actions and abort before contact when the predicted post-contact latent indicates failure.
+- **Motivation**: Contact-rich failures happen at the approach phase, but observation close to contact means detection comes after damage is done; post-hoc detectors cannot prevent the disturbance.
+- **Problem Solved**: Predicts failure before contact commitment, transfers to live robots without touching the policy, and outperforms direct and corrupted-action ablations across real contact-rich manipulation tasks.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on latent world models for robot learning (Dreamer/Latent Action Model lines) and execution monitoring; responds to the latency problem of post-contact failure detectors.
+- **Implicit Connection**: Latent-prediction-without-reconstruction is the JEPA design principle; this paper shows that principle operating as a lightweight safety layer in deployment.
+- **Research Line**: Latent World Models for Robot Execution Monitoring — predictive latents as runtime safety signals.
+- **Future Directions**: Longer-horizon latent rollouts for full trajectory certification; JEPA-pretrained encoders to improve latent quality; multi-step abort policies (retry vs. re-plan).
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] BrainWAM: Action-Space Coordination of Semantic Priors and Predictive Dynamics for Autonomous Driving
+
+- **arXiv**: [2608.12854](https://arxiv.org/abs/2608.12854)
+- **Authors**: Bing Zhan, Shuyao Shang, Jiahao Gu, Shuo Lu, Yuan Xu, Zhao Wang, Yida Wang, Xueyang Zhang, Kun Zhan, Lue Fan, Zhaoxiang Zhang
+- **TL;DR**: A driving WAM that converts semantic reasoning (VLA-style VLM priors) and predictive world modeling into two specialized action-oriented pathways and coordinates them at the level of compact action representations — with asynchronous rectified-flow inference decoupling video and action denoising — reaching SOTA 89.5 PDMS on NAVSIM v1 and 89.6 EPDMS on NAVSIM v2.
+- **Problem**: End-to-end driving models emphasize only one side of planning: VLAs exploit semantic priors, WAMs provide future-aware prediction. Naively fusing both through joint token-level attention fails — an attention-allocation mismatch lets semantic shortcuts dominate the shared attention space and suppress the predictive dynamics pathway.
+- **Architecture**: (1) **Two specialized action-oriented pathways**: a semantic reasoning pathway (VLM priors) and a predictive world-modeling pathway (future video/world rollouts), kept functionally separate. (2) **Action-space coordination**: the two pathways are aligned at compact action representations — not at token level — mirroring neuroscience evidence that complex behavior arises from coordination among functionally specialized systems. (3) **Asynchronous rectified-flow inference**: decoupled video and action denoising shortens latency while preserving planning-relevant predictive context.
+- **Compute Scale**: Large (40G+): VLA-scale backbone + world-modeling pathway with video denoising.
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) Implements the modular-agent decomposition of LeCun's AMI blueprint — separate semantic/world-model modules coordinated by a shared interface — instead of one monolithic net. (2) The central negative result (semantic shortcuts suppress predictive dynamics under naive fusion) is empirical evidence that the world-model module must be architecturally protected, supporting the case for dedicated predictive architectures. (3) Coordination at compact action representations echoes JEPA's compress-away-detail principle. WEAKNESSES: (1) The predictive pathway remains generative (rectified-flow video), not JEPA latent prediction. (2) No explicit latent planning — prediction feeds action denoising directly. Overall, strong driving-domain evidence for modular predictive architectures.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: BrainWAM: structure the driving planner as two specialized action-oriented pathways (semantic priors + predictive dynamics) coordinated in action space, with asynchronous rectified-flow inference for latency control.
+- **Motivation**: Driving needs both semantic constraints and predictive dynamics, but existing end-to-end models pick one side; naive joint attention fails because semantic shortcuts dominate and suppress prediction.
+- **Problem Solved**: Achieves state-of-the-art NAVSIM v1/v2 performance by protecting the predictive pathway from attention suppression, consistently outperforming VLA-only and WAM-only baselines.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on VLA driving models and generative driving WAMs; responds to the fusion failure modes of combined semantic+world-model planners.
+- **Implicit Connection**: The "protect the world model module" result is a driving-domain instance of the architectural argument LeCun makes for separate world-model and cost/actor modules.
+- **Research Line**: Modular World Action Models for Driving — coordination of semantic and predictive pathways.
+- **Future Directions**: JEPA-style latent predictive pathway replacing video denoising; hierarchical planning over the coordinated action representations.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] S2-HWM: Sparse Event-Structured Hierarchical World Model for Long-Horizon Surgical Robot Manipulation
+
+- **arXiv**: [2608.13103](https://arxiv.org/abs/2608.13103)
+- **Authors**: Shuzhe Zhang, Xin Zhu, Yinling Qian, Qiong Wang
+- **TL;DR**: A hierarchical world model for long-horizon surgical manipulation that learns sparse event evidence from primitive latent trajectories to schedule an event-level manager, plus an Event Transition Model (ETM) predicting variable-duration segment boundaries, durations, and rewards — achieving 98.7% success on SurRoL PegTransfer, 22.7pp over a flat GAS DreamerV3 baseline.
+- **Problem**: Long-horizon surgical tasks have sparse rewards and meaningful interaction changes at irregular intervals. Flat world-model agents imagine at primitive-step resolution, so variable-duration task progress stays implicit; manually specified stages have task-specific boundaries that misalign with state-dependent interaction transitions.
+- **Architecture**: (1) **Primitive-step worker**: actor-critic learning at latent primitive resolution. (2) **Event-level manager**: sparse event evidence learned from primitive latent trajectories schedules manager goal updates; each selected latent goal conditions the worker's primitive actions until the next update. (3) **Event Transition Model (ETM)**: the learned event evidence forms variable-duration segments; ETM predicts the next boundary stochastic state, segment duration, and accumulated segment reward — chaining these event-level predictions extends imagination beyond the primitive horizon for manager learning.
+- **Compute Scale**: Mid (24G): SurRoL surgical simulation, PegTransfer task; hierarchical training at DreamerV3-comparable scale.
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) Hierarchical latent planning with learned (not hand-specified) temporal abstraction is the multi-level predictive architecture of LeCun's AMI (H-JEPA: abstractions at multiple time scales). (2) Variable-duration event segments are a concrete instance of predicting "what will change and when" rather than every primitive step — the abstraction principle JEPA is built on. (3) Latent imagination for the worker with a separate coarse dynamics model. WEAKNESSES: (1) Dreamer-family RSSM lineage with reconstruction-flavored objectives, not JEPA. (2) Simulation-only evaluation. Overall, strong evidence that learned event-level abstraction substantially improves world-model planning in a high-stakes domain.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: S2-HWM: learn sparse event evidence from primitive latent trajectories to structure a two-level (event manager + primitive worker) world-model agent, with an Event Transition Model predicting variable-duration segment outcomes for extended imagination.
+- **Motivation**: Long-horizon surgical manipulation has sparse rewards and irregular interaction changes; primitive-step imagination hides task structure, while hand-designed stages misalign with state-dependent transitions.
+- **Problem Solved**: Achieves 98.7% PegTransfer success by scheduling manager updates on learned event boundaries and chaining event-level predictions beyond the primitive imagination horizon.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on hierarchical world models and DreamerV3-family agents for surgical robotics; responds to the fixed-resolution imagination limitation and manual stage engineering.
+- **Implicit Connection**: Temporal abstraction with predictive event models is the H-JEPA vision at small scale — abstraction levels tied to dynamics structure, not fixed step counts.
+- **Research Line**: Hierarchical Latent World Models — learned event-level temporal abstraction.
+- **Future Directions**: JEPA-style event-level prediction without reconstruction; real surgical robot deployment; multi-task event vocabulary transfer.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] PlayWorld: Benchmarking World Models with Agent Players over Long-Horizon Objectives
+
+- **arXiv**: [2608.13552](https://arxiv.org/abs/2608.13552)
+- **Authors**: Kaixin Ding, Xi Chen, Minghong Cai, Zhiyuan Xu, Yiyang Wang, Yuxiang Lu, Junyi Li, Shuyang Chen, Yuan Gao, Xin Tao, Pengfei Wan, Hengshuang Zhao
+- **TL;DR**: A benchmark that evaluates video world models the way humans do — by having multimodal agent players pursue 171 specified long-horizon objectives through interaction — and finds that nine SOTA world models remain unreliable on spatial consistency and persistent state evolution.
+- **Problem**: Fairly comparing interactive world models is hard: fixed action-conditioned evaluation is unsuitable because the action sequences needed to achieve the same objective vary per model, and human evaluation does not scale. Pixel-metric evaluation misses the long-horizon consistency properties that actually matter.
+- **Architecture**: (1) **Agent players**: multimodal LLM agents interact with world models toward specified long-horizon objectives (e.g., turn 360° and check environment consistency; walk into water and check ripples). (2) **171 scenarios**, each with a specified objective. (3) **Four core evaluation dimensions**: geometry consistency, interaction fidelity, out-of-sight evolution, insight evolution — plus basic video quality and controllability metrics. (4) Nine SOTA world models evaluated; results show current models fail at maintaining spatial consistency and persistent state evolution over long horizons.
+- **Compute Scale**: N/A (benchmark): evaluation harness over 9 world models.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) Evaluates exactly the properties LeCun argues generative video models lack — persistent world state, physical consistency, long-horizon coherence — and finds them missing, providing systematic empirical support for the generative-WM critique. (2) Goal-directed interactive evaluation (agent pursues objectives) matches the planning-based usage of world models, not passive viewing. WEAKNESSES: (1) Targets video world models; no JEPA/latent-predictive baselines. (2) Evaluation of appearance-level consistency, not latent-state or control utility. Overall, a useful tool for the "video generators ≠ world models" argument.
+- **GitHub**: https://github.com/kxding/PlayWorld
+
+### What / Why / Solve
+
+- **Proposal**: PlayWorld: benchmark world models via multimodal agent players pursuing 171 long-horizon interactive objectives, scoring four consistency dimensions plus basic quality metrics.
+- **Motivation**: Human-style evaluation of world models is goal-directed and interactive; fixed action-conditioned benchmarks cannot compare models fairly, and human evaluation does not scale.
+- **Problem Solved**: Provides a scalable, objective-grounded evaluation protocol and demonstrates that current world models remain unreliable on long-horizon spatial consistency and persistent state evolution.
+
+### Academic Context
+
+- **Inheritance / Response**: Responds to the interactive world model evaluation gap left by fixed-sequence benchmarks; complements WorldSimProbe and GAUGE (both in this log) with goal-directed agentic probing.
+- **Implicit Connection**: Persistent-state and out-of-sight evolution failures are precisely the failure modes LeCun predicts for generative video; this benchmark operationalizes those predictions into metrics.
+- **Research Line**: World Model Evaluation — interactive, objective-driven benchmarks.
+- **Future Directions**: Extending agent-player evaluation to latent/JEPA world models; reward-based scoring of task completion inside imagined rollouts.
+- **GitHub**: https://github.com/kxding/PlayWorld
+
+---
+
+
+## [2026-08-13] H2R-Bench: Benchmarking Human-to-Robot Manipulation Video Generation in World Models
+
+- **arXiv**: [2608.13049](https://arxiv.org/abs/2608.13049)
+- **Authors**: Dingyi Rong, Yue Shi, Chaofan Ma, Jiezhang Cao, Zongrui Wang, Zeyu Zhang, Yao Mu, Guangtao Zhai, Ning Liu
+- **TL;DR**: A benchmark for cross-embodiment human-to-robot manipulation video generation: models must transform egocentric human demonstrations into robot manipulation videos under specified embodiments; eleven SOTA video models across six manipulation families are scored on goal completion, action events, functional contact transfer, embodiment correctness, and quality — and leading models still fail at embodiment consistency and functional interaction.
+- **Problem**: Robot demonstration data is expensive and hard to scale, while egocentric human videos are abundant; video world models promise to convert human observations into robot-centric training resources, but their cross-embodiment transfer capability is entirely unevaluated.
+- **Architecture**: (1) **Benchmark instances**: human demonstration video + target embodiment constraints + source-grounded annotations (task goals, action events, functional contacts, object responses). (2) **Five evaluation dimensions**: goal-state completion, action-event completion, functional contact transfer, embodiment correctness, general video quality. (3) Eleven SOTA video generation models evaluated across six manipulation families and two robot embodiments.
+- **Compute Scale**: N/A (benchmark): 11 video generation models evaluated.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) Embodiment correctness and functional contact transfer probe physical faithfulness — whether generated video respects kinematics and contact physics — the exact property LeCun argues pixel-level generative models lack. (2) The negative result (pixel-plausible transfer ≠ task-executable transfer) echoes the "generative video is an inefficient path to world models" argument. WEAKNESSES: (1) Generative video framing throughout; no latent/JEPA transfer baselines. (2) Evaluates synthesis quality, not downstream policy utility of the generated data. Overall, a diagnostic resource for the cross-embodiment data-scaling hypothesis.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: H2R-Bench: a benchmark for evaluating whether video world models can translate egocentric human demonstrations into robot manipulation videos, scored across five dimensions including embodiment correctness and functional contact transfer.
+- **Motivation**: Human videos are a cheap, abundant behavioral resource, but cross-embodiment transfer via world models is unexplored and unevaluated; without a benchmark, claims of transfer capability are unverifiable.
+- **Problem Solved**: Provides a systematic diagnostic framework revealing that current video world models fail at embodiment consistency, functional interaction, and task execution in human-to-robot transfer.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on video world model evaluation literature; responds to the data-scaling bottleneck in robot learning by testing the cross-embodiment synthesis hypothesis.
+- **Implicit Connection**: The contact/embodiment failure patterns corroborate the physical-fidelity critique that motivates latent predictive architectures over pixel generation.
+- **Research Line**: Cross-Embodiment World Model Evaluation — human-to-robot transfer benchmarks.
+- **Future Directions**: Latent-space cross-embodiment transfer (JEPA-style); closing the loop by training robot policies on H2R-generated data and measuring real task success.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] Decoding Task Progress from VLA Representations
+
+- **arXiv**: [2608.13474](https://arxiv.org/abs/2608.13474)
+- **Authors**: Atiksh Bhardwaj, Edward Weiyi Duan, Prithwish Dan, Wei-Chiu Ma, Preston Culbertson
+- **TL;DR**: A mechanistic-interpretability study of π0.5 showing that task progress (normalized time remaining) is linearly readable from the residual stream — the signal exists in the pretrained PaliGemma backbone before any robot-specific training — and serves as a competitive label-free OOD/stall detector for deployed visuomotor policies.
+- **Problem**: VLAs are moving toward deployment as general-purpose manipulation policies, but we lack basic tools for understanding what they represent internally or monitoring them at runtime — a safety and reliability gap.
+- **Architecture**: (1) **Linear probes** on the π0.5 residual stream decode task progress. (2) **Key findings**: a single linear probe generalizes to unseen tasks; the signal is present in the pretrained PaliGemma backbone prior to robot training; trained on multi-prompt data, the probe varies under language counterfactuals; the signal is readable but does not enable meaningful steering. (3) **Application**: the probe as a label-free OOD detector that flags stalled task progress, competitive with SOTA methods.
+- **Compute Scale**: Small-Mid (8-24G): Linear probing of frozen VLA checkpoints.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) Evidence that visuomotor policies form linearly-readable semantic state (task progress) — the kind of abstract state a world model should predict and a monitor should verify, supporting the JEPA-style claim that predictive objectives build task-relevant latent state. (2) Readability-without-steerability is a useful boundary result for thinking about what latent states are good for. WEAKNESSES: (1) Post-hoc probing of a generative VLA substrate; no predictive training objective involved. (2) Single-quantity decoding (progress), not full state estimation. Overall, a measurement tool that could later validate whether JEPA-trained encoders yield richer, more linear progress representations.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Use linear probes on VLA residual streams to decode task progress, and deploy the probe as a label-free runtime OOD/stall detector for visuomotor policies.
+- **Motivation**: Deployed VLAs need internal-representation tooling and runtime monitoring; interpretability provides a lightweight, interpretable path without retraining the policy.
+- **Problem Solved**: Shows task progress is linearly readable (even from the pretrained vision-language backbone), generalizes across unseen tasks, and detects stalled progress competitively with SOTA OOD methods.
+
+### Academic Context
+
+- **Inheritance / Response**: Applies mechanistic interpretability (linear probing literature) to robotics VLAs; responds to the deployment-monitoring gap in visuomotor policies.
+- **Implicit Connection**: If task progress is a linear function of a VLA's latent state, world models that predict such states (JEPA-style) could supply monitoring signals without generative decoding — a convergence point between interpretability and predictive architectures.
+- **Research Line**: VLA Interpretability & Monitoring — linearly readable semantic state in deployed policies.
+- **Future Directions**: Probe JEPA-trained encoders for the same signals; use progress probes to gate world-model rollouts; investigate why steering fails despite readability.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] DreamX-Phi 1.0: Action-Conditioned Video World Model for Robotic Manipulation
+
+- **arXiv**: [2608.13489](https://arxiv.org/abs/2608.13489)
+- **Authors**: DreamX Team, Rui Chen, Xiangxiang Chu, Geng Li, Jifan Li, Qingfeng Shi, Datao Tang, Jing Tang, Jun Wang, Pengfei Zhang
+- **TL;DR**: An action-conditioned video world model for manipulation that injects per-arm SE(3) transformations into attention via PRoPE-style geometric encoding, adds a depth branch for scene geometry, and uses SAM3 masks with a frozen V-JEPA teacher for object consistency — distilled into a few-step student; ranked 1st (Track 1) and 2nd (Track 2) on the WorldArena 2.0 Challenge.
+- **Problem**: Realism alone does not guarantee faithfulness in action-conditioned video prediction: a convincing rollout can still move the wrong arm or lose the manipulated object. Action control alone does not constrain scene geometry or the evolution of small manipulated objects.
+- **Architecture**: (1) **Video world model** conditioned on observed frame + language instruction + prescribed action sequence (end-effector poses + gripper states). (2) **PRoPE-style geometric encoding** injects per-arm SE(3) transformations into attention, preserving arm identity and rigid-motion structure. (3) **Lightweight depth branch** for scene-level geometry. (4) **SAM3 masks + frozen V-JEPA teacher** maintain object consistency throughout grasping — a JEPA model supervising a generative one. (5) **Distribution-matching distillation** into a few-step student for deployment efficiency.
+- **Compute Scale**: Large (40G+): Multi-step video generator training + few-step distillation.
+- **LeCun Alignment**: LOW-MEDIUM — STRENGTHS: (1) The use of a frozen V-JEPA teacher for object-consistency supervision is a notable convergence of the generative and JEPA research lines — generative video borrowing representational quality from a JEPA model. (2) Geometric SE(3) grounding and depth explicitly target physical faithfulness, the known weakness of generative WMs. WEAKNESSES: (1) Primary method is pixel-space video prediction — the exact approach LeCun's position argues is inefficient and insufficient for planning. (2) No latent dynamics or planning; the model is a renderer, not a reasoner. Overall, a strong generative counterpoint whose JEPA-teacher component is worth tracking.
+- **GitHub**: https://github.com/AMAP-ML/DreamX-Phi
+
+### What / Why / Solve
+
+- **Proposal**: DreamX-Phi 1.0: a geometrically-grounded action-conditioned video world model with SE(3) arm encoding, depth supervision, and V-JEPA-based object consistency, distilled to few steps for efficient deployment.
+- **Motivation**: Action-conditioned video models for manipulation must be faithful, not just realistic — commanded paths must be respected, objects must persist, geometry must be honored.
+- **Problem Solved**: Achieves top WorldArena 2.0 Challenge rankings by grounding generation in per-arm geometry, scene depth, and object-consistency supervision from a frozen V-JEPA teacher.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on action-conditioned video world models for robotics (WorldArena line); responds to the realism-vs-faithfulness gap with geometric and representational grounding.
+- **Implicit Connection**: The V-JEPA teacher role is early evidence that JEPA representations are becoming standard infrastructure even inside generative pipelines — the representation quality JEPA produces is the value, regardless of decoder.
+- **Research Line**: Action-Conditioned Video World Models — geometric grounding and object consistency.
+- **Future Directions**: Full JEPA-based dynamics + rendering separation (predict in latent, render on demand); policy learning inside DreamX-Phi rollouts.
+- **GitHub**: https://github.com/AMAP-ML/DreamX-Phi
+
+---
+
+
+## [2026-08-13] Intervention-Aware Clinical World Model for Post-Op Outcome Forecasting in Cardiology
+
+- **arXiv**: [2608.13518](https://arxiv.org/abs/2608.13518)
+- **Authors**: Yunsung Chung, Yingshuo Liu, Abboud F. Hassan, Han Feng, Mary M. Maleckar, Nassir Marrouche, Jihun Hamm
+- **TL;DR**: A clinical world model for post-operative forecasting in atrial fibrillation ablation: a structured latent patient state evolves through time-ordered post-intervention events (procedural context, medications, physiology), supervised only at training time by follow-up imaging via a latent forecasting objective — reaching AUROC 0.756 for recurrence prediction on DECAAF-II.
+- **Problem**: Most clinical prediction models treat post-intervention outcome as a one-step mapping from baseline to endpoint, but recovery unfolds as an irregular trajectory: asynchronous clinical observations, medication changes, and repeat interventions change risk assessment over time.
+- **Architecture**: (1) **Encoder**: baseline imaging → 3D spatial latent patient state. (2) **Dynamics**: state updated through time-ordered post-intervention events using procedural context, static covariates, elapsed time, and peri-event physiological embeddings. (3) **Supervision**: follow-up imaging provides training-only supervision through a latent forecasting objective — not needed at inference. (4) **Queries**: learned state supports recurrence-risk prediction at different horizons and retrospective input editing of blanking-period records; scar-extent MAE 2.971pp without follow-up MRI intensities at inference.
+- **Compute Scale**: Small-Mid (8-24G): DECAAF-II atrial fibrillation ablation cohort.
+- **LeCun Alignment**: MEDIUM-LOW — STRENGTHS: (1) A genuine world-model form outside robotics: intervention-conditioned latent state evolution with training-only forecasting supervision — the same reconstruction-free, predictive-target design principle as JEPA. (2) Supports counterfactual-style queries (retrospective editing of past records), the kind of intervention reasoning world models exist to enable. WEAKNESSES: (1) Forecasting/risk prediction framing — no action optimization or planning loop (no decision module). (2) Domain-specific clinical modeling rather than general-purpose representation learning. Overall, a cross-domain validation that the predictive-latent-state paradigm transfers to medicine.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: An intervention-aware clinical world model: latent patient state evolved through time-ordered post-intervention events, with follow-up imaging as training-only supervision via latent forecasting.
+- **Motivation**: Post-procedure recovery is an irregular, evidence-accumulating trajectory; static baseline-to-endpoint models cannot update risk as new clinical events arrive.
+- **Problem Solved**: Achieves AUROC 0.756 / AUPRC 0.777 for 90-day recurrence prediction and scar-extent MAE 2.971pp without follow-up imaging at inference, supporting multi-horizon risk queries.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on clinical prediction modeling and structured latent-state models; responds to the static one-step prediction limitation in post-operative cardiology.
+- **Implicit Connection**: Intervention-conditioned latent dynamics with imaging-free inference mirrors the JEPA recipe (predict latent outcomes, drop the decoder); the world-model abstraction carries beyond embodied AI.
+- **Research Line**: Cross-Domain World Models — clinical latent dynamics.
+- **Future Directions**: Closed-loop treatment optimization (planning over the learned state); multi-center validation; joint modeling of multiple procedures.
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] AirForesight: Current-to-Future Spatial Map Imagination with Cross-Space Planning Consistency for UAV-VLN
+
+- **arXiv**: [2608.12835](https://arxiv.org/abs/2608.12835)
+- **Authors**: Yutong Liu, Xiaojie Li, Mingzhu Xu, Jianlong Wu
+- **TL;DR**: A UAV vision-language navigation framework that learns a structured current-map latent jointly supervised by map reconstruction and future-trajectory prediction, propagates it to future-map reasoning via structured causal attention, and aligns prediction with planning through a cross-space planning consistency loss — achieving strong results on OpenUAV and AerialVLN-S.
+- **Problem**: UAV-VLN requires inferring spatial structure from sparse multi-view observations and executing feasible 3D motion, but existing methods map vision-language inputs directly to actions with limited explicit scene grounding and no future-aware spatial reasoning.
+- **Architecture**: (1) **Structured current-map representation** learned from multi-view observations. (2) **Joint supervision**: current-map reconstruction + future-trajectory prediction — the latent must encode both present scene structure and future motion intent. (3) **Structured causal attention** propagates current spatial knowledge into future-map reasoning. (4) **Aggregation**: current + future representations predict the next 3D waypoint. (5) **Cross-space planning consistency loss**: directional agreement between the predicted map-space trajectory and the expert action direction from ground-truth waypoint displacement — tying imagination to navigation utility.
+- **Compute Scale**: Mid (24G): OpenUAV and AerialVLN-S benchmarks.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) An explicit future-prediction objective over a structured spatial latent (the map) is a predictive world model in navigation form — the agent imagines the future map before acting. (2) The planning-consistency loss directly couples prediction quality to action utility, implementing the world-model-must-serve-planning principle. WEAKNESSES: (1) Representation is reconstruction-supervised (map reconstruction), not purely predictive. (2) Domain-specific UAV-VLN instantiation rather than a general world model architecture. Overall, a navigation-domain example of imagination conditioned on plans.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: AirForesight: learn a structured current-map latent supervised by reconstruction and future-trajectory prediction, propagate it to future-map reasoning, and align imagined trajectories with expert action directions via cross-space planning consistency.
+- **Motivation**: Direct vision-language-to-action mapping in UAV navigation lacks explicit scene grounding and future-aware spatial reasoning, degrading performance in complex outdoor environments.
+- **Problem Solved**: Improves UAV-VLN performance on OpenUAV and AerialVLN-S, with ablations confirming the contribution of future-map imagination and planning consistency.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on LLM-based UAV-VLN methods; responds to their weak spatial grounding by adding an explicit current-to-future map imagination module.
+- **Implicit Connection**: "Imagine the future state, then act" over a compressed spatial latent is the JEPA-agent loop specialized to navigation; the consistency loss is a lightweight substitute for MPC over the imagined map.
+- **Research Line**: Predictive Spatial Representations for Navigation — future-map imagination.
+- **Future Directions**: Multi-step future-map rollouts (longer horizons); dropping reconstruction supervision in favor of pure predictive objectives; transfer to ground robots.
+- **GitHub**: Not found
+
+---
+
 
 ## [2026-08-12] StateFlow: Building, Evolving, and Accessing 3D World States for Previsualization
 
@@ -3813,4 +4103,4 @@
 - **GitHub**: Not found
 
 
-*Generated: 2026-08-14 | Papers: 144 | Daily scan: 9 new (StateFlow, Better Slots, SMPC Loco-Manip, FS-JEPA, Counterfactual Driving WMs, RIFT, JEPA-WAM Stage-Level, World Tokens, VANE)*
+*Generated: 2026-08-15 | Papers: 154 | Daily scan: 10 new (Causal WMs, BrainWAM, ContactGuard, S2-HWM, PlayWorld, H2R-Bench, Task Progress Probe, DreamX-Phi, Clinical WM, AirForesight)*
