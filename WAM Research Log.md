@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **154 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-15 (10 new papers — Aug 13 batch: Causal WMs, BrainWAM, ContactGuard, S2-HWM, PlayWorld, H2R-Bench, Task Progress Probe, DreamX-Phi, Clinical WM, AirForesight)
+> **156 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-16 (2 backfill papers — Aug 13 batch: Alaya-EVOKE, V-RAE; no new arXiv announcements over the weekend)
 
 ---
 
@@ -20,6 +20,8 @@
 ||||||||| 8 | 2026-08-13 | [DreamX-Phi 1.0: Action-Conditioned Video World Model for Robotic Manipulation](https://arxiv.org/abs/2608.13489) | LOW-MEDIUM — Video WM with per-arm SE(3) PRoPE-style geometric encoding + depth branch + SAM3 masks with frozen V-JEPA teacher for object consistency; top ranks on WorldArena 2.0 (T1 1st, T2 2nd). | Large (40G+): Video world model + few-step distillation. |
 ||||||||| 9 | 2026-08-13 | [Intervention-Aware Clinical World Model for Post-Op Outcome Forecasting in Cardiology](https://arxiv.org/abs/2608.13518) | MEDIUM-LOW — Cross-domain world model: latent patient state evolved through time-ordered post-intervention events; training-only follow-up imaging supervision; AUROC 0.756 recurrence prediction on DECAAF-II. | Small-Mid (8-24G): DECAAF-II ablation cohort. |
 ||||||||| 10 | 2026-08-13 | [AirForesight: Current-to-Future Spatial Map Imagination with Cross-Space Planning Consistency for UAV-VLN](https://arxiv.org/abs/2608.12835) | MEDIUM — Structured current-map latent jointly supervised by reconstruction + future-trajectory prediction; causal attention propagates to future-map reasoning; cross-space planning consistency loss; SOTA OpenUAV/AerialVLN-S. | Mid (24G): UAV-VLN benchmarks. |
+||||||||| 11 | 2026-08-13 | [Alaya-EVOKE: From Linear-Scaling Supervision to Endless World](https://arxiv.org/abs/2608.13546) | LOW-MEDIUM — Generative interactive world model counterpoint: external camera-indexed world-state bank + linear-scaling sparse-attention teacher distills a 3-step student; bounded denoiser context enables open-ended "endless" generation; SOTA WBench. | Large (40G+): Single H200, 2.11s per 1.5s chunk. |
+||||||||| 12 | 2026-08-13 | [V-RAE: Rethinking Video Latent Spaces for Generation](https://arxiv.org/abs/2608.13556) | MEDIUM-LOW — Compact generative latents on frozen vision-foundation representations; reconstruction ≠ generative utility (tFVD diagnostic); improves future video prediction on Cityscapes — generative-side evidence for representation-space modeling. | Mid-Large (24-40G+): K600/UCF101 video generation; 6× faster convergence. |
 |||| 1 | 2026-08-06 | [PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models](https://arxiv.org/abs/2608.05720) | HIGH — Identifies three JEPA world model failure modes (physical invariance/identifiability/counterfactual collapse); three training pathways to fix them; MPC success 70→78.1% on OGBench-Cube, 81→98% on TwoRooms. | Mid (24G): Standard JEPA backbone + physics-aware training objectives. |
 ||| 2 | 2026-08-06 | [ω-0: A Latent Predictive World Action Model for Concurrent Humanoid Loco-Manipulation](https://arxiv.org/abs/2608.06375) | HIGH — Latent predictive WAM for real-world humanoid whole-body control; avoids pixel reconstruction, uses compact future observation embeddings + diffusion action head; 40+ hr real-world dataset (ω-HOME). | Mid-Large (24-40G+): Multi-view encoder + latent predictor + diffusion action head. |
 ||| 3 | 2026-08-06 | [DyPES-VLA: Learning Shared Dynamics Priors and Embodiment-Specific Control for Cross-Embodiment Manipulation](https://arxiv.org/abs/2608.06374) | MEDIUM — Cross-embodiment VLA with future-prediction objective for shared dynamics priors; MoE action head for native-space control; no manual action realignment needed. | Large (40G+): VLM backbone + dynamics prediction + MoE action heads. |
@@ -170,6 +172,62 @@
 
 
 ---
+
+## [2026-08-13] Alaya-EVOKE: From Linear-Scaling Supervision to Endless World
+
+- **arXiv**: [2608.13546](https://arxiv.org/abs/2608.13546)
+- **Authors**: Yuanyang Yin, Gongxuan Wang, Yifan Zhan, Chuanhao Li, Kaipeng Zhang, Feng Zhao (Alaya team)
+- **TL;DR**: An interactive generative world model that externalizes persistent world state in a camera-indexed memory bank and redesigns the diffusion teacher's sparse attention for linear-scaling long-horizon supervision, distilling a three-step student that generates open-ended "endless" worlds with bounded denoiser context and no classifier-free guidance.
+- **Problem**: Interactive world models face three conflicting demands — persistent memory over long sessions, responsive low-latency interaction, and long-horizon coherence. Keeping history in the denoiser context or KV cache grows cost unboundedly; few-step generation capability is bounded by its teacher; and long-horizon rollouts suffer content drift that stays locally plausible within short windows.
+- **Architecture**: (1) **External world state bank**: scene geometry maintained in a camera-indexed external memory; only view-relevant information is retrieved into the denoiser context, keeping context bounded as sessions grow. (2) **Redesigned teacher** for long-horizon supervision: sparse attention combining chunk-wise grouping, retrieval of selected distant frames, and a linear-attention global state — linear growth in memory and compute over horizon. (3) **Distillation**: a 30-second distribution-matching objective under self-forced rollouts transfers long-horizon coherence to a three-step student without classifier-free guidance; per-chunk conditioning enables prompt changes and event control mid-sequence.
+- **Compute Scale**: Large (40G+): single H200 at 384×640; each 1.5 s chunk generated in 2.11 s (near-realtime interactive rates).
+- **LeCun Alignment**: LOW-MEDIUM — STRENGTHS: (1) The externalized, bounded-context world-state bank is an architectural admission that generative video models need an explicit persistent state — a step toward the world-state/prediction separation LeCun argues for, even if implemented as rendering memory rather than latent dynamics. (2) The anti-drift long-horizon supervision objective tackles the compounding-error problem that motivates latent prediction. (3) Open-ended interactivity is a requirement for world simulators used in agent training. WEAKNESSES: (1) Core mechanism remains chunk-wise generative denoising in pixel space — no latent predictive dynamics, no planning/control downstream. (2) The "world state" is a retrieval memory of past content, not a learned predictive state. Overall: strong generative-world-model counterpoint — evidence of what the diffusion line is converging on architecturally (external state, bounded context) while JEPA pursues the same properties via latent prediction.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Evoke: externalize persistent world state and redesign the teacher for linear-scaling, long-horizon interactive generation, distilling a 3-step student for open-ended world simulation.
+- **Motivation**: Interactive world models must balance persistent memory, responsive interaction, and long-horizon generation; existing approaches trade session length against retained memory and are bounded by short-horizon teachers.
+- **Problem Solved**: Bounded denoiser context with recurrent external memory supports open-ended, continuously evolving generation; SOTA on WBench, competitive on VBench-Long and VBench-2.0 as a three-step world model.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on the AlayaWorld interactive world-model line; responds to the fundamental memory-vs-latency tradeoff in diffusion world models by moving state out of the denoiser context.
+- **Implicit Connection**: The explicit world-state bank + bounded-context design converges on the same architectural separation (state vs. rendering) that JEPA encodes in its latent predictor — but via retrieved geometry rather than predicted representations.
+- **Research Line**: Generative Interactive World Models — architectural scaling of persistent state for long-horizon simulation.
+- **Future Directions**: Whether retrieved-geometry world state supports counterfactual intervention and physical consistency as well as predictive latent state; integration with agent training loops (RL in the endless world).
+- **GitHub**: Not found
+
+---
+
+
+## [2026-08-13] V-RAE: Rethinking Video Latent Spaces for Generation
+
+- **arXiv**: [2608.13556](https://arxiv.org/abs/2608.13556)
+- **Authors**: Minghui Guo, Shengqiong Wu, Hao Fei
+- **TL;DR**: A video representation autoencoder that builds compact generative latents on top of frozen vision-foundation-model representations, showing that reconstruction-optimal latent spaces are not generation-optimal and that semantic latents support reconstruction, generation, and — notably — future video prediction better than conventional VAE tokenizer spaces.
+- **Problem**: Video autoencoder latent spaces are optimized almost exclusively for pixel-level reconstruction, providing little high-level semantic organization; a reconstruction-optimal latent space need not be well suited to generative modeling, and reconstruction quality alone is insufficient to characterize generative utility.
+- **Architecture**: (1) **Frozen vision foundation encoder** (four representative encoders evaluated) provides semantic features. (2) **Lightweight temporal pooling** module removes temporal redundancy while preserving semantic structure, producing compact generative latents. (3) **Video decoder** reconstructs continuous motion from the compressed features. (4) **tFVD**: a temporal-coherence diagnostic that correlates more reliably with downstream generation quality than reconstruction metrics. Also improves future video prediction on Cityscapes over the Wan 2.2 VAE latent space under matched prediction settings.
+- **Compute Scale**: Mid-Large (24-40G+): video reconstruction/generation on K600 and UCF101; up to 6× faster convergence than reconstruction-tuned VAEs under matched generation settings.
+- **LeCun Alignment**: MEDIUM-LOW — STRENGTHS: (1) "Representation first, reconstruction second" — building latents on frozen semantic encoders rather than optimizing for pixel reconstruction — is philosophically aligned with JEPA's prediction-in-representation-space principle, and the paper's predictive-modeling result (better future prediction on Cityscapes) is direct evidence for it. (2) The tFVD finding (reconstruction quality ≠ downstream utility) echoes the log's recurring evidence that pixel fidelity is a poor proxy for world-model quality. WEAKNESSES: (1) Primary application is video generation — the decoder still reconstructs pixels, and no planning/control is involved. (2) The frozen semantic encoder is not trained by prediction, so the latents are not dynamics-organized. Overall: a useful counterpoint/data-point showing that semantic latents (not reconstruction latents) are what predictive modeling wants — consistent with the JEPA critique of autoencoders.
+- **GitHub**: https://v-rae.github.io/ (project page)
+
+### What / Why / Solve
+
+- **Proposal**: V-RAE — a video representation autoencoder that builds compact, semantically organized generative latents on frozen vision-foundation representations with a lightweight temporal pooling module.
+- **Motivation**: Reconstruction-optimal video latent spaces are semantically disorganized and demonstrably suboptimal for generation and prediction; reconstruction metrics mislead model selection.
+- **Problem Solved**: 2.13 rFVD on K600 (beating large-scale pretrained video VAEs), latents retaining substantially more semantic information, up to 6× faster convergence under matched generation settings, improved future prediction on Cityscapes, and a new tFVD diagnostic that correlates with generation quality.
+
+### Academic Context
+
+- **Inheritance / Response**: Responds to the video-tokenizer line (Wan 2.2 VAE, etc.) by moving representation selection upstream into frozen foundation models instead of co-optimizing latents with reconstruction.
+- **Implicit Connection**: Strengthens the JEPA position that what matters is the representation space, not pixel reconstruction — here demonstrated from the generative side: even generators benefit from semantic (foundation-model) latents, and future prediction improves in them.
+- **Research Line**: Video Representation Learning — generative-side evidence for representation-space modeling.
+- **Future Directions**: Whether frozen semantic latents can be trained predictively (JEPA-style) rather than inherited from classification/alignment pretraining, closing the loop with latent prediction objectives for world models.
+- **GitHub**: https://v-rae.github.io/ (project page)
+
+---
+
 
 ## [2026-08-13] A Unifying Perspective on Causal World Models: From Observations to Representations to Structure
 
@@ -4103,4 +4161,4 @@
 - **GitHub**: Not found
 
 
-*Generated: 2026-08-15 | Papers: 154 | Daily scan: 10 new (Causal WMs, BrainWAM, ContactGuard, S2-HWM, PlayWorld, H2R-Bench, Task Progress Probe, DreamX-Phi, Clinical WM, AirForesight)*
+*Generated: 2026-08-16 | Papers: 156 | Daily scan: 2 backfill (Alaya-EVOKE, V-RAE); weekend announcement gap — next arXiv batch Monday Aug 17*
