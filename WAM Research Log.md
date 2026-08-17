@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **156 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-16 (2 backfill papers — Aug 13 batch: Alaya-EVOKE, V-RAE; no new arXiv announcements over the weekend)
+> **157 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-17 (1 backfill paper — AlayaWorld v1.1 tech report; arXiv has no announcements past the Aug 13 batch)
 
 ---
 
@@ -22,6 +22,7 @@
 ||||||||| 10 | 2026-08-13 | [AirForesight: Current-to-Future Spatial Map Imagination with Cross-Space Planning Consistency for UAV-VLN](https://arxiv.org/abs/2608.12835) | MEDIUM — Structured current-map latent jointly supervised by reconstruction + future-trajectory prediction; causal attention propagates to future-map reasoning; cross-space planning consistency loss; SOTA OpenUAV/AerialVLN-S. | Mid (24G): UAV-VLN benchmarks. |
 ||||||||| 11 | 2026-08-13 | [Alaya-EVOKE: From Linear-Scaling Supervision to Endless World](https://arxiv.org/abs/2608.13546) | LOW-MEDIUM — Generative interactive world model counterpoint: external camera-indexed world-state bank + linear-scaling sparse-attention teacher distills a 3-step student; bounded denoiser context enables open-ended "endless" generation; SOTA WBench. | Large (40G+): Single H200, 2.11s per 1.5s chunk. |
 ||||||||| 12 | 2026-08-13 | [V-RAE: Rethinking Video Latent Spaces for Generation](https://arxiv.org/abs/2608.13556) | MEDIUM-LOW — Compact generative latents on frozen vision-foundation representations; reconstruction ≠ generative utility (tFVD diagnostic); improves future video prediction on Cityscapes — generative-side evidence for representation-space modeling. | Mid-Large (24-40G+): K600/UCF101 video generation; 6× faster convergence. |
+||||||||| 13 | 2026-08-13 | [AlayaWorld: Interactive Long-Horizon World Modeling — Full Technical Report (v1.1)](https://arxiv.org/abs/2608.13492) | LOW-MEDIUM — BACKFILL. Generative interactive WM v1.1 conditioning redesign: streaming 3D point-cache renderer replaces depth-warping spatial memory; conditioning unified into the causal-VAE latent space with matched temporal statistics; camera AdaLN removed — viewpoint control folded entirely into re-rendered spatial condition; best overall Consistency 89.5 on WBench navigation split (158 cases). No latent predictive dynamics — generative counterpoint to JEPA. | Large (40G+): chunk-wise autoregressive generation (Alaya Lab). |
 |||| 1 | 2026-08-06 | [PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models](https://arxiv.org/abs/2608.05720) | HIGH — Identifies three JEPA world model failure modes (physical invariance/identifiability/counterfactual collapse); three training pathways to fix them; MPC success 70→78.1% on OGBench-Cube, 81→98% on TwoRooms. | Mid (24G): Standard JEPA backbone + physics-aware training objectives. |
 ||| 2 | 2026-08-06 | [ω-0: A Latent Predictive World Action Model for Concurrent Humanoid Loco-Manipulation](https://arxiv.org/abs/2608.06375) | HIGH — Latent predictive WAM for real-world humanoid whole-body control; avoids pixel reconstruction, uses compact future observation embeddings + diffusion action head; 40+ hr real-world dataset (ω-HOME). | Mid-Large (24-40G+): Multi-view encoder + latent predictor + diffusion action head. |
 ||| 3 | 2026-08-06 | [DyPES-VLA: Learning Shared Dynamics Priors and Embodiment-Specific Control for Cross-Embodiment Manipulation](https://arxiv.org/abs/2608.06374) | MEDIUM — Cross-embodiment VLA with future-prediction objective for shared dynamics priors; MoE action head for native-space control; no manual action realignment needed. | Large (40G+): VLM backbone + dynamics prediction + MoE action heads. |
@@ -170,6 +171,33 @@
 
 
 
+
+---
+
+## [2026-08-13] AlayaWorld: Interactive Long-Horizon World Modeling — Full Technical Report (v1.1)
+
+- **arXiv**: [2608.13492](https://arxiv.org/abs/2608.13492)
+- **Authors**: AlayaWorld Team, Alaya Lab — Kaipeng Zhang, Chuanhao Li, Yifan Zhan, Yongtao Ge, Yuanyang Yin, Jiaming Tan, Kang He, Liaoyuan Fan, Mingliang Zhai, Ruicong Liu, Xiaojie Xu, Xuangeng Chu, Zhen Li, Zhengyuan Lin, et al. (alphabetical by first name)
+- **TL;DR**: A v1.1 technical report for the AlayaWorld interactive world model that keeps the chunk-wise autoregressive backbone and training data unchanged but redesigns the entire conditioning pipeline around one principle — conditioning signals must match the generated content in both latent representation and temporal structure — replacing depth-warped spatial memory with a streaming 3D point-cache renderer and unifying all visual conditioning into the causal-VAE latent space.
+- **Problem**: In the previous AlayaWorld release, conditioning signals (image conditions, spatial memory, camera control) and the generated video latents were processed through different pathways and lived in different representations: visual conditions were encoded independently, temporal memory was misaligned with the VAE's causal structure, and camera trajectories were injected through a separate AdaLN branch. This mismatch degraded long-horizon coherence and viewpoint control in interactive generation.
+- **Architecture**: (1) **Streaming 3D point-cache renderer** replaces the depth-warping-based spatial memory; re-rendered spatial memory is causally encoded as a continuous sequence, so the model receives a view-consistent 3D-geometry stream. (2) **Conditioning-to-content unification**: static-frame image conditioning replaced by motion-aware latent conditioning (nine-frame causal-VAE encoding pattern matched to the chunk-to-chunk handoff); temporal-memory window aligned in pixel space; hard memory dropout removes memory tokens rather than zeroing them; VAE encode/decode protocol unified across training and inference. (3) **Camera AdaLN branch removed** — viewpoint control now flows entirely through the re-rendered spatial condition. Backbone remains chunk-wise autoregressive generation.
+- **Compute Scale**: Large (40G+): chunk-wise autoregressive video generation (same Alaya Lab infrastructure family as Alaya-EVOKE, which runs on a single H200).
+- **LeCun Alignment**: LOW-MEDIUM — STRENGTHS: (1) The guiding principle — conditioning must match generated content in *latent representation* and temporal statistics — is a representation-space consistency argument echoing JEPA's prediction-in-latent-space stance, applied to the conditioning interface of a generative model. (2) The streaming 3D point cache is an explicit, persistent, declarative world-state representation driving viewpoint control — the same architectural separation (state vs. renderer) LeCun argues for, albeit as a geometry cache rather than a learned predictive state. (3) Removing the camera AdaLN shortcut forces the model to respect the rendered spatial state, i.e., control becomes state-conditioned. WEAKNESSES: (1) Core mechanism remains chunk-wise autoregressive generation in causal-VAE/pixel space — no latent predictive dynamics, no planning/control downstream. (2) The "world state" is a rendered cache of past observations, not a predicted future state; counterfactual and out-of-sight evolution are unsupported. Overall: generative-world-model counterpoint documenting that the generative line is converging on explicit spatial state and representation-matched conditioning — the same desiderata JEPA encodes through latent prediction.
+- **GitHub**: https://github.com/AlayaLab/AlayaWorld (project page: https://alaya-lab.github.io/AlayaWorld/)
+
+### What / Why / Solve
+
+- **Proposal**: AlayaWorld v1.1 — a conditioning-and-memory redesign of the AlayaWorld interactive long-horizon world model: streaming 3D point-cache spatial memory plus latent-space-matched, temporally-aligned conditioning, with viewpoint control folded into the rendered spatial condition.
+- **Motivation**: Conditioning signals that differ from generated content in latent representation or temporal structure inject distribution mismatch into every generation step, degrading long-horizon consistency and controllability.
+- **Problem Solved**: Best overall Consistency score of 89.5 and a Video Quality average of 79.1 (best Imaging 67.7, Aesthetic 62.6) on the WBench navigation split (158 interactive navigation cases), with coherent long-horizon navigation under the interactive evaluation protocol.
+
+### Academic Context
+
+- **Inheritance / Response**: Self-revision of the AlayaWorld line; sibling to Alaya-EVOKE (2608.13546, which attacks the memory-vs-latency tradeoff via an external world-state bank and 3-step distillation). Where EVOKE moved state *out* of the denoiser, v1.1 moves conditioning *into* the generator's own latent/temporal statistics.
+- **Implicit Connection**: The "conditioning must live in the same representation space as content" principle parallels the JEPA argument that prediction should happen in representation space, not pixel space — here applied to the input interface rather than the objective.
+- **Research Line**: Generative Interactive World Models — persistent spatial state and conditioning alignment for long-horizon interactive simulation.
+- **Future Directions**: Whether rendered point-cache state can support counterfactual viewpoints and physical interaction (the report flags physical interaction modeling as an open problem); whether representation-matched conditioning transfers to latent predictive architectures (JEPA-conditioned decoders).
+- **GitHub**: https://github.com/AlayaLab/AlayaWorld
 
 ---
 
