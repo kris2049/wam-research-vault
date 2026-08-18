@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **157 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-17 (1 backfill paper — AlayaWorld v1.1 tech report; arXiv has no announcements past the Aug 13 batch)
+> **162 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-18 (5 papers from the Aug 14 batch — Marionette, Traj-LeWM, Onto-EV-WM, Twin, ForgeWM; arXiv stream ends at Aug 14 submission date)
 
 ---
 
@@ -10,7 +10,12 @@
 
 | # | Date | Paper | Alignment | Compute |
 ||---|------|-------|-----------|--------|
-||||||||| 1 | 2026-08-13 | [A Unifying Perspective on Causal World Models: From Observations to Representations to Structure](https://arxiv.org/abs/2608.13456) | HIGH — Formal task-grounded definition of Causal WMs (entity properties + entity-entity + entity-environment interactions); unifies CRL, object-centric learning, causal discovery, SCMs; maps identifiability of each WM component. | N/A (position/theory paper). |
+|||||||||| 1 | 2026-08-14 | [Marionette: Predicting World States, Rendering Geometry, Painting Appearance](https://arxiv.org/abs/2608.14530) | HIGH — Explicit 276-dim 3D world-state prediction + zero-parameter graphics bridge (closed-form geometry/occlusion) + separate appearance diffusion; state-level repair cuts penetration 66% with zero observation-model changes. | Mid-Large (24-40G+): lightweight state dynamics + video-diffusion observation model (Alaya Lab). |
+|||||||||| 2 | 2026-08-14 | [Traj-LeWM: Path-Aware World-Model Planning via Latent Trajectory Cost](https://arxiv.org/abs/2608.14125) | HIGH — Direct LeWorldModel extension: goal-conditioned latent trajectory cost complements endpoint ranking in training + planning; +3/+14/+7/+7 pp over LeWM. | Small-Mid (8-24G): Push-T, OGBench-Cube, Reacher, Two-Room. |
+|||||||||| 3 | 2026-08-14 | [Ontology-Grounded World Models for Failure Diagnosis and Closed-Loop Repair in Physical AI Systems](https://arxiv.org/abs/2608.13901) | MEDIUM-HIGH — Symbolic ontology + verification-gated correction interface layered above EV-WM; typed failure predicates, route labels, predicate-gated acceptance; 94.05% LIBERO-Goal corrected-window. | Small-Mid (8-24G): symbolic layer + EV-WM backbone on PointMaze/LIBERO. |
+|||||||||| 4 | 2026-08-14 | [Twin: Playing an Unknown Game with a Test-Time Digital Twin](https://arxiv.org/abs/2608.14490) | MEDIUM — Executable code world models gated by replay validation before acting; counterexample-driven repair; 97.8% of ARC-AGI-3 levels vs 7.8-61.1% direct agents. | Small (8-12G): program world models + frontier LLM API code synthesis. |
+|||||||||| 5 | 2026-08-14 | [ForgeWM: Progressive Causal Training for Few-Step Action-Conditioned Video World Models](https://arxiv.org/abs/2608.14022) | LOW-MEDIUM — Generative counterpoint: 4-stage causal distillation of a bidirectional video generator into 1/2/4-step interactive WMs with aligned keyboard/mouse controls. | Large (40G+): video diffusion training/distillation (8 GPUs). |
+|||||||||| 1 | 2026-08-13 | [A Unifying Perspective on Causal World Models: From Observations to Representations to Structure](https://arxiv.org/abs/2608.13456) | HIGH — Formal task-grounded definition of Causal WMs (entity properties + entity-entity + entity-environment interactions); unifies CRL, object-centric learning, causal discovery, SCMs; maps identifiability of each WM component. | N/A (position/theory paper). |
 ||||||||| 2 | 2026-08-13 | [ContactGuard: Pre-Contact Execution Monitoring with Action-Conditioned Latent World Models](https://arxiv.org/abs/2608.13438) | MEDIUM-HIGH — Latent world model rolls forward under policy's own actions to predict post-contact failure BEFORE contact; no pixel prediction; abort signal without policy modification. | Small-Mid (8-24G): Latent WM + lightweight failure probe on real robot trajectories. |
 ||||||||| 3 | 2026-08-13 | [BrainWAM: Action-Space Coordination of Semantic Priors and Predictive Dynamics for Autonomous Driving](https://arxiv.org/abs/2608.12854) | MEDIUM-HIGH — Two specialized action-oriented pathways (semantic VLA + predictive world modeling) coordinated at compact action-representation level; asynchronous rectified-flow inference; 89.5 PDMS NAVSIM v1 / 89.6 EPDMS v2. | Large (40G+): VLA + WAM pathways with video denoising. |
 ||||||||| 4 | 2026-08-13 | [S2-HWM: Sparse Event-Structured Hierarchical World Model for Long-Horizon Surgical Robot Manipulation](https://arxiv.org/abs/2608.13103) | MEDIUM-HIGH — Learned sparse event evidence schedules event-level manager + Event Transition Model predicts variable-duration segment boundaries/durations/rewards; 98.7% PegTransfer (+22.7pp over DreamerV3). | Mid (24G): SurRoL simulation, PegTransfer task. |
@@ -171,6 +176,141 @@
 
 
 
+
+---
+
+## [2026-08-14] Marionette: Predicting World States, Rendering Geometry, Painting Appearance
+
+- **arXiv**: [2608.14530](https://arxiv.org/abs/2608.14530)
+- **Authors**: Zian Meng, Zhen Li, Chuanhao Li, Qiang Li, Kaipeng Zhang (Alaya Lab)
+- **TL;DR**: An interactive game world model that decomposes simulation into three modules — an autoregressive dynamics model predicting an explicit, interpretable 276-dim 3D world state (multi-entity articulated skeletons, metric root trajectories, rotations), a zero-parameter graphics bridge computing world-space geometry and occlusion in closed form, and a control-conditioned video-diffusion model that only paints appearance on top — so long-horizon structure lives in the state and can be repaired there.
+- **Problem**: Interactive game world models that autoregressively generate observations in pixel/latent space force structured properties (pose, geometry, occlusion) to be implicitly maintained by the same generative sequence; errors in these latent properties accumulate over long horizons, making consistency and controllability fragile (unconstrained rollouts drift to 21.2 m apart vs 5 m in recorded sessions; a third of frames show ground penetration).
+- **Architecture**: Three-stage modular pipeline. (1) **State dynamics**: two-stage autoregressive model predicting a 276-dim explicit world state — multi-entity articulated skeletons, metric root trajectories, rotations. (2) **Graphics bridge**: fixed, zero-parameter renderer converts the predicted state into pose-control videos; geometry and occlusion are computed in closed form, never learned. (3) **Observation model**: control-conditioned video diffusion synthesizes photorealistic RGB from the structured controls. Not a JEPA encoder/predictor/target stack, but the state/dynamics/render decomposition is LeCun's modular recipe instantiated inside a generative system.
+- **Compute Scale**: Mid-Large (24-40G+): lightweight state dynamics + video-diffusion observation model (Alaya Lab infrastructure).
+- **LeCun Alignment**: HIGH — STRENGTHS: (1) Dynamics are predicted in an explicit, interpretable, low-dimensional state space rather than pixels — the core JEPA stance. (2) Geometry/occlusion are delegated to a zero-parameter renderer: exact computation replaces learned approximation, matching LeCun's argument that the world model should not burn capacity on rendering. (3) Controllability evidence: forcing a mismatched action stream shifts root-aligned joint error by 31% across 48 held-out segments — the state, not the appearance model, determines behavior. (4) Repairability evidence: two rules imposed on the explicit state (terrain collider, separation cap) cut ground penetration 66% and keep characters engaged with zero changes to the observation model; routing appearance through the predicted state costs almost no fidelity (FVD 831 vs 799). WEAKNESSES: (1) Appearance is still a diffusion generative model — no latent predictive objective, and no planning/control loop demonstrated. (2) The 276-dim state is hand-designed for articulated characters rather than learned. Overall: the strongest architectural statement in this batch — the generative world-model line converging on exactly the state-vs-renderer separation JEPA encodes through latent prediction.
+- **GitHub**: https://github.com/AlayaLab/Marionette (project page: https://alayalab.github.io/Marionette/)
+
+### What / Why / Solve
+
+- **Proposal**: Marionette — predict an explicit world state, render geometry deterministically via a zero-parameter graphics bridge, and leave only appearance synthesis to the neural network.
+- **Motivation**: Autoregressive pixel/latent generation entangles physics with appearance; the same generative sequence must implicitly maintain pose, geometry, and occlusion, and long-horizon errors in these latent properties accumulate uncontrollably.
+- **Problem Solved**: Direct state controllability (31% joint-error shift under mismatched actions) and state-level long-horizon repair (66% penetration reduction) without touching the observation model, at negligible appearance fidelity cost.
+
+### Academic Context
+
+- **Inheritance / Response**: From Alaya Lab, the team behind AlayaWorld (2608.13492) and Alaya-EVOKE (2608.13546) — the generative interactive world-model line — now moving the state out of the denoiser entirely into an explicit predicted representation, a step past EVOKE's external world-state bank. Complements Robot-Factored World Models (2607.22535) and StateFlow (2608.12314) in the state-vs-rendering decomposition literature.
+- **Implicit Connection**: Direct architectural instantiation of LeCun's modular agent: the world model predicts abstract state; a fixed renderer handles geometry; generation is confined to the appearance module. Also validates the GAUGE (2608.05948) finding that video WMs need explicit physical state to be trustworthy.
+- **Research Line**: Structured Interactive World Models — explicit-state prediction with deterministic rendering.
+- **Future Directions**: Learned (rather than hand-designed) state spaces; JEPA-style latent prediction replacing the diffusion appearance model; closing the loop with planning/control (the paper stops at simulation).
+- **GitHub**: https://github.com/AlayaLab/Marionette
+
+---
+
+## [2026-08-14] Traj-LeWM: Path-Aware World-Model Planning via Latent Trajectory Cost
+
+- **arXiv**: [2608.14125](https://arxiv.org/abs/2608.14125)
+- **Authors**: Xiaodi Huang, Ziyi Ding, Jingtian Wan, Yuchen Liu, Yuan Zhang, Xiao-Ping Zhang, Jiayu Chen, Zhang Zhang, Tao Huang
+- **TL;DR**: Extends LeWM with a goal-conditioned Latent Trajectory Cost (LTC) that aggregates trajectory-level information — as trajectory-preference supervision during training and as a path-aware complement to endpoint distance during planning — so candidates are ranked by the quality of the full predicted path, not just the predicted endpoint.
+- **Problem**: LeWM learns only local next-step transitions without ever evaluating complete trajectories against the task goal, and ranks planning candidates solely by predicted endpoint distance. Since model predictions deviate from actual execution, the candidate with the closest predicted endpoint is often not the best when executed — endpoint ranking is both information-poor and prediction-error-fragile.
+- **Architecture**: LeWM backbone retained (encoder → latent dynamics → endpoint scorer). Two additions: (1) **Goal-conditioned LTC head** over the shared latent representation; (2) **Dual supervision/ranking**: training adds LTC-based trajectory-preference supervision to the local next-step objective; planning combines LTC with endpoint distance for candidate ranking. Ablations verify the complementary roles of trajectory-level representation shaping and path-aware ranking.
+- **Compute Scale**: Small-Mid (8-24G): lightweight visual world model on Push-T, OGBench-Cube, Reacher, Two-Room.
+- **LeCun Alignment**: HIGH — Direct extension of LeWorldModel (2603.19312), the end-to-end JEPA-style latent world model line. STRENGTHS: (1) Fixes a planning-time flaw — endpoint-only scoring — with trajectory-aware latent costs: +3 pp Push-T, +14 pp OGBench-Cube, +7 pp Reacher, +7 pp Two-Room over LeWM. (2) Training-time trajectory-preference supervision is a mode-2 objective: the model learns to evaluate complete imagined futures, not just next states. (3) The finding that predicted-endpoint ranking misleads under prediction error adds empirical weight to the vault's recurring theme that prediction accuracy ≠ planning adequacy (complements TD-JEPA 2607.25337, "A Control Theory of Predictability" 2607.10362, and VIScore 2608.11174). WEAKNESSES: (1) Evaluation only on LeWM's lightweight benchmarks — no real-robot or long-horizon deployment. (2) LTC is a scalar cost; multi-modal trajectory distributions remain unaddressed. Overall: a practical, low-cost planning upgrade to the LeCun-lineage latent world model stack.
+- **GitHub**: https://github.com/XiaodiHuang-code/Traj_LeWM
+
+### What / Why / Solve
+
+- **Proposal**: Traj-LeWM — goal-conditioned latent trajectory cost complementing LeWM's endpoint score in both training and planning.
+- **Motivation**: Endpoint distance discards intermediate-path information and is unreliable under model prediction error; full predicted trajectories carry complementary signal about execution quality.
+- **Problem Solved**: +3/+14/+7/+7 pp over LeWM across four benchmark tasks, with controlled ablations attributing gains to the combination of trajectory-level representation shaping and path-aware ranking.
+
+### Academic Context
+
+- **Inheritance / Response**: Directly builds on LeWM (LeWorldModel, 2603.19312); shares the "train the planner against trajectory-level information" agenda with TD-JEPA (2607.25337) and SAGE (2607.17973).
+- **Implicit Connection**: Implements in the cost function what LeCun's architecture assigns to the cost module — evaluation of complete imagined trajectories against the goal — strengthening the mode-2 deliberation loop of latent world models.
+- **Research Line**: Latent World Model Planning — trajectory-level cost shaping for JEPA-style models.
+- **Future Directions**: Multi-modal trajectory costs; extension to hierarchical planning (LeWM hierarchical planning line, 2607.12547); real-robot validation.
+- **GitHub**: https://github.com/XiaodiHuang-code/Traj_LeWM
+
+---
+
+## [2026-08-14] Ontology-Grounded World Models for Failure Diagnosis and Closed-Loop Repair in Physical AI Systems
+
+- **arXiv**: [2608.13901](https://arxiv.org/abs/2608.13901)
+- **Authors**: Kailin Wang, Haoxiang Jie, Yaoyuan Yan, Jiacheng Zhou, Zhiyou Heng
+- **TL;DR**: A symbolic, ontology-grounded diagnosis and verification-gated correction interface layered above (not replacing) the EV-WM world model: task-local TBox predicates record unmet task conditions, routing labels point to correction mechanisms, and predicate-gated acceptance decides retries — turning raw world-model failure signals into typed, repairable records.
+- **Problem**: EV-WM represents candidate quality with feature and event scores, but these scores do not record which task predicate failed, which correction route applies, or whether a post-correction attempt was accepted — so failure diagnosis is shallow and repair decisions are ad hoc.
+- **Architecture**: Interface layer above EV-WM, not a replacement architecture. (1) **Task-local ontology TBox**: entity types, predicate signatures, constraints. (2) **Source-specific grounding**: maps predicted/simulator-observed states to task ABoxes. (3) **Deterministic rules**: retain each missing predicate and its arguments when assigning route labels. (4) **Verification-gated acceptance**: native task predicates decide acceptance; a bounded protocol decides whether a failed verification is retried. Learned/heuristic proposers remain separate from the symbolic interface.
+- **Compute Scale**: Small-Mid (8-24G): symbolic layer is cheap; EV-WM backbone on PointMaze and LIBERO.
+- **LeCun Alignment**: MEDIUM-HIGH — STRENGTHS: (1) Implements in symbolic form the verifier/cost machinery that sits alongside the world model in LeCun's modular architecture: predicted states are checked against explicit predicates and routed to repair — a closed-loop diagnosis-repair cycle over world-model rollouts. (2) Results: 94% PointMaze (mean final-state distance 0.61 vs 0.91 for raw EV-WM), 94.05±0.30% LIBERO-Goal corrected-window success, 8,526/10,030 (85.0%) on the LIBERO-Plus registry, with separately budgeted search reaching 100% on PointMaze. (3) Deterministic, inspectable predicates give failure records semantics — a step toward the interpretable cost module LeCun wants. WEAKNESSES: (1) The ontology is hand-authored per task — manual transfer cost, not learned. (2) The ontology-only causal contribution is not isolated; real-robot recovery is not evaluated. Overall: a practical demonstration that explicit, verifiable failure semantics layered on a world model measurably improves closed-loop repair.
+- **GitHub**: Not found
+
+### What / Why / Solve
+
+- **Proposal**: Onto-EV-WM — an ontology-grounded diagnosis and verification-gated correction interface layered above the EV-WM world model rather than a replacement architecture.
+- **Motivation**: Feature/event scores fail silently about what went wrong; typed failure records (missing predicate + arguments + correction route) make diagnosis actionable and repair auditable.
+- **Problem Solved**: Closed-loop failure diagnosis and repair over world-model rollouts, with corrected-window success of 94.05±0.30% on LIBERO-Goal and 85.0% across the 10,030-task LIBERO-Plus registry.
+
+### Academic Context
+
+- **Inheritance / Response**: Builds on EV-WM, a world-model-based planning system for manipulation; related to CoWAM (2608.02578) in selective-intervention contracts and to WorldSimProbe (2608.09298) in diagnosability concerns, but uses symbolic verification rather than learned probes.
+- **Implicit Connection**: Predicate-gated acceptance over predicted states is a symbolic analogue of LeCun's cost module arbitrating between world-model proposals; the bounded retry protocol echoes the deliberation budget question in mode-2 planning.
+- **Research Line**: Verified World Models — symbolic diagnosis and repair interfaces for world-model-based physical AI.
+- **Future Directions**: Learned predicate grounding to reduce manual ontology authoring; isolation of the ontology's causal contribution; real-robot recovery experiments.
+- **GitHub**: Not found
+
+---
+
+## [2026-08-14] Twin: Playing an Unknown Game with a Test-Time Digital Twin
+
+- **arXiv**: [2608.14490](https://arxiv.org/abs/2608.14490)
+- **Authors**: Alexy Skoutnev, Kirill Acharya, Gaston Longhitano, Madeleine Udell, Kevin Ellis, Iddo Drori (Cornell / Columbia)
+- **TL;DR**: Test-time World-model Inference (Twin): a frontier coding agent writes an executable world model for each unknown ARC-AGI-3 game from simulation and interaction alone; the harness gates every action until the program reproduces all previously observed transitions in a twin replay, and every mismatch becomes a counterexample that repairs the world model.
+- **Problem**: Unknown grid games hide their rules and goals; hand-engineered world models don't transfer across tasks, and direct-policy agents act without understanding the game's mechanics. Played directly, the base model scores 7.8%; a naive harness raises it to only 61.1%.
+- **Architecture**: Code-as-world-model. (1) An inductive prior over grid games guides program synthesis. (2) **Replay validation**: an action is not made until the twin reproduces every previously observed game transition. (3) **Counterexample-driven repair**: each mismatch between world-model prediction and actual result becomes a counterexample used to patch the program. (4) Goal inference precedes any reward in 87.2% of cleared levels; remaining goals are found by search. Clears 179/183 levels (97.8%), more efficiently than humans on 88.3% of cleared levels.
+- **Compute Scale**: Small (8-12G): world models are executable programs (negligible compute); a frontier LLM API performs code synthesis and repair.
+- **LeCun Alignment**: MEDIUM — STRENGTHS: (1) A sharp empirical statement of the mode-2 principle: act only after the world model passes consistency checks against reality — the twin raises the same base model from 61.1% (harness-only) to 93.3%. (2) Counterexample-driven repair is a concrete mechanism for keeping a world model honest, echoing LeCun's insistence that world models be judged by predictive consistency, not fluency. (3) Corroborates the vault's recurring finding that the world model is often the easier half: "Building a usable world model is simpler than anticipated, whereas the harder problem is inferring the right goal" — the cost-module problem. WEAKNESSES: (1) No learned latent predictive architecture — the world model is synthesized code over a narrow grid-game prior. (2) Discrete, deterministic domains only; unclear transfer to continuous, noisy physical dynamics. Overall: an LLM-native counterpoint demonstrating the value of explicit, verifiable world models for deliberation.
+- **GitHub**: https://github.com/Alexyskoutnev/TWIN-ARC-AGI-3
+
+### What / Why / Solve
+
+- **Proposal**: Twin — an executable digital twin world model synthesized at test time, validated by replay, and repaired from counterexamples, gating a coding agent's actions.
+- **Motivation**: In unknown environments, acting without a validated model of transitions is guessing; hand-engineered models don't scale across tasks.
+- **Problem Solved**: 97.8% of 183 ARC-AGI-3 levels cleared vs 7.8% direct and 61.1% harness-only baselines, beating human first-time efficiency on 88.3% of cleared levels.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends program-synthesis world modeling (Ellis line) into interactive test-time use; complements "When a Verified World Model Still Loses" (2607.14169) by showing verification-gated action pays off when the goal is inferred correctly.
+- **Implicit Connection**: The replay-validation gate is a discrete analogue of JEPA's predictive-consistency criterion — the model earns the right to act by predicting correctly, not by generating plausibly.
+- **Research Line**: Verified Programmatic World Models — code-level world models with counterexample-driven repair.
+- **Future Directions**: Continuous and noisy domains; hybrid program + learned latent world models; using the twin for multi-step planning rather than single-action gating.
+- **GitHub**: https://github.com/Alexyskoutnev/TWIN-ARC-AGI-3
+
+---
+
+## [2026-08-14] ForgeWM: Progressive Causal Training for Few-Step Action-Conditioned Video World Models
+
+- **arXiv**: [2608.14022](https://arxiv.org/abs/2608.14022)
+- **Authors**: Xinye Li, Lingshuai Lin, Lei Wang, Liuzhou Zhang, Jialin Cui, Qingshan Li, Guanchu Wang, Qingbin Liu, Xi Chen, Jiang Bian, Wai Lam
+- **TL;DR**: A four-stage progressive recipe — domain adaptation, teacher-forced causal training, causal consistency distillation, and on-policy distribution matching against a bidirectional teacher — that converts an action-conditioned video generator into 1/2/4-step causal world models whose discrete keyboard states and continuous mouse motion stay aligned with temporally compressed latent chunks, plus replay-time refinement for the one-step draft.
+- **Problem**: Causal distillation to one- or few-step synthesis breaks down for interactive world models: discrete keyboard states and continuous mouse motion must remain aligned with temporally compressed latent chunks during causal training and autoregressive rollout, and naive distillation destroys action alignment.
+- **Architecture**: Bidirectional action-conditioned video generator as teacher → budget-specialized causal students at 1, 2, and 4 denoising steps; dual-path deployment combining latency-critical 1-step interaction with optional replay-time refinement (re-noising and refining the saved draft). Evaluated on paired Minecraft trajectories and transferred to gamepad-controlled FPS gameplay.
+- **Compute Scale**: Large (40G+): video diffusion training/distillation (repo targets 8 GPUs).
+- **LeCun Alignment**: LOW-MEDIUM — Generative counterpoint. STRENGTHS: (1) Best-in-class action alignment: leads evaluated systems on imaging quality, reference-aligned motion-profile agreement, action-sign accuracy, and mouse-control accuracy with the lowest reference LPIPS. (2) Replay-time refinement matches four-step reference quality while staying ~3× closer to the experienced trajectory than regeneration from noise — a deliberation budget over generation, distantly echoing mode-2. WEAKNESSES: (1) Pixel-space diffusion world model; no latent predictive dynamics, no planning. (2) The entire effort is spent making generative world models fast enough to be interactive — the efficiency gap JEPA-style latent prediction sidesteps by construction. Logged to track the generative frontier against which latent world models must compete on latency.
+- **GitHub**: https://github.com/asdfo123/ForgeWM
+
+### What / Why / Solve
+
+- **Proposal**: ForgeWM — a progressive causal training pipeline producing few-step action-conditioned video world models with preserved action alignment and replay-time refinement.
+- **Motivation**: Interactive world models need low-latency causal generation and reliable response to game-native controls; standard few-step distillation breaks the action conditioning.
+- **Problem Solved**: 1/2/4-step interactive world models leading on action fidelity and imaging quality in Minecraft and FPS settings, with dual-path deployment for latency-critical interaction.
+
+### Academic Context
+
+- **Inheritance / Response**: Extends causal-distillation world models (AlayaWorld/Alaya-EVOKE line, 2608.13546) with a progressive on-policy recipe; the temporal-compression-aware action-alignment problem is the interactive counterpart of the conditioning-mismatch problem in AlayaWorld v1.1 (2608.13492).
+- **Implicit Connection**: Generative world models keep paying a distillation tax to reach interactive latency — evidence for the latent-prediction argument that the world model should never have generated pixels in the first place.
+- **Research Line**: Efficient Generative World Models — few-step causal distillation for interactive video.
+- **Future Directions**: Latent-space (JEPA-style) action-conditioned dynamics to eliminate the distillation pipeline; longer-horizon rollout stability under the 1-step budget.
+- **GitHub**: https://github.com/asdfo123/ForgeWM
 
 ---
 
@@ -4189,4 +4329,4 @@
 - **GitHub**: Not found
 
 
-*Generated: 2026-08-16 | Papers: 156 | Daily scan: 2 backfill (Alaya-EVOKE, V-RAE); weekend announcement gap — next arXiv batch Monday Aug 17*
+*Generated: 2026-08-18 | Papers: 162 | Daily scan: 5 papers (Marionette, Traj-LeWM, Onto-EV-WM, Twin, ForgeWM); Aug 14 batch — arXiv stream ends at Aug 14 submission date*
