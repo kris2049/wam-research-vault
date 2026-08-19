@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **162 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-18 (5 papers from the Aug 14 batch — Marionette, Traj-LeWM, Onto-EV-WM, Twin, ForgeWM; arXiv stream ends at Aug 14 submission date)
+> **184 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-19 (22 papers added: 14 from the Aug 15–17 window — CaliBench, HarnessEval-W, τ₀-VLA, SCALE, Orbit-Planner, DriveCache, GaussianDWM++, Beyond Visual CoT, Gaussian-JEPA, AlignJEPA, Physiological WMs, Low-Rank Latent Carriers, SCOPE, Evidence of Absence — plus 8 backfills from Aug 12–14 — hint², Objective-Is-the-Bottleneck, ACPC diagnostic, Probabilistic-JEPA=HMM, CardioState-JEPA, ForeWAM, WMRL, EBM-tabular; arXiv stream ends at Aug 17 submission date)
 
 ---
 
@@ -10,6 +10,28 @@
 
 | # | Date | Paper | Alignment | Compute |
 ||---|------|-------|-----------|--------|
+| 1 | 2026-08-17 | [CaliBench: Are the Stochastic Dynamics of Video World Models Physically Calibrated?](https://arxiv.org/abs/2608.16829) | HIGH — Closed-form reference distributions (Galton boards, dice, roulette) test whether video WMs' stochastic outputs are physically calibrated; 6 I2V models consistently miscalibrate (Veo 3.1 collapses dice to one outcome) — direct empirical support for the generative-WM critique. | N/A (benchmark): 6 image-to-video models × 9 scenes, 32 generations/cell. |
+| 2 | 2026-08-17 | [HarnessEval-W: Agentifying the Evaluation of Visual Worlds](https://arxiv.org/abs/2608.16859) | MEDIUM — Agentified WM evaluation: harness paradigm decomposes each eval case into subproblems for tool-equipped sub-agents, yielding verifiable evidence-tree reasoning chains instead of scalar scores; 18 WMs × 330 cases. | N/A (benchmark/evaluation pipeline). |
+| 3 | 2026-08-17 | [τ₀-VLA: a Hierarchical Robot Foundation Model with World-Model-Guided Test-Time Computation](https://arxiv.org/abs/2608.16885) | MEDIUM — Compute-scalable high-level subtask generation via execution-memory-guided search before committing; test-time compute allocation as deliberation. | Large (40G+): 40,115 hrs real-world data, multimodal co-training. |
+| 4 | 2026-08-17 | [Orbit-Planner: Towards Latent World Models for On-Orbit Obstacle Avoidance of Satellite Agents](https://arxiv.org/abs/2608.16651) | MEDIUM-HIGH — Two-stage latent WM for satellites: action-conditioned latent rollouts + Physics Probe decoding physical state from imagined trajectories; 91.7% closed-loop success in Isaac Sim. | Small-Mid (8-24G): latent dynamics + probe on Isaac Sim. |
+| 5 | 2026-08-17 | [DriveCache: Action-Aware Caching for Driving World Model Inference](https://arxiv.org/abs/2608.16354) | LOW-MEDIUM — Training-free cache controller for diffusion driving WMs using planned ego motion + causal drift check; generative-side inference efficiency only. | N/A training-free; underlying generators Large (40G+). |
+| 6 | 2026-08-17 | [SCALE: State-Calibrated Latent Embeddings for JEPA Planning in the Right Geometry](https://arxiv.org/abs/2608.16287) | HIGH — Regularizes LeWM embeddings so pairwise latent distances correlate with task-relevant state distances (DINO-WM-like geometry); improves every task-solver-budget combo; planning needs the right geometry, not just decodable state. | Mid (24G): LeWM + lightweight training-time regularizer, 5 tasks × 3 solvers × 5 budgets. |
+| 7 | 2026-08-17 | [GaussianDWM++: Language-Grounded 3D Gaussian Driving World Model](https://arxiv.org/abs/2608.16234) | LOW-MEDIUM — Foundation-feature Gaussian tokenizer distills Qwen/SigLIP features into 3DGS primitives for unified understanding/editing/generation; explicit 3D structure but generative dynamics. | Large (40G+): foundation-feature Gaussian field + adapters. |
+| 8 | 2026-08-16 | [Beyond Visual CoT: Internalized Visual Thinking for Proactive Video Reasoning](https://arxiv.org/abs/2608.15869) | MEDIUM-LOW — MLLMs can internalize visual reasoning in hidden states instead of generating reasoning images; latent-space thinking removes Visual CoT inference overhead — evidence for reasoning in representation space, though no world dynamics. | Mid-Large (24-40G+): MLLM video reasoning. |
+| 9 | 2026-08-16 | [Gaussian-JEPA: Joint-Embedding Predictive Learning for 3D Gaussian Splats](https://arxiv.org/abs/2608.15651) | HIGH — JEPA for 3DGS tokens: online encoder + EMA stop-gradient multi-scale targets, no input-space decoder; more consistent under resampling and better frozen features than reconstruction pretraining. | Small-Mid (8-24G): 3DGS encoder + EMA target on part segmentation/classification transfer. |
+| 10 | 2026-08-16 | [AlignJEPA: Predictive Vision-Language Alignment for Remote Sensing Foundation Models](https://arxiv.org/abs/2608.15456) | MEDIUM — JEPA-inspired masked prediction of text embeddings from visual tokens for RS foundation models; parameter-efficient but retains contrastive retrieval. | Small-Mid (8-24G): lightweight aligner on frozen AnySat + RemoteCLIP. |
+| 11 | 2026-08-15 | [Physiological World Models for Human State Transitions](https://arxiv.org/abs/2608.15309) | MEDIUM-LOW — Event-conditioned whole-person physiological WM framework (HumanState Transition Tokens); separates prediction from causal inference; bounded intervention planning as top capability. | N/A (framework: 4 capability levels, 6 benchmark tasks). |
+| 12 | 2026-08-15 | [Low-Rank Dynamics-Effective Latent Carriers for Counterfactual Rollout in Learned World Models](https://arxiv.org/abs/2608.15156) | HIGH — Rank-4 hidden-state patch redirects 12-step autonomous rollouts in a recurrent WM; preregistered replication + negative controls; defines "dynamics-effective" interventions and shows edit success alone is insufficient evidence. | Small-Mid (8-24G): 192-dim recurrent WM, controlled collision env. |
+| 13 | 2026-08-15 | [SCOPE: Score-Isolated Agentic Optimization for Video World Models](https://arxiv.org/abs/2608.15043) | MEDIUM-LOW — Auditable inference-time adaptation of frozen video WMs: typed control state, evidence-gated updates, freeze-before-eval; +14.24 on Physics-IQ with honest attribution. | Small-Mid (8-24G): inference-time framework on Physics-IQ. |
+| 14 | 2026-08-15 | [Evidence of Absence: Cross-Modal Abductive Risk Perception to Sustain World Models When Vision Fails](https://arxiv.org/abs/2608.14952) | MEDIUM-HIGH — Absence of expected visual co-evidence triggers abductive inference of hidden road users from acoustics; structured world-state survives vision failure; Neyman-Pearson cueing + identifiability analysis. | Small (8-12G): microphone-array front-end, real occluded-approach recordings. |
+| 15 | 2026-08-14 | [Revisiting Energy-based Tabular Anomaly Detection: Energy and Reconstruction are Complementary](https://arxiv.org/abs/2608.14186) | LOW — BACKFILL. DBM mean-field energy revived (motivated by EBM/JEPA revival) complements AE reconstruction scores via rank fusion; EBM lineage data point, no world modeling. | Small (8-12G): 2-layer DBM on tabular benchmarks. |
+| 16 | 2026-08-13 | [hint²: Hierarchical World Models for Inference-Time Temporal Logic Guidance](https://arxiv.org/abs/2608.13678) | MEDIUM-HIGH — BACKFILL. Two WM abstraction levels steer short-horizon policies toward LTL satisfaction: high-level proposition transitions guide LTL automaton progress, low-level dynamics give local safety; real UR5e validation. | Mid (24G): hierarchical WMs + CALVIN + real UR5e. |
+| 17 | 2026-08-13 | [The Objective Is the Bottleneck: Latent World Models Encode What Their Planners Cannot Use](https://arxiv.org/abs/2608.12959) | HIGH — BACKFILL. LeWM reproduction shows the CEM squared-latent-distance objective (not the predictor) limits long-horizon planning; replacing only the cost lifts TwoRoom offset-100 goals 26%→98%; reachability ≠ proximity. | Small (8-12G): reproduction on ~$25 rented compute. |
+| 18 | 2026-08-13 | [Your Probabilistic JEPA Is Secretly a Hidden Markov Model](https://arxiv.org/abs/2608.13621) | HIGH — BACKFILL. PIB-VJEPA exposes HMM structure (filtering encoder, Markov predictor, emission); MCJEPA's learned transition matrix gives exact multi-horizon Chapman-Kolmogorov consistency; state-space foundation for temporal JEPA. | Small (8-12G): theory + controlled synthetic experiments. |
+| 19 | 2026-08-13 | [CardioState-JEPA: Delay-Aware Cross-Modal Learning of a Shared Cardiac Representation](https://arxiv.org/abs/2608.12944) | MEDIUM — BACKFILL. ECG/PPG/PCG share one encoder; masked latent cardiac-state prediction + learned delay aligner; +8.2/+18.8/+15.5 AUROC over best SSL baseline across 25 tasks. | Mid (24G): shared transformer + delay aligner on multimodal cardiac data. |
+| 20 | 2026-08-13 | [Diagnosing JEPA World Models with Action-Conditioned Predictive Consistency](https://arxiv.org/abs/2608.12939) | HIGH — BACKFILL. Bisimulation-grounded ACPC diagnostic bounds perturbation-induced prediction/planner-cost divergence; Invariance Radius + Separation Rate screen JEPA WMs on visual control tasks. | Mid (24G): LeWM/PLDM on 4 visual control tasks. |
+| 21 | 2026-08-12 | [Scaling Automatic Research Agents via World Models](https://arxiv.org/abs/2608.12564) | LOW-MEDIUM — BACKFILL. WMRL replaces sandbox execution with a learned world model for agent RL post-training (3-4× speedup) with debiasing/denoising; transfers to embodied VLA post-training. | Mid-Large (24-40G+): 4B/9B agent post-training. |
+| 22 | 2026-08-12 | [Foresight Without Seeing: Latent Futures for World Action Models](https://arxiv.org/abs/2608.11605) | HIGH — BACKFILL. ForeWAM exposes predictive dynamics to the Action DiT via Future-KV from a single Video DiT prefill over stochastic future slots; no future video decoding at deployment; 96.7% LIBERO, 61.6% LIBERO-Plus. | Mid (24G): Video DiT prefill + Action DiT on LIBERO. |
 |||||||||| 1 | 2026-08-14 | [Marionette: Predicting World States, Rendering Geometry, Painting Appearance](https://arxiv.org/abs/2608.14530) | HIGH — Explicit 276-dim 3D world-state prediction + zero-parameter graphics bridge (closed-form geometry/occlusion) + separate appearance diffusion; state-level repair cuts penetration 66% with zero observation-model changes. | Mid-Large (24-40G+): lightweight state dynamics + video-diffusion observation model (Alaya Lab). |
 |||||||||| 2 | 2026-08-14 | [Traj-LeWM: Path-Aware World-Model Planning via Latent Trajectory Cost](https://arxiv.org/abs/2608.14125) | HIGH — Direct LeWorldModel extension: goal-conditioned latent trajectory cost complements endpoint ranking in training + planning; +3/+14/+7/+7 pp over LeWM. | Small-Mid (8-24G): Push-T, OGBench-Cube, Reacher, Two-Room. |
 |||||||||| 3 | 2026-08-14 | [Ontology-Grounded World Models for Failure Diagnosis and Closed-Loop Repair in Physical AI Systems](https://arxiv.org/abs/2608.13901) | MEDIUM-HIGH — Symbolic ontology + verification-gated correction interface layered above EV-WM; typed failure predicates, route labels, predicate-gated acceptance; 94.05% LIBERO-Goal corrected-window. | Small-Mid (8-24G): symbolic layer + EV-WM backbone on PointMaze/LIBERO. |
@@ -176,6 +198,250 @@
 
 
 
+
+---
+
+## [2026-08-17] CaliBench: Are the Stochastic Dynamics of Video World Models Physically Calibrated?
+
+- **arXiv**: [2608.16829](https://arxiv.org/abs/2608.16829)
+- **Authors**: Jonathan Sadeghi, Jenny Seidenschwarz, Jesse Allardice, Sirish Srinivasan, Benjamin Graham, Jeffrey Hawke
+- **TL;DR**: A benchmark that scores video world models' stochastic outputs in physically interpretable discrete outcome spaces (die faces, Galton-board bins, roulette colours) against known closed-form reference distributions, decomposing accuracy into scorability and calibration (total-variation distance).
+- **Problem**: Existing WM benchmarks score individual generations or compare distributions coarsely over whole datasets, so the fine-grained aleatoric uncertainty of specific physical phenomena is never tested; a single accuracy metric conflates "produces a scoreable outcome" with "matches the true distribution."
+- **Architecture**: N/A (benchmark). Curated outcome spaces with exact references (binomial Galton boards, Bernoulli forks, uniform dice/cards/lottery, skewed roulette); chi-squared calibration test (miscalibration-only evidence, N=32 per cell); scorability × calibration decomposition; mean normalized total variation (mnTV) metric. Applied to 9 scenes × 6 image-to-video models (WAN-2.7, SeeDance-2.0, HappyHorse-1.0, Veo 3.1, Runway Gen-4.5, Cosmos3-Super).
+- **Compute Scale**: N/A (benchmark): 6 I2V models, 32 generations per cell.
+- **LeCun Alignment**: HIGH — Direct empirical support for the core LeCun critique: generative video models do not learn the true stochastic structure of physics. Findings: models concentrate probability mass on few outcomes; most scene-model pairs significantly miscalibrated; Veo 3.1 collapses dice to a single outcome; no model dominates all nine scenes. Complements GAUGE (2608.05948) and WorldExam (2608.02603) in the vault's "generative WMs ≠ physical world models" evidence line, here testing *aleatoric calibration* rather than deterministic fidelity.
+- **GitHub**: Not provided (protocol + mnTV metric released with paper).
+
+## [2026-08-17] HarnessEval-W: Agentifying the Evaluation of Visual Worlds
+
+- **arXiv**: [2608.16859](https://arxiv.org/abs/2608.16859)
+- **Authors**: Weiliang Chen, Haowen Sun, Jun Gao, Jiawei Chi, et al. (large multi-institution collaboration incl. Ziwei Liu, Ming-Yu Liu)
+- **TL;DR**: Brings the LLM "harness" evaluation paradigm to world models: an agentified pipeline decomposes each evaluation case into measurable subproblems, spawns tool-equipped sub-agents, and produces a verifiable evidence-tree reasoning chain justifying every score.
+- **Problem**: Judging a WM rollout requires understanding whether physics, causality, and world state evolve correctly — humans spot violations naturally, but existing WM benchmarks compute brute-force metrics with no reasoning chain that can be examined or verified.
+- **Architecture**: Hierarchical agent pipeline: parent agent interprets case context → decomposes the evaluation question → specialized sub-agents (each with tailored context and diagnostic tools) reason over subproblems → parent validates evidence and summarizes a verdict. Applied to 18 representative world models over 330 cases; judgments align with human preferences.
+- **Compute Scale**: N/A (evaluation harness; runs as an agentic pipeline over frozen WMs).
+- **LeCun Alignment**: MEDIUM — Evaluation infrastructure rather than architecture. Aligns with the vault's evaluation-theory line (VIScore 2608.11174, WorldExam 2608.02603) in demanding *reasoned, verifiable* judgments instead of scalar metrics — a prerequisite for honest measurement of progress toward autonomous intelligence.
+- **GitHub**: Open-sourced as a live benchmark (link in paper; not in abstract).
+
+## [2026-08-17] τ₀-VLA: a Hierarchical Robot Foundation Model with World-Model-Guided Test-Time Computation
+
+- **arXiv**: [2608.16885](https://arxiv.org/abs/2608.16885)
+- **Authors**: Xiaowei Cai, Yunuo Cai, Bingao Chen, et al. (40+ authors)
+- **TL;DR**: A hierarchical VLA whose high-level subtask generator is a compute-scalable inference problem: using execution memory, it generates a subtask and, when needed, searches over alternatives before committing — allocating extra test-time computation to difficult or consequential decisions.
+- **Problem**: Hierarchical VLA models make every high-level decision in a single forward pass, with no mechanism to spend more computation on hard choices; long-horizon manipulation requires both reliable individual skills and coherent sequencing.
+- **Architecture**: High-level policy (world-model-guided: execution memory → subtask proposal → alternative search when needed) + low-level policy executing subtasks across embodiments. Trained on 40,115 hours of heterogeneous real-world data with multimodal co-training. Not a JEPA encoder/predictor/target stack — the "world model" is execution memory over agent history guiding deliberation.
+- **Compute Scale**: Large (40G+): robot foundation model, 40K+ hours of real-world data.
+- **LeCun Alignment**: MEDIUM — Implements one plank of LeCun's vision — deliberation as compute-scalable search over imagined alternatives at test time — but the search is over language-level subtasks guided by memory, not over latent world-state rollouts from a predictive model. Useful counterpoint: test-time compute for planning, minus a learned predictive world model.
+- **GitHub**: Not provided.
+
+## [2026-08-17] Orbit-Planner: Towards Latent World Models for On-Orbit Obstacle Avoidance of Satellite Agents
+
+- **arXiv**: [2608.16651](https://arxiv.org/abs/2608.16651)
+- **Authors**: Zhijian Li, Chao Ren, Peijin Wang, Xian Sun
+- **TL;DR**: A two-stage latent world model for satellite agents: action-conditioned spacecraft dynamics are learned for future-state rollouts in latent space, and a Physics Probe decodes physical state changes from imagined latent trajectories; 91.7% closed-loop obstacle-avoidance success in Isaac Sim.
+- **Problem**: On-orbit navigation needs collision-risk prediction from limited onboard observations; conventional planners rely on predefined maps and fixed environmental assumptions that break in dynamic scenarios.
+- **Architecture**: (1) Latent world model: encoder → action-conditioned latent dynamics → long-horizon latent rollouts (no pixel prediction). (2) Physics Probe: training-time decoder mapping imagined latent trajectories to physical state changes (Δposition etc.), grounding the latent in physics without reconstruction loss at inference. Closed-loop navigation uses imagined rollouts for obstacle avoidance.
+- **Compute Scale**: Small-Mid (8-24G): latent dynamics + probe, Isaac Sim evaluation.
+- **LeCun Alignment**: MEDIUM-HIGH — Textbook JEPA-shaped world model: predict in latent space, decode only what matters for control (physical state changes) via a probe, plan from imagination. The Physics Probe is a lightweight instance of "grounding without reconstruction" (cf. PSG-JEPA 2608.06799). Domain (space robotics) is novel for the vault.
+- **GitHub**: https://github.com/ZhijianLi2003/Orbit_Planner
+
+## [2026-08-17] DriveCache: Action-Aware Caching for Driving World Model Inference
+
+- **arXiv**: [2608.16354](https://arxiv.org/abs/2608.16354)
+- **Authors**: Jianchun Yang, Jian Liang, Xianda Guo, Pinhan Fu, Yanlun Peng, Conglang Zhang, Wenke Huang, Mang Ye
+- **TL;DR**: A training-free, action-aware cache controller for diffusion driving world models that uses planned ego motion (speed, trajectory) to allocate feature reuse across scenes and denoising steps, with a causal drift check that refreshes features when generation departs from calibration.
+- **Problem**: Diffusion-based driving generators repeatedly evaluate large backbones over denoising steps, limiting throughput; existing cache methods omit driving signals available before generation (ego speed, planned trajectories).
+- **Architecture**: Controller over an existing diffusion generator: cache-tolerance model conditioned on ego translation/rotation, denoising progress, and reuse length; dynamic programming allocates reuse under a response budget; causal drift check replans the schedule mid-generation.
+- **Compute Scale**: N/A (training-free controller); underlying generators are Large (40G+).
+- **LeCun Alignment**: LOW-MEDIUM — Generative counterpoint. Relevant only as deployment-side evidence that even the generative WM community is attacking inference cost; no latent predictive component, no planning utility demonstrated. Include for the efficiency line of the vault.
+- **GitHub**: Not provided ("code will be publicly available").
+
+## [2026-08-17] SCALE: State-Calibrated Latent Embeddings for JEPA Planning in the Right Geometry
+
+- **arXiv**: [2608.16287](https://arxiv.org/abs/2608.16287)
+- **Authors**: Jiaming Hu, Yan Zheng, Tian Wang
+- **TL;DR**: SCALE is a lightweight training-time regularizer that gives LeWM's end-to-end learned embeddings DINO-WM's favorable geometry — pairwise latent distances are correlated with distances in a standardized task-relevant state space — so high-variance state directions actually dominate the Euclidean costs planners consume.
+- **Problem**: DINO-WM (pretrained features) and LeWM (SIGReg end-to-end) both encode decodable task state, but DINO-WM's leading principal components retain substantially more state information. Since Euclidean planning costs are dominated by high-variance directions, LeWM's state information doesn't shape candidate selection — the planner consumes the wrong geometry.
+- **Architecture**: LeWM encoder unchanged + one regularizer correlating sampled pairwise latent distances with standardized task-relevant state distances (training-time only, zero planning overhead). Controls: a latent-to-state regression that matches SCALE's decodability but not its geometry yields inconsistent gains — proving geometry (not just information) is what matters.
+- **Compute Scale**: Mid (24G): LeWM backbone on 5 tasks × 3 planning solvers × 5 compute budgets.
+- **LeCun Alignment**: HIGH — Direct LeWorldModel lineage. The result sharpens the vault's planning-quality thesis (VIScore 2608.11174; "Objective Is the Bottleneck" 2608.12959): planning depends not only on whether task-relevant information is *present* in the latent, but on whether it *shapes the geometry the planner consumes*. Every task-solver average improves over LeWM.
+- **GitHub**: Not provided.
+
+## [2026-08-17] GaussianDWM++: Language-Grounded 3D Gaussian Driving World Model
+
+- **arXiv**: [2608.16234](https://arxiv.org/abs/2608.16234)
+- **Authors**: Tianchen Deng, Xuefeng Chen, Shuang Wu, Qu Chen, Jiajun Zhu, Bo Dai, Jianfei Yang, Hesheng Wang
+- **TL;DR**: A driving world model that distills Qwen/SigLIP foundation features into 3D Gaussian primitives to build an open-vocabulary Gaussian semantic field, unifying scene understanding, language-grounded reasoning, controllable 4D editing, and multi-modal generation in one framework.
+- **Problem**: Driving WMs focus on conditional scene generation and lack explicit 3D scene understanding, language grounding, and controllable 4D editing; point-cloud/occupancy/BEV representations can't align text finely with 3D structure.
+- **Architecture**: (1) Foundation-feature Gaussian tokenizer (visual-language features distilled into 3DGS primitives); (2) geometry-aware Gaussian adapter (importance-aware hierarchical selection + text-conditioned Perceiver cross-attention → compact world tokens); (3) KL-based Gaussian-image distribution alignment; (4) instruction-controllable editing (weather, vehicle manipulation). Generative — no latent predictive dynamics.
+- **Compute Scale**: Large (40G+): foundation-feature Gaussian field + VLM distillation.
+- **LeCun Alignment**: LOW-MEDIUM — Explicit, structured 3D representation is a step toward the state-vs-appearance separation, but dynamics remain generative and there is no planning loop. Include as the generative driving-WM counterpoint.
+- **GitHub**: Not provided ("will release code and datasets").
+
+## [2026-08-16] Beyond Visual CoT: Internalized Visual Thinking for Proactive Video Reasoning
+
+- **arXiv**: [2608.15869](https://arxiv.org/abs/2608.15869)
+- **Authors**: Xiaoyu Zhu, Xinke Deng, Suresh Taddewadikar, Arnab Kumar Mondal, Zhongyu Jiang, Ian Fasel, Joerg Liebelt (Google)
+- **TL;DR**: Shows MLLMs can learn to perform "visual chain-of-thought" reasoning internally in hidden states — internalized visual thinking — instead of generating intermediate reasoning images, retaining visual foresight benefits without the inference overhead of Visual CoT.
+- **Problem**: Visual CoT gives MLLMs an intuitive mechanism for visual foresight in spatial/temporal/embodied environments, but generating intermediate reasoning images imposes substantial inference overhead, particularly for proactive video reasoning.
+- **Architecture**: MLLM with internalized latent visual reasoning stages (no world-model encoder/predictor/target structure; video reasoning, not dynamics prediction).
+- **Compute Scale**: Mid-Large (24-40G+): MLLM video reasoning.
+- **LeCun Alignment**: MEDIUM-LOW — Evidence for a LeCun-adjacent thesis: reasoning should happen in compact latent/representation space, not in generated token/image space. No world dynamics, planning, or control — include as a representation-space-reasoning data point.
+- **GitHub**: Not provided.
+
+## [2026-08-16] Gaussian-JEPA: Joint-Embedding Predictive Learning for 3D Gaussian Splats
+
+- **arXiv**: [2608.15651](https://arxiv.org/abs/2608.15651)
+- **Authors**: Bin Ren, Qi Ma, Yue Li, Zongyan Han, Yidi Li, Yuqian Fu, Rao Muhammad Anwer, Theo Gevers, Fahad Shahbaz Khan, Salman Khan
+- **TL;DR**: First JEPA for 3D Gaussian splatting: predicts representations of held-out Gaussian token blocks from visible context using an online encoder with a shared EMA stop-gradient target encoder supplying multi-scale targets — no input-space decoder.
+- **Problem**: Fixed-budget encoders see the same object through different primitive realizations; reconstruction-based SSL ties supervision to one sampled realization and requires an input-space decoder; latent prediction for Gaussian tokens needs targets accommodating coupled attributes and heterogeneous spatial support.
+- **Architecture**: JEPA stack: online context encoder → predictor for held-out blocks; EMA target encoder provides stop-gradient multi-scale targets; complementary target projections + feature-space grounding replace Gaussian-attribute reconstruction. Evaluated under Gaussian resampling, partial observations, and renderable shape completion; transfers to part segmentation and object classification.
+- **Compute Scale**: Small-Mid (8-24G): 3DGS encoder + EMA target; standard transfer benchmarks.
+- **LeCun Alignment**: HIGH — Faithful JEPA extension to the 3D modality (complements Point-JEPA 2404.16432): predict latent structure, skip reconstruction. Evidence that JEPA's non-reconstruction objective generalizes to unstructured 3D primitive sets, with better resampling consistency and frozen-feature quality than matched reconstruction pretraining.
+- **GitHub**: Project page: https://amazingren.github.io/Gaussian-JEPA/
+
+## [2026-08-16] AlignJEPA: Predictive Vision-Language Alignment for Remote Sensing Foundation Models
+
+- **arXiv**: [2608.15456](https://arxiv.org/abs/2608.15456)
+- **Authors**: Md Aminur Hossain, Omkumar Vaghasiya, Rajeev Ranjan Dwivedi, Vinod Kurmi, Biplab Banerjee
+- **TL;DR**: A JEPA-inspired predictive alignment framework for remote sensing: predicts text embeddings from masked visual foundation-model tokens (instead of global contrastive alignment alone), training only a lightweight mask-aware multi-scale aligner on frozen AnySat + RemoteCLIP encoders.
+- **Problem**: RS foundation models are weakly aligned with natural language, limiting natural-language archive search, retrieval, and question-conditioned analysis; global image-text contrastive alignment alone is insufficient.
+- **Architecture**: Frozen AnySat visual encoder + RemoteCLIP text encoder; trainable predictive alignment network: mask-aware multi-scale aggregator (fine/regional/global) + cross-scale Transformer + learned query pooling → predicts text embeddings; combined semantic prediction + bidirectional contrastive retrieval objectives.
+- **Compute Scale**: Small-Mid (8-24G): lightweight aligner on frozen encoders (BigEarthNet.txt, RSICD, RSVQA).
+- **LeCun Alignment**: MEDIUM — JEPA-style masked prediction as the alignment mechanism (prediction target lives in representation space — text embeddings, not pixels), and parameter-efficient by construction. But text is a supervised anchor, and contrastive retrieval is retained — a hybrid that LeCun's purely self-supervised world model would treat as a separate, language-grounded module.
+- **GitHub**: Not provided.
+
+## [2026-08-15] Physiological World Models for Human State Transitions
+
+- **arXiv**: [2608.15309](https://arxiv.org/abs/2608.15309)
+- **Authors**: Chongyang Zhang, Rendong Wang, Hao Zheng, Hanwen Zhang, Yang Liu, Xiaolong Wei, Bin Chong
+- **TL;DR**: A framework paper defining Physiological World Models: event-conditioned models of how whole-person physiological states change in response to events, behaviors, contexts, and interventions — with HumanState Transition Tokens, four capability levels, and six benchmark tasks.
+- **Problem**: Health AI systems recognize current states, estimate risks, or analyze biomarkers, but do not model how physiological states *change* in response to real-world events and interventions.
+- **Architecture**: Framework specification: HumanState Transition Token connects pre-event state + event/action + context + intervention → post-event trajectory + outcomes + data quality. Four capability levels (state representation → forecasting → individualized response prediction → bounded intervention planning); six benchmark tasks; explicit separation of prediction from causal inference with uncertainty/safety/governance made explicit.
+- **Compute Scale**: N/A (framework paper — no trained model).
+- **LeCun Alignment**: MEDIUM-LOW — Cross-domain adoption of the world-model program: event-conditioned state transitions, planning over interventions, and a hard separation of prediction from causal inference — all LeCun-shaped commitments. No JEPA-style architecture yet; include for the "world models as the organizing abstraction outside embodied AI" line.
+- **GitHub**: Not provided.
+
+## [2026-08-15] Low-Rank Dynamics-Effective Latent Carriers for Counterfactual Rollout in Learned World Models
+
+- **arXiv**: [2608.15156](https://arxiv.org/abs/2608.15156)
+- **Authors**: Yang Liu, Yuming Chen
+- **TL;DR**: Shows a single rank-4 patch of a recurrent world model's 192-dim hidden state — learned from training-time factual-to-counterfactual differences — is sufficient to redirect a 12-step autonomous rollout, with preregistered replication across checkpoints and negative controls.
+- **Problem**: World models predict the future without making clear which parts of the hidden state drive predictions; it is unknown whether a small, directly addressable hidden-state change can place the model on an intended counterfactual trajectory and sustain it autonomously.
+- **Architecture**: Analysis over a recurrent WM (192-dim hidden state) in a controlled two-object 2D collision environment: low-rank carriers learned from factual→counterfactual hidden differences; a map from (factual state, requested velocity edit) → carrier coefficients; rank-4 anchor patch; position-edit stress test as negative contrast.
+- **Compute Scale**: Small-Mid (8-24G): recurrent WM + controlled environment, preregistered replication rule.
+- **LeCun Alignment**: HIGH — Intervention-level identifiability for world models: defines "dynamics-effective" as interventions that change future computation in a sustained, target-specific way, and demonstrates that successful *editing alone* is insufficient evidence (controls can pass raw rollout criteria). Directly relevant to counterfactual planning and to the vault's identifiability line (2607.22430, 2607.27017).
+- **GitHub**: Not provided.
+
+## [2026-08-15] SCOPE: Score-Isolated Agentic Optimization for Video World Models
+
+- **arXiv**: [2608.15043](https://arxiv.org/abs/2608.15043)
+- **Authors**: Yuhua Jiang, Jiaming Wang, Qingbin Liu, Feifei Gao
+- **TL;DR**: A framework for auditable inference-time adaptation of frozen video world models: external controls live in a typed state, updates are bounded by development evidence, and the policy is frozen before held-out evaluation — +14.24 on Physics-IQ with attributable gains.
+- **Problem**: Inference-time optimization of video WMs entangles prompts, samplers, verifiers, and selectors so gains can't be attributed and held-out feedback can leak into the deployed policy.
+- **Architecture**: Framework (not an architecture): typed control state; evidence-bounded updates; freeze-before-eval discipline; ablations isolate gains from scene specification, sampling, and learned selection. Cross-backbone evaluation shows useful updates don't transfer uniformly — a principled update-selection mechanism is needed.
+- **Compute Scale**: Small-Mid (8-24G): inference-time adaptation on Physics-IQ.
+- **LeCun Alignment**: MEDIUM-LOW — Methodology paper about honest evaluation of WMs (the vault's recurring evaluation-rigor theme), but operates on generative video WMs; the "which updates deserve to be deployed" conclusion echoes the evidence-gating principles in the vault's verification-gated repair line (Onto-EV-WM 2608.13901, Twin 2608.14490).
+- **GitHub**: https://github.com/YuhuaJiang2002/SCOPE
+
+## [2026-08-15] Evidence of Absence: Cross-Modal Abductive Risk Perception to Sustain World Models When Vision Fails
+
+- **arXiv**: [2608.14952](https://arxiv.org/abs/2608.14952)
+- **Authors**: Cong Xu, Ravi Sankar
+- **TL;DR**: Treats the *absence* of expected cross-modal co-evidence as evidence of a hidden cause: when an acoustic signature is present but visual co-evidence is absent, abductive inference posits a hidden road user and emits a calibrated risk advisory — sustaining a structured world-state when vision fails.
+- **Problem**: Structured world-states presume observations to populate them; when the primary visual modality is occluded or degraded, those observations are missing and the world model loses the very content it exists to preserve.
+- **Architecture**: Modality-agnostic abductive framework instantiated acoustically: microphone-array front-end (bearing, Doppler/looming approach-rate evidence) → event classification ("signature present, visual co-evidence absent") → abductive inference of hidden road user → Neyman-Pearson cueing under explicit false-alarm budget. Identifiability analysis separates shared vs modality-unique information.
+- **Compute Scale**: Small (8-12G): real-time audio front-end; real occluded-approach recordings at blind junctions (warns 1.7s before line-of-sight entry, 42% fewer false alarms than baseline).
+- **LeCun Alignment**: MEDIUM-HIGH — Robustness of the world-state under perception failure is a precondition LeCun's architecture assumes but rarely tests; this is the missing-perception complement to the vault's robustness-diagnostic line (ACPC 2608.12939, XEWorld 2608.05799). Abductive inference + calibrated (non-command) outputs also echo the cost/confidence separation in LeCun's modular design.
+- **GitHub**: Not provided.
+
+## [2026-08-14] Revisiting Energy-based Tabular Anomaly Detection: Energy and Reconstruction are Complementary
+
+- **arXiv**: [2608.14186](https://arxiv.org/abs/2608.14186)
+- **Authors**: Junichiro Niimi
+- **TL;DR**: BACKFILL. Revives the Deep Boltzmann Machine for tabular anomaly detection, motivated by the EBM revival (Energy-Based Transformers, JEPA): DBM mean-field energy is complementary to reconstruction scores, and rank fusion of the two beats all baselines.
+- **Problem**: Tabular anomaly detection relies on density proxies, reconstruction detectors, and non-parametric scorers; explicit energy-based models are largely absent despite the EBM revival in deep learning.
+- **Architecture**: Two-hidden-layer DBM; mean-field energy score; rank fusion with an Autoencoder. Beats 7 of 8 baselines alone; fusion yields significant AUROC gains on both benchmarks where all non-DBM base models fail to improve the AE.
+- **Compute Scale**: Small (8-12G): DBM on UCI Bank Marketing + NSL-KDD.
+- **LeCun Alignment**: LOW — EBM-lineage data point (explicit energy functions as complements to reconstruction), but no world modeling, prediction, or control. Include only as evidence the EBM revival LeCun seeded is reaching applied domains.
+- **GitHub**: Not provided.
+
+## [2026-08-13] hint²: Hierarchical World Models for Inference-Time Temporal Logic Guidance
+
+- **arXiv**: [2608.13678](https://arxiv.org/abs/2608.13678)
+- **Authors**: Moritz Zoellner, Anastasios Manganaris, Ahmed H. Qureshi, Rohan Paleja
+- **TL;DR**: BACKFILL. Guides short-horizon manipulation policies toward satisfying complex LTL specifications at inference time using two world models at different abstraction levels: a high-level model predicts action-induced transitions in atomic propositions to steer LTL automaton progress; a low-level dynamics model predicts immediate state evolution for local safety.
+- **Problem**: Modern policies generate short-horizon action chunks and replan in closed loop, while LTL specifications are evaluated over long-horizon trajectories — a temporal-structure mismatch that language-conditioned policies handle poorly.
+- **Architecture**: Hierarchical WM guidance: high-level proposition-transition predictor → LTL automaton progress objective; low-level dynamics predictor → local safety objective; both injected as inference-time steering. Outperforms LTL-guided diffusion methods and inference-time steering baselines on CALVIN; validated on a real UR5e.
+- **Compute Scale**: Mid (24G): two WM levels + CALVIN + real UR5e.
+- **LeCun Alignment**: MEDIUM-HIGH — Two-timescale world models for planning is exactly the hierarchical decomposition in LeCun's architecture (abstract proposition-level model + concrete dynamics-level model); here applied as a steerer over existing policies rather than as the planner itself. Safety constraints expressed in formal logic echo the cost-module separation.
+- **GitHub**: Not provided.
+
+## [2026-08-13] The Objective Is the Bottleneck: Latent World Models Encode What Their Planners Cannot Use
+
+- **arXiv**: [2608.12959](https://arxiv.org/abs/2608.12959)
+- **Authors**: Joyjeet Singh
+- **TL;DR**: BACKFILL. Independent LeWorldModel reproduction on TwoRoom showing the binding constraint on long-horizon planning is the planner's *objective*, not the predictor: CEM minimizes squared latent distance, which saturates at ~80 arena units and *decreases* beyond 120 — moving away from the goal can lower the cost.
+- **Problem**: Latent WMs are judged by prediction quality, so long-horizon planning failure is attributed to predictor degradation; but the predictor's imagined state 75 steps ahead is only 0.189 as wrong as a frozen world, while the planner never imagines beyond 25.
+- **Architecture**: Analysis over LeWM: ridge probe recovers position at R²=0.9922 from the frozen embedding; the pathology is present in the authors' released weights; replacing only the objective (a head learned from frame separation that charges +24% to cross walls where squared latent distance charges −4%) lifts goals-at-offset-100 from 26.0% to 98.0% with nothing retrained and no GPU.
+- **Compute Scale**: Small (8-12G): reproduction on ~$25 rented compute, laptop-CPU evaluation.
+- **LeCun Alignment**: HIGH — The cleanest demonstration yet of the vault's central planning thesis (prediction accuracy ≠ planning adequacy; cf. 2607.10362, 2607.14169, VIScore 2608.11174): the cost must encode *reachability*, not proximity. Direct, falsifiable evidence about the flagship LeWM model's planner — with the fix costing a single head.
+- **GitHub**: Not provided.
+
+## [2026-08-13] Your Probabilistic JEPA Is Secretly a Hidden Markov Model: A State-Space Interpretation of Joint-Embedding Predictive Learning
+
+- **arXiv**: [2608.13621](https://arxiv.org/abs/2608.13621)
+- **Authors**: Yongchao Huang
+- **TL;DR**: BACKFILL. Shows full time-indexed PIB-VJEPA has HMM computational structure — stochastic context encoder = amortized filtering distribution, probabilistic predictor = latent transition, decoder/inverse target encoder = emission — and introduces MCJEPA, whose learned transition matrix guarantees exact multi-horizon Chapman-Kolmogorov consistency.
+- **Problem**: Temporal JEPA's relationship to classical state-space models was informal; a principled state-space interpretation was missing, leaving its predictive guarantees unclear.
+- **Architecture**: Theory: four progressively stronger correspondence levels with sufficient conditions for exact sequence-level HMM equivalence; MCJEPA replaces the latent predictor with a learned transition matrix (matrix powers give exact multi-horizon consistency); conditioned discrete transitions, continuous Markov kernels, and continuous-time dynamics as extensions; deterministic temporal JEPA = degenerate Dirac-kernel case. Information-bottleneck view: compression ↔ minimality, residual predictability ↔ sufficiency.
+- **Compute Scale**: Small (8-12G): theory + controlled synthetic experiments.
+- **LeCun Alignment**: HIGH — Places temporal JEPA on a classical state-space foundation (HMM/Kalman lineage), connecting LeCun's world-model program to the filtering/transition/emission decomposition it intuitively mirrors. The exact multi-horizon consistency result gives temporal JEPA a property autoregressive pixel models lack by construction.
+- **GitHub**: Not provided.
+
+## [2026-08-13] CardioState-JEPA: Delay-Aware Cross-Modal Learning of a Shared Cardiac Representation
+
+- **arXiv**: [2608.12944](https://arxiv.org/abs/2608.12944)
+- **Authors**: Hamza Shafiq, Hung Manh Pham, Bin Zhu, Pan Zhou, Jun Hu, Aaqib Saeed
+- **TL;DR**: BACKFILL. A cardiac foundation model that learns a single shared representation across ECG, PPG, and PCG by predicting masked latent cardiac states, with a learned delay aligner handling the temporal offsets between electrical, mechanical, and hemodynamic events.
+- **Problem**: Cardiac foundation models are single-modality, leaving shared physiology across sensors unexploited; cross-modal prediction must handle systematic temporal offsets between signal types, and synchronized multi-sensor recordings are scarce.
+- **Architecture**: JEPA stack: heterogeneous waveforms → common token space → single shared Transformer encoder; masked latent cardiac-state prediction (target = shared physiology, not waveform appearance); learned delay aligner; staged pretraining (unimodal structure → paired latent-time alignment). Frozen evaluation across 25 tasks: +8.2 AUROC (PPG), +18.8 (PCG murmur), +15.5 (ECG) over the best SSL baseline.
+- **Compute Scale**: Mid (24G): shared transformer + delay aligner, multimodal cardiac data.
+- **LeCun Alignment**: MEDIUM — Cross-domain JEPA validation with a genuinely JEPA-relevant twist: predicting shared latent *physiology* rather than reconstructing sensor waveforms, and explicitly modeling cross-sensor latency — the multimodal-world-model alignment problem in miniature. The staged pretraining (unimodal first, paired alignment second) is a scalable recipe for scarce paired data.
+- **GitHub**: Not provided.
+
+## [2026-08-13] Diagnosing JEPA World Models with Action-Conditioned Predictive Consistency
+
+- **arXiv**: [2608.12939](https://arxiv.org/abs/2608.12939)
+- **Authors**: Guo An, Zijing Wu, Honghua Dong, Yuhao Yan, Zixuan Gui, Haochong Chen, Shanzhao Ruan, Xiang Wang, Yurong Ling, Qi Tian
+- **TL;DR**: BACKFILL. An ACPC diagnostic grounded in bisimulation: measures how far a clean history and a visually perturbed view of it diverge after being rolled forward under the same action sequence — proven to bound the perturbation-induced change in multi-step prediction error and planner cost.
+- **Problem**: JEPA world models predict in latent space, but that provides no guarantee against visual perturbations: perturbed inputs can alter encodings and downstream action-conditioned predictions even while training loss improves.
+- **Architecture**: Diagnostic (not an architecture): pairwise ACPC divergence; Invariance Radius (clean-perturbed rollout spread) and Separation Rate (distinguishability of different states after rollout) as complementary summary measures. Validated on LeWM and PLDM across four visual control tasks; the IR-SR screen transfers across tasks and stays informative under blur and resize.
+- **Compute Scale**: Mid (24G): diagnostics on LeWM/PLDM, 4 visual control tasks.
+- **LeCun Alignment**: HIGH — Formulates the correct invariance criterion for JEPA world models: what matters is not appearance-invariance but *action-consequence*-invariance (bisimulation). Gives the JEPA line a principled, transferable robustness screen — the representation-level complement to GAUGE-style behavioral benchmarks.
+- **GitHub**: Not provided.
+
+## [2026-08-12] Scaling Automatic Research Agents via World Models
+
+- **arXiv**: [2608.12564](https://arxiv.org/abs/2608.12564)
+- **Authors**: Xiyuan Yang, Sheikh Sarwar, Jingru Cheng, Zhan Shi, Duanshun Li, Huiyuan Chen, Haiyang Zhang, Chenlei Guo, Jingrui He, Zhenyu Liao
+- **TL;DR**: BACKFILL. WMRL replaces sandbox environment execution with a learned world model for RL post-training of AutoResearch agents (3-4× speedup), adding Online Debiasing and Inverse-Variance Denoising to correct the world model's biased, noisy rewards — with convergence guarantees.
+- **Problem**: Scaling RL for research agents hits a fundamental tension: agent generation scales via batching, but each environment execution occupies an exclusive sandbox and real machine time — execution dominates training cost as trajectories grow.
+- **Architecture**: World Model RL: learned environment surrogate for training-time execution; debiasing + inverse-variance denoising of surrogate rewards; proven strict convergence improvement; 4B/9B agents beat 48B/120B open-weight agents; transfers to embodied VLA post-training.
+- **Compute Scale**: Mid-Large (24-40G+): 4B/9B agent post-training.
+- **LeCun Alignment**: LOW-MEDIUM — Uses "world model" in the surrogate-environment sense (train policies against a learned model of outcomes rather than the real world) — the same compute argument LeCun makes, but applied to LLM agent RL, with no latent predictive architecture or physical grounding. Useful as a scaling-economics data point.
+- **GitHub**: Not provided.
+
+## [2026-08-12] Foresight Without Seeing: Latent Futures for World Action Models
+
+- **arXiv**: [2608.11605](https://arxiv.org/abs/2608.11605)
+- **Authors**: Jiakai Huang, Zhongbo Wu, Zheng Zhang, Zihan Wang, Shan You, Tao Huang
+- **TL;DR**: BACKFILL. ForeWAM is a dynamics-conditioned direct-policy WAM: a single Video DiT prefill over the current visual latent plus stochastic future slots produces Future-KV states reused throughout action denoising — the Action DiT sees predictive dynamics without any future video decoding.
+- **Problem**: Explicit-future WAMs expose predicted scene evolution but pay iterative video-denoising cost; direct-policy WAMs are fast but lack an inference-time interface exposing predictive dynamics to the action pathway.
+- **Architecture**: Video DiT prefill (current latent + stochastic future slots) → layer-wise Future-KV cache → reused across Action DiT denoising; dynamics registers supervised by a frozen latent action teacher capture interaction-induced transitions (object motion, contact, progress). Ground-truth futures + teacher are training-only; deployment generates no future video.
+- **Compute Scale**: Mid (24G): 96.7% (standard) / 96.9% (accelerated) LIBERO, 61.6% LIBERO-Plus.
+- **LeCun Alignment**: HIGH — The JEPA-WAM position executed inside the WAM paradigm: predictive dynamics exposed in *latent* form without pixel decoding (cf. JEPA-WAM 2608.09381, RIFT 2608.11521). Strong evidence the field is converging on latent futures as the efficient predictive interface for action generation.
+- **GitHub**: Not provided.
 
 ---
 
