@@ -2,7 +2,7 @@
 
 > Curated papers from Yann LeCun's World Models/JEPA ecosystem, with detailed architectural analysis, research lineage, and LeCun alignment assessment.
 
-> **184 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-19 (22 papers added: 14 from the Aug 15–17 window — CaliBench, HarnessEval-W, τ₀-VLA, SCALE, Orbit-Planner, DriveCache, GaussianDWM++, Beyond Visual CoT, Gaussian-JEPA, AlignJEPA, Physiological WMs, Low-Rank Latent Carriers, SCOPE, Evidence of Absence — plus 8 backfills from Aug 12–14 — hint², Objective-Is-the-Bottleneck, ACPC diagnostic, Probabilistic-JEPA=HMM, CardioState-JEPA, ForeWAM, WMRL, EBM-tabular; arXiv stream ends at Aug 17 submission date)
+> **193 papers** (2022—2026) | Daily monitoring at 08:00 UTC | Last scan: 2026-08-20 (9 papers added, Aug 17–18 window: Hydra-0, Flow-Matching Energies + Physics, Neurosymbolic WMs, Omitted-Mode Danger Law, Electromagnetic WM for 6G, Physics-Informed MARL WM, No Gaussian Required/AC-MTM, Calibrated Predictive Safety JEPA, QWM; arXiv stream ends at Aug 18 submission date)
 
 ---
 
@@ -10,6 +10,15 @@
 
 | # | Date | Paper | Alignment | Compute |
 ||---|------|-------|-----------|--------|
+| 1 | 2026-08-18 | [Hydra-0: Action Flow for Generalist World Modeling and Control](https://arxiv.org/abs/2608.18077) | MEDIUM — NVIDIA generalist world model conditioned on action flow (actions as pixel motion); one shared visual interface across embodiments/tasks/video backbones; 90.4% ↓ robot-motion error; emergent inverse mode turns desired object flow from human demos into executable robot actions via a latent action head. | Large (40G+): generalist video-generation backbones, multi-embodiment training, RoboLab eval. |
+| 2 | 2026-08-18 | [Composing Flow-Matching Energies with Known Physics: Generation, OOD Detection, and Inversion on PDE Fields](https://arxiv.org/abs/2608.18004) | MEDIUM — Potential-induced flow matching yields explicit scalar energies (no partition-function training); energy-corrected generation, energy-scored OOD detection, compositional sampling (data energy + PDE-residual physics energy) for inverse problems. | Small-Mid (8-24G): PDE field problems (Argonne). |
+| 3 | 2026-08-18 | [Towards Zero-Shot Task Transfer with Neurosymbolic World Models](https://arxiv.org/abs/2608.17959) | MEDIUM-HIGH — Reward prediction reads only a structured symbolic subset of the latent state, decoupled from observation reconstruction → zero-shot adaptation to new reward functions over the same symbolic state space. | Small-Mid (8-24G): model-based RL environments. |
+| 4 | 2026-08-18 | [An Omitted Mode Is a Rare Rule: The Sampling-Verification Danger Law in Continuous Code World Models](https://arxiv.org/abs/2608.17956) | MEDIUM — Sampling-gate acceptance certifies sample consistency and no more: missed-critical-event probability is exactly (1−r)^N, and discontinuous reset modes pay no Lipschitz localization budget; GPT-5.x repair + version-space identifiability experiments. | Small (8-12G): classical planning + LLM synthesis, 1,034 artifacts re-scored. |
+| 5 | 2026-08-18 | [Electromagnetic World Model for 6G: A Unified Framework for Joint Environment Reconstruction and Channel Prediction](https://arxiv.org/abs/2608.17769) | MEDIUM-LOW — Unified EM world model: partial CSI + multi-view RGB → hierarchical backbone → MoE CSI completion + depth→3D point clouds; SGCS 0.9699, zero-shot to 28 GHz; cross-domain 6G line. | Mid (24G): multimodal backbone, campus digital-twin dataset. |
+| 6 | 2026-08-18 | [Offline Multi-Agent Reinforcement Learning with a Physics-Informed World Model for Cooperative Mixed Traffic Control](https://arxiv.org/abs/2608.17739) | MEDIUM — Coupled macro-micro traffic dynamics supervise interpretable global-state reconstruction; probabilistic ensemble WM + pessimistic imagined rollouts with uncertainty truncation for offline CAV control. | Small-Mid (8-24G): SUMO bottleneck, ~1e6 offline transitions. |
+| 7 | 2026-08-18 | [No Gaussian Required: Contrastive Inverse Dynamics for JEPA World Models](https://arxiv.org/abs/2608.17542) | HIGH — AC-MTM replaces SIGReg's Gaussian prescription with action-contrastive inverse dynamics (Action-NCE, training-only head); distribution-free anti-collapse from transition data; 80.0% vs 58.0% on OGBench Visual Scene; test-time identical to LeWM. | Small-Mid (8-24G): 4 pixel-control tasks + OGBench Visual Scene. |
+| 8 | 2026-08-18 | [Calibrated Predictive Safety for Heterogeneous Robots: An Action-Conditioned JEPA Framework with Model-Based Safety Shields](https://arxiv.org/abs/2608.17496) | HIGH — Action-conditioned JEPA predicts pre-execution progress + physical risk with calibrated uncertainty; deterministic per-embodiment shields enforce; learned ranking only reorders admissible candidates; pre-registered LIBERO-Long. | Mid (24G): 600-episode pre-registered protocol + edge/on-robot timing. |
+| 9 | 2026-08-17 | [Q-Learning With World Models](https://arxiv.org/abs/2608.17163) | MEDIUM-HIGH — QWM: world models for test-time imagined-trajectory search on top of standard Q-learning; policy/value trained only on real transitions → predictive search without compounding model bias; SOTA on Robomimic + LIBERO. | Mid (24G): Robomimic + LIBERO benchmarks. |
 | 1 | 2026-08-17 | [CaliBench: Are the Stochastic Dynamics of Video World Models Physically Calibrated?](https://arxiv.org/abs/2608.16829) | HIGH — Closed-form reference distributions (Galton boards, dice, roulette) test whether video WMs' stochastic outputs are physically calibrated; 6 I2V models consistently miscalibrate (Veo 3.1 collapses dice to one outcome) — direct empirical support for the generative-WM critique. | N/A (benchmark): 6 image-to-video models × 9 scenes, 32 generations/cell. |
 | 2 | 2026-08-17 | [HarnessEval-W: Agentifying the Evaluation of Visual Worlds](https://arxiv.org/abs/2608.16859) | MEDIUM — Agentified WM evaluation: harness paradigm decomposes each eval case into subproblems for tool-equipped sub-agents, yielding verifiable evidence-tree reasoning chains instead of scalar scores; 18 WMs × 330 cases. | N/A (benchmark/evaluation pipeline). |
 | 3 | 2026-08-17 | [τ₀-VLA: a Hierarchical Robot Foundation Model with World-Model-Guided Test-Time Computation](https://arxiv.org/abs/2608.16885) | MEDIUM — Compute-scalable high-level subtask generation via execution-memory-guided search before committing; test-time compute allocation as deliberation. | Large (40G+): 40,115 hrs real-world data, multimodal co-training. |
@@ -200,6 +209,105 @@
 
 
 ---
+
+## [2026-08-18] Hydra-0: Action Flow for Generalist World Modeling and Control
+
+- **arXiv**: [2608.18077](https://arxiv.org/abs/2608.18077)
+- **Authors**: Hongyu Li, Bowen Wen, Xinghao Zhu, Yixuan Wang, Yilun Du, Yunzhu Li, George Konidaris, Stan Birchfield, Soha Pouya, Chenran Li, Yan Chang (NVIDIA + MIT/Stanford/Brown collaborators)
+- **TL;DR**: A generalist world model conditioned on "action flow" — robot actions represented as pixel motion — providing one shared visual interface for world modeling and control across embodiments, tasks, environments, and video-generation backbones; 90.4% lower robot-motion and 60.2% lower object-motion error than the action-conditioned baseline, plus an emergent inverse mode that transfers desired object flow from human demonstrations into executable robot actions.
+- **Problem**: Actions in video world models are usually conditioned as text or embodiment-specific tokens, which blocks generalization across embodiments and prevents transferring human demonstrations directly into robot control.
+- **Architecture**: Generative video world model conditioned on action flow (pixel-motion representation of actions); a trained action head maps the resulting latent features to executable robot actions — an emergent "world action model" inverse mode. Not a JEPA encoder/predictor/target stack: the interface is pixel-space generation.
+- **Compute Scale**: Large (40G+): generalist video-generation backbones, multi-embodiment training, RoboLab benchmark evaluation.
+- **LeCun Alignment**: MEDIUM — Generative counterpoint, but a notable convergence: a unified visual action interface shared between world modeling and control, and latent-feature-to-action heads, are exactly the WAM interface LeCun's vision demands; what is missing is latent-space prediction (dynamics are generated in pixel space).
+- **GitHub**: Not provided (no public repo at scan time).
+
+## [2026-08-18] Composing Flow-Matching Energies with Known Physics: Generation, OOD Detection, and Inversion on PDE Fields
+
+- **arXiv**: [2608.18004](https://arxiv.org/abs/2608.18004)
+- **Authors**: Yixuan Sun, Anirban Samaddar, Sandeep Madireddy (Argonne National Laboratory)
+- **TL;DR**: Flow matching with a potential-induced velocity field yields an explicit scalar energy at all transport times — obtained purely from the matching regression, with no variational form or MCMC training — enabling energy-corrected generation, energy-scored OOD detection, and compositional posterior sampling where a data energy is composed with physics-based energies (PDE residuals) for inverse problems on physical fields.
+- **Problem**: EBMs are the natural tool for composing learned priors with known physics (energies add), but their intractable partition functions make them hard to train and sample; standard flow models have no access to an explicit energy for composition.
+- **Architecture**: Flow matching with potential-induced velocity; time-dependent energy functions whose gradients are exactly the learned score; predictor-corrector MCMC sampling; inference-time energy composition (data energy + PDE-residual energy + quadratic observational likelihood for inversion).
+- **Compute Scale**: Small-Mid (8-24G): flow matching on PDE field problems.
+- **LeCun Alignment**: MEDIUM — Direct EBM-lineage revival that removes the partition-function obstacle, and energy composition with physical invariants (PDE residuals) is precisely the "physical invariants as energies" plank of the LeCun vision. Not itself a predictive world model — it is the uncertainty/consistency tooling such models will need.
+- **GitHub**: Not provided.
+
+## [2026-08-18] Towards Zero-Shot Task Transfer with Neurosymbolic World Models
+
+- **arXiv**: [2608.17959](https://arxiv.org/abs/2608.17959)
+- **Authors**: Isidoro Tamassia, Lennert De Smet, Giuseppe Marra (KU Leuven)
+- **TL;DR**: A world model formulation in which reward prediction depends only on a structured, symbolic subset of the latent state, decoupled from observation reconstruction — enabling zero-shot adaptation (no further environment interaction) to new reward functions defined over the same symbolic state space.
+- **Problem**: Neural world models learn task-dependent, uninterpretable latents; any new task usually requires retraining or fresh exploration because reward structure is entangled with observation modeling.
+- **Architecture**: Latent world model with a structured symbolic component; reward head reads only the symbolic subset of the latent state; observation reconstruction decoupled from reward prediction (model-based RL, not JEPA — reconstruction is retained).
+- **Compute Scale**: Small-Mid (8-24G): model-based RL environments (classic-control scale in the abstract).
+- **LeCun Alignment**: MEDIUM-HIGH — "Learning abstract representations for planning" in near-literal form: the reward/cost module reads an abstract, interpretable state that is invariant to task details, mirroring LeCun's cost module over abstract world state. Symbolic-over-neural structure is an interesting alternative to pure latent planning.
+- **GitHub**: Not provided.
+
+## [2026-08-18] An Omitted Mode Is a Rare Rule: The Sampling-Verification Danger Law in Continuous Code World Models
+
+- **arXiv**: [2608.17956](https://arxiv.org/abs/2608.17956)
+- **Authors**: Javier Aguilar Martín (single author)
+- **TL;DR**: In the Code World Model pipeline, acceptance by N sampled transitions certifies sample consistency and nothing more: the probability all N gate rollouts miss a critical event of probability r is exactly (1−r)^N, and discontinuous reset modes (clamps, resets) pay no localization budget — the accepted model can be exploited at the mode boundary for nearly the entire attainable return.
+- **Problem**: LLM-synthesized executable world models are gated on reproducing sampled transitions, but what that acceptance actually certifies in continuous control was unquantified.
+- **Architecture**: N/A (theory): exact danger factor (1−r)^N with acceptance samples adding to the exponent; localization budget for Lipschitz models (disagreement region volume ≥ κ((η−ε)/L)^(d+m)) that discontinuous modes escape; GPT-5.x repair experiments (105/111 clamp repairs, 0/156 2D rule recoveries) + version-space certificates showing identifiability is class-relative.
+- **Compute Scale**: Small (8-12G): classical planning over LLM-synthesized models, 1,034 artifacts re-scored on independent samples.
+- **LeCun Alignment**: MEDIUM — Extends the vault's world-model evaluation-theory line (complements "When a Verified World Model Still Loses" 2607.14169): rigorous negative results on what verification certifies are essential for honest progress measurement, though the target is LLM-synthesized code WMs rather than JEPA.
+- **GitHub**: Not provided.
+
+## [2026-08-18] Electromagnetic World Model for 6G: A Unified Framework for Joint Environment Reconstruction and Channel Prediction
+
+- **arXiv**: [2608.17769](https://arxiv.org/abs/2608.17769)
+- **Authors**: Yizhu Zhao, Li Yu, Jianhua Zhang, Yuxiang Zhang, Zhen Zhang, Guangyi Liu (BUPT / China Mobile)
+- **TL;DR**: The first unified electromagnetic world model (EMWM): partial CSI and multi-view RGB are encoded into tokens and jointly processed by a hierarchical world-model backbone, with an MoE head completing CSI and a depth head producing 3D point clouds — SGCS 0.9699 on CSI prediction, robust across SNRs, zero-shot to 28 GHz.
+- **Problem**: Sensing and communication tasks exploit the same electromagnetic environment but are currently modeled separately; 6G terminals need one representation serving both.
+- **Architecture**: CSI-token + visual-token encoders → hierarchical world-model backbone (local + global aggregation) → MoE-based CSI prediction head + multi-view depth head → 3D point clouds; large-scale multimodal campus digital-twin dataset.
+- **Compute Scale**: Mid (24G): multimodal backbone + MoE heads on digital-twin data.
+- **LeCun Alignment**: MEDIUM-LOW — Cross-domain use of the world-model concept: a shared latent environment representation supporting prediction across modalities. Prediction is of missing CSI/depth rather than futures, and there is no planning — included as the vault's 6G cross-domain line (cf. JEPA-CFM 2607.20202).
+- **GitHub**: Not provided.
+
+## [2026-08-18] Offline Multi-Agent Reinforcement Learning with a Physics-Informed World Model for Cooperative Mixed Traffic Control
+
+- **arXiv**: [2608.17739](https://arxiv.org/abs/2608.17739)
+- **Authors**: Lu Liu, Chi Xie, Xi Xiong
+- **TL;DR**: A physics-informed world-model offline MARL framework for mixed-traffic highway bottlenecks: coupled macroscopic-microscopic traffic dynamics provide physics-based supervision for reconstructing an interpretable global state from local CAV observation-action histories, and a probabilistic ensemble world model drives pessimistic imagined rollouts with uncertainty-driven truncation for offline policy learning.
+- **Problem**: Cooperative CAV control at partially observable highway bottlenecks, without complete global traffic states and without online trial-and-error.
+- **Architecture**: Physics-supervised global-state reconstruction → probabilistic ensemble world model (transitions + rewards; disagreement quantifies epistemic uncertainty) → multi-step imagined rollouts with pessimistic rewards and uncertainty-driven truncation → offline policy learning (~1e6 SUMO transitions).
+- **Compute Scale**: Small-Mid (8-24G): SUMO on-ramp bottleneck simulations.
+- **LeCun Alignment**: MEDIUM — Physical invariants (traffic conservation laws) as supervision for the world model's state representation, plus uncertainty-aware imagination for planning; Dreamer-lineage machinery rather than JEPA, and a novel traffic domain for the vault's driving-WM line.
+- **GitHub**: Not provided.
+
+## [2026-08-18] No Gaussian Required: Contrastive Inverse Dynamics for JEPA World Models
+
+- **arXiv**: [2608.17542](https://arxiv.org/abs/2608.17542)
+- **Authors**: Jack Boylan, Chris Hokamp
+- **TL;DR**: AC-MTM (Action-Contrastive Masked Transition Modeling) replaces LeWM's SIGReg regularizer — which prescribes an isotropic-Gaussian latent geometry — with a training-only inverse-dynamics head trained with Action-NCE, sourcing anti-collapse pressure from the transition data itself; test-time encoding, prediction, and planning remain identical to LeWM.
+- **Problem**: JEPA objectives admit the trivial constant-encoder solution, so every system adds an anti-collapse mechanism; SIGReg prescribes what the representation must look like independent of the environment, and on multi-object tasks this prescribed geometry becomes a bottleneck.
+- **Architecture**: LeWM forward latent-prediction objective + training-only inverse-dynamics head with Action-NCE (each latent transition must identify its action among batch negatives — a task a collapsed encoder provably fails); inverse branch discarded after training. No target network, stop-gradient, pretrained encoder, or reconstruction.
+- **Compute Scale**: Small-Mid (8-24G): four pixel-control tasks + multi-object OGBench Visual Scene under a matched planning protocol; trains stably from scratch.
+- **LeCun Alignment**: HIGH — Direct LeWorldModel extension that removes the strongest inductive prescription in current JEPA world models; the OGBench Visual Scene result (80.0±2.0% vs 58.0±2.0% for SIGReg) is concrete evidence that action-grounded, distribution-free anti-collapse beats prescribed geometry. Clean architectural ablation at the core of LeCun's research program.
+- **GitHub**: https://github.com/jackboyla/action-contrastive-jepa
+
+## [2026-08-18] Calibrated Predictive Safety for Heterogeneous Robots: An Action-Conditioned JEPA Framework with Model-Based Safety Shields
+
+- **arXiv**: [2608.17496](https://arxiv.org/abs/2608.17496)
+- **Authors**: Kaiming Zhong, Tianhua Liu, Yue Wang
+- **TL;DR**: A receding-horizon safety pipeline where an action-conditioned JEPA world model predicts pre-execution task progress and physical risk for candidate action chunks, calibrated risk/progress heads report uncertainty, and a deterministic per-embodiment model-based safety shield filters inadmissible candidates — the learned ranking only reorders admissible actions, while enforcement guarantees come from the shield.
+- **Problem**: VLA policies generalize broadly but give no execution-time guarantees; classical model-based planners respect constraints but generalize poorly — heterogeneous robot fleets need pre-execution risk prediction that is both calibrated and enforceable.
+- **Architecture**: Proposer (K candidate action chunks) → action-conditioned JEPA rollout in a frozen-encoder latent space conditioned on an embodiment embedding → calibrated risk + progress heads with uncertainty → deterministic embodiment-specific safety shield → fallback ladder for empty admissible sets. Pre-registered evaluation protocol.
+- **Compute Scale**: Mid (24G): LIBERO-Long simulation, 600-episode configurations, deployment-efficiency measured on on-robot and edge accelerators.
+- **LeCun Alignment**: HIGH — JEPA is the predictive engine inside a safety-critical embodied decision loop: latent rollouts without pixel decoding, calibrated uncertainty, and a clean separation between learned ranking and deterministic enforcement — a decomposition that maps naturally onto LeCun's modular agent architecture.
+- **GitHub**: Not provided (real-robot experiments and an offline reranking significance test flagged as future work in the paper).
+
+## [2026-08-17] Q-Learning With World Models
+
+- **arXiv**: [2608.17163](https://arxiv.org/abs/2608.17163)
+- **Authors**: Perry Dong, Yueru Jia, Chelsea Finn, Dorsa Sadigh (Stanford)
+- **TL;DR**: QWM leverages world models for test-time search over imagined trajectories on top of standard Q-learning — the policy and value function are trained only on real transitions, so the framework gains the sample-efficiency benefits of predictive search without compounding model bias; significantly outperforms prior SOTA on Robomimic and LIBERO.
+- **Problem**: Prior model-based RL optimizes policies or values directly on imagined rollouts, which is prone to compounding bias that worsens with task horizon and visual complexity; world models' success has been largely confined to supervised policy learning.
+- **Architecture**: Standard off-policy Q-learning (policy + value trained on real transitions only) + a world model used exclusively at test time to search imagined trajectories and select high-value actions during online rollouts and evaluation.
+- **Compute Scale**: Mid (24G): Robomimic + LIBERO manipulation benchmarks.
+- **LeCun Alignment**: MEDIUM-HIGH — Uses a world model exactly where LeCun's architecture uses one (search over imagined futures) while keeping the actor and critic grounded in real experience — a practical resolution of the model-bias critique of model-based RL. Not JEPA (world model type unspecified, next-state prediction), hence capped below HIGH.
+- **GitHub**: Not provided.
 
 ## [2026-08-17] CaliBench: Are the Stochastic Dynamics of Video World Models Physically Calibrated?
 
